@@ -2,7 +2,7 @@
 
 An interactive, shareable, IXL-style learning platform specifically designed for **ME Analysis 1 (Mechanical Engineering Analysis 1)**.
 
-This tool is built directly from your course curriculum, covering every problem, derivation, and theorem from **Assignment 1** and **Assignment 2**, plus an **expanded bank of 85 exam-level practice problems** incorporating Paul's Online Math Notes (Lamar University) with complete step-by-step mathematical walkthroughs.
+This tool is built directly from your course curriculum, covering every problem, derivation, and theorem from **Assignment 1** and **Assignment 2**, plus an **expanded bank of 128 exam-level practice problems across 8 units (35 skills)** and **76 formula reference cards**, incorporating Paul's Online Math Notes (Lamar University) and advanced engineering applications with complete step-by-step mathematical walkthroughs.
 
 ---
 
@@ -78,18 +78,19 @@ When studying together in the library or dorm:
 
 | Feature | Description |
 | :--- | :--- |
-| **V2 No-Repeat Engine** | Automatically maintains a randomized Fisher-Yates deck for each skill. You **never get the same question twice in a row**, and will cycle through every distinct question in that skill before any repeat! |
+| **🎯 Mixed Unit Practice Mode** | Select any combination of Units 1–8 to drill varied, interleaved problems! The engine enforces 100% topic variety so consecutive questions alternate topics (e.g. Unit 2 &rarr; Unit 7 &rarr; Unit 8 &rarr; Unit 2), completely eliminating topic monotony. |
+| **V2 No-Repeat Engine** | Automatically maintains a randomized Fisher-Yates deck for each skill and mixed deck. You **never get the same question twice in a row**, and will cycle through every distinct question before any repeat! |
 | **Live Problem Stopwatch & Pacing** | Interactive stopwatch in the Practice Arena tracks how long you take per problem. Compares your time against target pace benchmarks (⚡ Blitz, 🎯 On-Target, ⏳ Thorough) and tracks your Personal Best! |
 | **Problem Bank Timer Stats** | The Problem Bank Explorer displays target pacing benchmarks on every question, highlights your personal best times, and logs total cumulative practice time. |
 | **IXL SmartScore (0–100)** | Real-time mastery scoring. Correct answers boost your SmartScore toward the **100 Master** milestone; missed questions offer immediate guidance. |
-| **Instant Answer Checking** | Instant verification with auto-grading, streaks (🔥), and progress tracking across all 23 course skills. |
+| **Instant Answer Checking** | Instant verification with auto-grading, streaks (🔥), and progress tracking across all 35 course skills in 8 units. |
 | **"Stuck? Walk Me Through This"** | Whenever you get stuck, a full **Step-by-Step Walkthrough** unfolds with LaTeX derivations and exam strategies, plus a direct button to proceed to the next problem. |
-| **Skip / Try Another Button** | Want a different problem in the same skill without guessing? Click **Skip / Try Another →** to immediately advance. |
+| **Skip / Try Another Button** | Want a different problem without guessing? Click **Skip / Try Another →** to immediately advance. |
 | **Direct Bank Practicing** | Finding an interesting problem in the Bank Explorer? Clicking **Practice with Timer →** loads that exact question directly into the interactive arena with stopwatch running. |
-| **Expanded Problem Bank (85 Problems)** | Dedicated **Bank Explorer tab** with 85 curated problems (including Lamar University Calc II & III additions) searchable by keyword, unit (1–7), or difficulty. |
+| **Expanded Problem Bank (128 Problems)** | Dedicated **Bank Explorer tab** with 128 curated problems (including Lamar University Calc II & III and advanced engineering optimization additions) searchable by keyword, unit (1–8), or difficulty. |
 | **Assignments 1 & 2 Companion** | Exact, verified solutions to every single problem from your submitted assignments with step-by-step proofs. |
 | **Customizable Exam 1 Mock Test** | Configure test duration with presets (**15 min Quick Drill**, **30 min Speed Review**, **45 min Standard**, **60 min Extended**, **90 min Full Period**, **Untimed Mode ♾️**, or custom minutes). Features **Pause/Resume** and a detailed diagnostic report with time spent and average pace per question! |
-| **53-Formula High-Yield Cheat Sheet** | Complete mathematical reference rendered in crisp KaTeX math symbols across 6 curriculum sections, with notes, integration shortcuts, and printable layout. |
+| **76-Formula High-Yield Cheat Sheet** | Complete mathematical reference rendered in crisp KaTeX math symbols across 7 curriculum sections, with notes, integration shortcuts, and printable layout. |
 | **Interactive Graph Visualizers** | Live 2D plotter for rational functions, slant/vertical asymptotes, and discrete Fourier frequency spectra ($|c_n|$ vs $\omega_n$). |
 | **Precision Scratchpad & Eraser** | Virtual whiteboard with 1:1 scaled cursor coordinates, dedicated Pen/Eraser modes, and a clear button. |
 
@@ -124,6 +125,23 @@ When studying together in the library or dorm:
   - Sphere $x^2 + y^2 + z^2 = 4$ and point $(3, 1, -1) \implies \pm \frac{2}{\sqrt{11}}(3, 1, -1)$.
   - Sphere $x^2 + y^2 + z^2 = 9$ and point $(4, -2, 4) \implies$ closest $(2, -1, 2)$ (dist $3$), farthest $(-2, 1, -2)$ (dist $9$).
   - **Shortest Engine Mounting Strut**: Point $(0,0,0)$ to 3-intercept bracket plane through $(2,0,0), (0,3,0), (0,0,6) \implies 3x+2y+z=6$; optimal connection $(9/7, 6/7, 3/7)$, minimum strut length $d = \frac{3\sqrt{14}}{7} \approx 1.6036$.
+- **Skill 2.4**: Advanced Lagrange Multipliers & Dual Constraints (Deep Dive):
+  - Dual constraints intersection: Plane $x + y + z = 1$ and cylinder $x^2 + y^2 = 1 \implies \nabla f = \lambda_1 \nabla g_1 + \lambda_2 \nabla g_2$.
+  - Rectangular shipping crate volume optimization with fixed girth-plus-length constraint $2(y+z) + x \le 108$.
+  - Maximum volume cylinder inscribed within ellipsoid $\frac{x^2}{a^2} + \frac{y^2}{b^2} + \frac{z^2}{c^2} = 1$.
+  - Point on hyperbolic paraboloid / saddle closest to the origin.
+- **Skill 2.5**: Engineering & Physical Optimization (Beams, Trusses & Transport):
+  - **Maximum Strength Timber Beam**: Beam cut from circular log diameter $D$ maximizing $S = k w d^2 \implies w = D/\sqrt{3}, d = D\sqrt{2/3}, d/w = \sqrt{2} \approx 1.414$.
+  - **Maximum Flexural Stiffness Beam**: Beam cut from circular log maximizing area moment of inertia $I = \frac{1}{12} w d^3 \implies w = D/2, d = D\sqrt{3}/2, d/w = \sqrt{3} \approx 1.732$.
+  - **Minimum Weight 2-Bar Truss**: Pin-jointed symmetrical truss spanning $2L$ under vertical point load $P \implies h^* = L, \theta^* = 45^\circ$.
+  - **Fermat's Principle of Least Time**: Wave propagation transit time minimization $\implies \frac{\sin\theta_1}{v_1} = \frac{\sin\theta_2}{v_2}$ (derivation of Snell's Law).
+  - **Economic Pipe Diameter**: Balancing capital trenching/material cost against Darcy-Weisbach pumping power dissipation $C(D) = aD + b/D^5 \implies D^* = (5b/a)^{1/6}$.
+- **Skill 2.6**: Advanced Multi-Variable & Thermal Lagrange Multipliers:
+  - **Critical Radius of Insulation**: Cylinder heat loss balancing conduction and convection $R_{tot} = \frac{\ln(r/r_i)}{2\pi k} + \frac{1}{2\pi rh} \implies r_{cr} = k/h$ (minimizes thermal resistance, maximizes heat transfer).
+  - **Optimal Radiant Lamp Height**: Lambert's cosine law illuminance on perimeter of circular table $E(h) = \frac{Ih}{(R^2+h^2)^{3/2}} \implies h^* = R/\sqrt{2} \approx 0.707 R$.
+  - **Distance to Elliptic Paraboloid**: Shortest distance from $(0,0,4)$ to $z = 2x^2 + y^2 \implies d = \sqrt{31}/4 \approx 1.392$ at $(\pm\sqrt{15/8}, 0, 15/4)$.
+  - **Cobb-Douglas Constrained Budget**: Maximize output $P(K, L) = 100K^{0.4}L^{0.6}$ on budget $20K + 30L = 1200 \implies K^*=24, L^*=24, P_{max}=2400$.
+  - **Dual Lagrange Paraboloid-Plane Intersection**: Extreme heights $z$ on intersection curve of $z = x^2 + y^2$ and $x + y + z = 1 \implies z_{min} = 2 - \sqrt{3} \approx 0.268, z_{max} = 2 + \sqrt{3} \approx 3.732$.
 
 ### **Unit 3: Power Series & Taylor Approximations (Assignment 1, Q7–Q10)**
 - **Skill 3.1**: Radius of convergence via ratio test ($\lim |T_{n+1}/T_n| < 1$):
@@ -150,6 +168,11 @@ When studying together in the library or dorm:
 - **Skill 4.3**: Generalized Pythagorean theorem in Hilbert space:
   - Proof that $\|\phi_m + \phi_n\|^2 = \|\phi_m\|^2 + \|\phi_n\|^2$ for $m \neq n$ due to vanishing inner product.
   - Linear combination of 3 orthonormal functions $\|3\phi_1 - 4\phi_2 + 12\phi_3\| = \sqrt{9 + 16 + 144} = 13$.
+- **Skill 4.4**: Inner Products, Gram-Schmidt & Projections:
+  - Vector projections $\text{proj}_{\vec{u}}\vec{v} = \frac{\vec{u}\cdot\vec{v}}{\|\vec{u}\|^2}\vec{u}$ and orthogonal components.
+  - Gram-Schmidt orthogonalization process in $L^2[-1, 1]$ generating monic Legendre polynomials.
+  - Cauchy-Schwarz inequality $|\langle f, g \rangle| \le \|f\| \|g\|$ and angle between functions in Hilbert space.
+  - Orthogonality of sinusoidal modes $\{\sin(n\pi x/L)\}$ and completeness.
 
 ### **Unit 5: Real & Complex Fourier Series (Assignment 2, Q4–Q5)**
 - **Skill 5.1**: Real Fourier series for piecewise & symmetric waveforms:
@@ -179,6 +202,11 @@ When studying together in the library or dorm:
   - Vector $\vec{V} = x_1\hat{i} + y_1\hat{j} + \hat{k}$ perpendicular to $\langle 3, 1, -1 \rangle$ and $\langle -3, 2, 2 \rangle \implies x_1 = 4/9, y_1 = -1/3$.
 - **Skill 6.4**: Coplanarity test for 4 points via scalar triple product:
   - Points $P_1(1, 1, -2), P_2(4, 0, -3), P_3(1, -5, 10), P_4(-7, 2, 4) \implies \det = 0$ (coplanar).
+- **Skill 6.5**: Scalar & Vector Triple Products:
+  - Parallelepiped volume $V = |\vec{a}\cdot(\vec{b}\times\vec{c})|$ and tetrahedron volume $V = \frac{1}{6}|\vec{a}\cdot(\vec{b}\times\vec{c})|$.
+  - Cyclic invariance: $\vec{a}\cdot(\vec{b}\times\vec{c}) = \vec{b}\cdot(\vec{c}\times\vec{a}) = \vec{c}\cdot(\vec{a}\times\vec{b})$.
+  - Vector triple product expansion via **BAC-CAB identity**: $\vec{a}\times(\vec{b}\times\vec{c}) = \vec{b}(\vec{a}\cdot\vec{c}) - \vec{c}(\vec{a}\cdot\vec{b})$.
+  - Lagrange identity for cross product magnitudes: $\|\vec{a}\times\vec{b}\|^2 = \|\vec{a}\|^2\|\vec{b}\|^2 - (\vec{a}\cdot\vec{b})^2$.
 
 ### **Unit 7: 3D Analytic Geometry (Lines & Planes) (Assignment 2, Q9–Q10)**
 - **Skill 7.1**: Line conversions and angles:
@@ -191,6 +219,33 @@ When studying together in the library or dorm:
 - **Skill 7.3**: Plane containing a line and perpendicular to another plane:
   - Line $\langle 3, -1, 5 \rangle$ and plane $x + y + z = 7 \implies 3x - y - 2z = 10$.
   - Line $\langle 2, -1, 3 \rangle$ and plane $2x - 3y + z = 5 \implies 2x + y - z = 1$.
+- **Skill 7.4**: Alternative Plane Definitions:
+  - Point-normal form $A(x-x_0) + B(y-y_0) + C(z-z_0) = 0$.
+  - Plane containing three non-collinear points $P, Q, R$ via normal vector $\vec{n} = \vec{PQ} \times \vec{PR}$.
+  - Intercept form $\frac{x}{a} + \frac{y}{b} + \frac{z}{c} = 1$.
+- **Skill 7.5**: Plane-Plane Intersections & Dihedral Angles:
+  - Acute dihedral angle between planes $\cos\theta = \frac{|\vec{n}_1 \cdot \vec{n}_2|}{\|\vec{n}_1\| \|\vec{n}_2\|}$.
+  - Parametric line of intersection between non-parallel planes $\vec{v} = \vec{n}_1 \times \vec{n}_2$.
+- **Skill 7.6**: Line-Plane Intersections & Distance Formulas:
+  - Point of intersection of line $\vec{r}(t) = \vec{r}_0 + t\vec{v}$ with plane $Ax+By+Cz=D$.
+  - Perpendicular distance from point $(x_0, y_0, z_0)$ to plane: $d = \frac{|Ax_0+By_0+Cz_0-D|}{\sqrt{A^2+B^2+C^2}}$.
+  - Distance between parallel planes $d = \frac{|D_1 - D_2|}{\sqrt{A^2+B^2+C^2}}$.
+
+### **Unit 8: Vector Differential Calculus & Field Operations**
+- **Skill 8.1**: Gradient & Surface Normals:
+  - Normal vector to level surface $F(x,y,z)=c$ given by $\vec{n} = \nabla F = \langle \partial F/\partial x, \partial F/\partial y, \partial F/\partial z \rangle$.
+  - Tangent plane equation $\nabla F(P_0) \cdot (\vec{r} - \vec{r}_0) = 0$ and normal line equations.
+  - Maximum rate of increase of scalar fields $\|\nabla f\|$ along the gradient direction.
+- **Skill 8.2**: Divergence of Vector Fields & Incompressibility:
+  - Divergence operator $\text{div}\,\vec{F} = \nabla \cdot \vec{F} = \frac{\partial F_x}{\partial x} + \frac{\partial F_y}{\partial y} + \frac{\partial F_z}{\partial z}$.
+  - Incompressible / solenoidal flow condition $\nabla \cdot \vec{F} = 0$.
+- **Skill 8.3**: Curl of Vector Fields & Irrotational Flow:
+  - Curl operator $\text{curl}\,\vec{F} = \nabla \times \vec{F}$.
+  - Irrotational / conservative flow condition $\nabla \times \vec{F} = \vec{0}$ and scalar potential finding $\vec{F} = \nabla \phi$.
+- **Skill 8.4**: Second-Order Differential Operators & Vector Identities:
+  - Laplacian of scalar fields $\nabla^2 \phi = \text{div}(\text{grad}\,\phi) = \frac{\partial^2\phi}{\partial x^2} + \frac{\partial^2\phi}{\partial y^2} + \frac{\partial^2\phi}{\partial z^2}$.
+  - Fundamental null identities: $\nabla \times (\nabla \phi) = \vec{0}$ (curl of gradient is identically zero) and $\nabla \cdot (\nabla \times \vec{F}) = 0$ (divergence of curl is identically zero).
+  - Vector Laplacian identity: $\nabla \times (\nabla \times \vec{F}) = \nabla(\nabla \cdot \vec{F}) - \nabla^2\vec{F}$.
 
 ---
 ### 📖 External Exam Prep Resources Incorporated (Paul's Online Math Notes)

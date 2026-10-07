@@ -5,82 +5,242 @@
 
 const CURRICULUM = [
   {
-    id: "unit-1",
-    title: "Unit 1: Curves, Extrema & Asymptotes",
-    assignment: "Assignment 1 (Q1 - Q3)",
-    description: "Polynomial inflection points, rational curve sketching, critical points, relative extrema, and slant asymptotes.",
-    skills: [
-      { id: "s1_1", name: "Cubic Critical Numbers & Inflection Abscissa", ref: "Assgn 1, Q1" },
-      { id: "s1_2", name: "Rational Function Extrema & Concavity (y = (x+k)/x²)", ref: "Assgn 1, Q2" },
-      { id: "s1_3", name: "Rational Curves with Oblique (Slant) Asymptotes", ref: "Assgn 1, Q3" }
+    "id": "unit-1",
+    "title": "Unit 1: Curves, Extrema & Asymptotes",
+    "assignment": "Assignment 1 (Q1 - Q3)",
+    "description": "Polynomial inflection points, rational curve sketching, critical points, relative extrema, and slant asymptotes.",
+    "skills": [
+      {
+        "id": "s1_1",
+        "name": "Cubic Critical Numbers & Inflection Abscissa",
+        "ref": "Assgn 1, Q1"
+      },
+      {
+        "id": "s1_2",
+        "name": "Rational Function Extrema & Concavity (y = (x+k)/x²)",
+        "ref": "Assgn 1, Q2"
+      },
+      {
+        "id": "s1_3",
+        "name": "Rational Curves with Oblique (Slant) Asymptotes",
+        "ref": "Assgn 1, Q3"
+      }
     ]
   },
   {
-    id: "unit-2",
-    title: "Unit 2: Multivariable Optimization & Constraints",
-    assignment: "Assignment 1 (Q4 - Q6)",
-    description: "Open-top rectangular box volume maximization, Lagrange multipliers on cone/plane intersections, and distance to spheres.",
-    skills: [
-      { id: "s2_1", name: "Physical Box & Storage Silo Optimization", ref: "Assgn 1, Q4" },
-      { id: "s2_2", name: "Extreme Points on Intersection of Plane & Cone", ref: "Assgn 1, Q5" },
-      { id: "s2_3", name: "Points on Sphere & Planes Closest/Farthest to Points", ref: "Assgn 1, Q6" }
+    "id": "unit-2",
+    "title": "Unit 2: Multivariable Optimization & Constraints",
+    "assignment": "Assignment 1 (Q4 - Q6)",
+    "description": "Open-top rectangular box volume maximization, Lagrange multipliers on cone/plane intersections, and distance to spheres.",
+    "skills": [
+      {
+        "id": "s2_1",
+        "name": "Physical Box & Storage Silo Optimization",
+        "ref": "Assgn 1, Q4"
+      },
+      {
+        "id": "s2_2",
+        "name": "Extreme Points on Intersection of Plane & Cone",
+        "ref": "Assgn 1, Q5"
+      },
+      {
+        "id": "s2_3",
+        "name": "Points on Sphere & Planes Closest/Farthest to Points",
+        "ref": "Assgn 1, Q6"
+      },
+      {
+        "id": "s2_4",
+        "name": "Lagrange Multipliers: Single & Multiple Constraints",
+        "ref": "Lamar Calc III & Exam"
+      },
+      {
+        "id": "s2_5",
+        "name": "Engineering & Physical Optimization (Beams, Trusses & Transport)",
+        "ref": "ME Mechanics & Physics"
+      },
+      {
+        "id": "s2_6",
+        "name": "Advanced Multi-Variable & Thermal Lagrange Multipliers",
+        "ref": "Thermal & Applied Calc"
+      }
     ]
   },
   {
-    id: "unit-3",
-    title: "Unit 3: Power Series & Taylor Approximations",
-    assignment: "Assignment 1 (Q7 - Q10)",
-    description: "Ratio test radius of convergence, trigonometric Taylor expansions in sigma notation, polynomial expansions, and fractional powers.",
-    skills: [
-      { id: "s3_1", name: "Power Series Radius of Convergence (Ratio Test)", ref: "Assgn 1, Q7" },
-      { id: "s3_2", name: "Trigonometric & Exp Taylor Series in Two Summation Groups", ref: "Assgn 1, Q8" },
-      { id: "s3_3", name: "Polynomial Taylor Series & Remainder Vanishing", ref: "Assgn 1, Q9" },
-      { id: "s3_4", name: "Fractional Power Taylor Series & Convergence Rate", ref: "Assgn 1, Q10" }
+    "id": "unit-3",
+    "title": "Unit 3: Power Series & Taylor Approximations",
+    "assignment": "Assignment 1 (Q7 - Q10)",
+    "description": "Ratio test radius of convergence, trigonometric Taylor expansions in sigma notation, polynomial expansions, and fractional powers.",
+    "skills": [
+      {
+        "id": "s3_1",
+        "name": "Power Series Radius of Convergence (Ratio Test)",
+        "ref": "Assgn 1, Q7"
+      },
+      {
+        "id": "s3_2",
+        "name": "Trigonometric & Exp Taylor Series in Two Summation Groups",
+        "ref": "Assgn 1, Q8"
+      },
+      {
+        "id": "s3_3",
+        "name": "Polynomial Taylor Series & Remainder Vanishing",
+        "ref": "Assgn 1, Q9"
+      },
+      {
+        "id": "s3_4",
+        "name": "Fractional Power Taylor Series & Convergence Rate",
+        "ref": "Assgn 1, Q10"
+      }
     ]
   },
   {
-    id: "unit-4",
-    title: "Unit 4: Orthogonal Functions & Hilbert Spaces",
-    assignment: "Assignment 2 (Q1 - Q3)",
-    description: "Function inner products, orthogonality of function pairs, orthogonal sets, norm computation, and Pythagorean theorem.",
-    skills: [
-      { id: "s4_1", name: "Orthogonality of Function Pairs over Intervals", ref: "Assgn 2, Q1" },
-      { id: "s4_2", name: "Orthogonal Sets & L² Norm Computation", ref: "Assgn 2, Q2" },
-      { id: "s4_3", name: "Pythagorean Theorem for Orthogonal Functions", ref: "Assgn 2, Q3" }
+    "id": "unit-4",
+    "title": "Unit 4: Orthogonal Functions & Hilbert Spaces",
+    "assignment": "Assignment 2 (Q1 - Q3)",
+    "description": "Function inner products, orthogonality of function pairs, orthogonal sets, norm computation, and Pythagorean theorem.",
+    "skills": [
+      {
+        "id": "s4_1",
+        "name": "Orthogonality of Function Pairs over Intervals",
+        "ref": "Assgn 2, Q1"
+      },
+      {
+        "id": "s4_2",
+        "name": "Orthogonal Sets & L² Norm Computation",
+        "ref": "Assgn 2, Q2"
+      },
+      {
+        "id": "s4_3",
+        "name": "Pythagorean Theorem for Orthogonal Functions",
+        "ref": "Assgn 2, Q3"
+      },
+      {
+        "id": "s4_4",
+        "name": "Inner Products, Gram-Schmidt & Projections",
+        "ref": "Hilbert Spaces & Vector Spaces"
+      }
     ]
   },
   {
-    id: "unit-5",
-    title: "Unit 5: Real & Complex Fourier Series",
-    assignment: "Assignment 2 (Q4 - Q5)",
-    description: "Piecewise real Fourier series, deducing numerical infinite sums via Dirichlet theorem, complex Fourier coefficients, and frequency spectra.",
-    skills: [
-      { id: "s5_1", name: "Real Fourier Series of Piecewise Functions (a₀, aₙ, bₙ)", ref: "Assgn 2, Q4" },
-      { id: "s5_2", name: "Summing Infinite Series via Fourier Evaluations", ref: "Assgn 2, Q4" },
-      { id: "s5_3", name: "Complex Fourier Series & Harmonic Spectra", ref: "Assgn 2, Q5" }
+    "id": "unit-5",
+    "title": "Unit 5: Real & Complex Fourier Series",
+    "assignment": "Assignment 2 (Q4 - Q5)",
+    "description": "Piecewise real Fourier series, deducing numerical infinite sums via Dirichlet theorem, complex Fourier coefficients, and frequency spectra.",
+    "skills": [
+      {
+        "id": "s5_1",
+        "name": "Real Fourier Series of Piecewise Functions (a₀, aₙ, bₙ)",
+        "ref": "Assgn 2, Q4"
+      },
+      {
+        "id": "s5_2",
+        "name": "Summing Infinite Series via Fourier Evaluations",
+        "ref": "Assgn 2, Q4"
+      },
+      {
+        "id": "s5_3",
+        "name": "Complex Fourier Series & Harmonic Spectra",
+        "ref": "Assgn 2, Q5"
+      }
     ]
   },
   {
-    id: "unit-6",
-    title: "Unit 6: Vector Algebra & Geometric Applications",
-    assignment: "Assignment 2 (Q6 - Q8)",
-    description: "Displacement vectors, initial/terminal points, parallel vectors with given magnitude, rhombus diagonal orthogonality, and coplanar points.",
-    skills: [
-      { id: "s6_1", name: "Displacement Vectors & Endpoint Calculation", ref: "Assgn 2, Q6" },
-      { id: "s6_2", name: "Parallel Vectors with Specific Magnitude & Polygon Loops", ref: "Assgn 2, Q7" },
-      { id: "s6_3", name: "Orthogonal Diagonals of Rhombus & Dual-Perpendicular Vectors", ref: "Assgn 2, Q8" },
-      { id: "s6_4", name: "Coplanarity of 4 Points via Scalar Triple Product", ref: "Assgn 2, Q8" }
+    "id": "unit-6",
+    "title": "Unit 6: Vector Algebra & Geometric Applications",
+    "assignment": "Assignment 2 (Q6 - Q8)",
+    "description": "Displacement vectors, initial/terminal points, parallel vectors with given magnitude, rhombus diagonal orthogonality, and coplanar points.",
+    "skills": [
+      {
+        "id": "s6_1",
+        "name": "Displacement Vectors & Endpoint Calculation",
+        "ref": "Assgn 2, Q6"
+      },
+      {
+        "id": "s6_2",
+        "name": "Parallel Vectors with Specific Magnitude & Polygon Loops",
+        "ref": "Assgn 2, Q7"
+      },
+      {
+        "id": "s6_3",
+        "name": "Orthogonal Diagonals of Rhombus & Dual-Perpendicular Vectors",
+        "ref": "Assgn 2, Q8"
+      },
+      {
+        "id": "s6_4",
+        "name": "Coplanarity of 4 Points via Scalar Triple Product",
+        "ref": "Assgn 2, Q8"
+      },
+      {
+        "id": "s6_5",
+        "name": "Scalar & Vector Triple Products (Volumes & BAC-CAB)",
+        "ref": "Lamar Calc II & III"
+      }
     ]
   },
   {
-    id: "unit-7",
-    title: "Unit 7: 3D Analytic Geometry (Lines & Planes)",
-    assignment: "Assignment 2 (Q9 - Q10)",
-    description: "Converting symmetric to parametric lines, angle between 3D lines, plane containing intersecting lines, and plane orthogonal to another plane.",
-    skills: [
-      { id: "s7_1", name: "Parametric Line from Symmetric Form & Line Angles", ref: "Assgn 2, Q9" },
-      { id: "s7_2", name: "Equation of Plane Containing Two Lines", ref: "Assgn 2, Q10" },
-      { id: "s7_3", name: "Plane Containing Line and Orthogonal to Another Plane", ref: "Assgn 2, Q10" }
+    "id": "unit-7",
+    "title": "Unit 7: 3D Analytic Geometry (Lines & Planes)",
+    "assignment": "Assignment 2 (Q9 - Q10)",
+    "description": "Converting symmetric to parametric lines, angle between 3D lines, plane containing intersecting lines, and plane orthogonal to another plane.",
+    "skills": [
+      {
+        "id": "s7_1",
+        "name": "Parametric Line from Symmetric Form & Line Angles",
+        "ref": "Assgn 2, Q9"
+      },
+      {
+        "id": "s7_2",
+        "name": "Equation of Plane Containing Two Lines",
+        "ref": "Assgn 2, Q10"
+      },
+      {
+        "id": "s7_3",
+        "name": "Plane Containing Line and Orthogonal to Another Plane",
+        "ref": "Assgn 2, Q10"
+      },
+      {
+        "id": "s7_4",
+        "name": "Plane Definitions: 3 Points, Point-Normal & Distance",
+        "ref": "Lamar Calc III Lines/Planes"
+      },
+      {
+        "id": "s7_5",
+        "name": "Plane-Plane Intersections & Dihedral Angles",
+        "ref": "Lamar Calc III Eqns of Planes"
+      },
+      {
+        "id": "s7_6",
+        "name": "Line-Plane Intersections & Piercing Points",
+        "ref": "Lamar Calc III Lines/Planes"
+      }
+    ]
+  },
+  {
+    "id": "unit-8",
+    "title": "Unit 8: Vector Differential Calculus (Normals, Divergence & Curl)",
+    "assignment": "Vector Field Calculus & Exam Preparation",
+    "description": "Level surface gradients, unit normal vectors, tangent planes, divergence, curl, solenoidal and irrotational fields, and vector identities.",
+    "skills": [
+      {
+        "id": "s8_1",
+        "name": "Surface Gradients, Unit Normal Vectors & Tangent Planes",
+        "ref": "Lamar Calc III Directional Derivs"
+      },
+      {
+        "id": "s8_2",
+        "name": "Divergence of Vector Fields & Solenoidal Flow",
+        "ref": "Lamar Calc III Vector Calculus"
+      },
+      {
+        "id": "s8_3",
+        "name": "Curl of Vector Fields & Conservative/Irrotational Fields",
+        "ref": "Lamar Calc III Curl & Div"
+      },
+      {
+        "id": "s8_4",
+        "name": "Vector Differential Identities & Laplacian Operator",
+        "ref": "Lamar Calc III Vector Identities"
+      }
     ]
   }
 ];
@@ -105,6 +265,13 @@ const APP_STATE = {
   },
   problemTimes: {},
   totalPracticeSeconds: 0,
+  mixedPractice: {
+    active: false,
+    selectedUnits: ["unit-1", "unit-2", "unit-3", "unit-4", "unit-5", "unit-6", "unit-7", "unit-8"],
+    deck: [],
+    lastProblemId: null,
+    lastUnitId: null
+  },
   examMode: {
     active: false,
     timer: null,
@@ -200,6 +367,15 @@ function getDifficultyTargetSec(diff) {
 }
 
 function loadSavedState() {
+  try {
+    const savedUnits = localStorage.getItem("me_ixl_selected_units");
+    if (savedUnits) {
+      const parsed = JSON.parse(savedUnits);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        APP_STATE.mixedPractice.selectedUnits = parsed;
+      }
+    }
+  } catch (e) {}
   try {
     const saved = localStorage.getItem("ME_IXL_STATE");
     if (saved) {
@@ -469,7 +645,14 @@ function displayProblem(prob) {
   startProblemTimer();
 
   const skillTag = document.getElementById("current-skill-tag");
-  if (skillTag) skillTag.innerText = prob.unitTag;
+  if (skillTag) {
+    if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+      skillTag.innerText = "🎯 MIXED • " + prob.unitTag;
+    } else {
+      skillTag.innerText = prob.unitTag;
+    }
+  }
+  updateMixedPracticeBannerUI();
   const skillTitle = document.getElementById("current-skill-title");
   if (skillTitle) skillTitle.innerText = prob.skillName;
   const diffElem = document.getElementById("current-difficulty");
@@ -539,7 +722,181 @@ function displayProblem(prob) {
   renderMath(document.getElementById("practice-view"));
 }
 
+
+/* ==========================================================================
+   Mixed Units Practice Engine (Varied Topics from Selected Units)
+   ========================================================================== */
+
+function getMixedUnitsPool() {
+  const units = APP_STATE.mixedPractice.selectedUnits || [];
+  return EXPANDED_QUESTION_BANK.filter(q => units.includes(q.unitId));
+}
+
+function renderMixedUnitPills() {
+  const containers = [
+    document.getElementById("unit-pills-selector"),
+    document.getElementById("modal-unit-pills-selector")
+  ];
+  
+  const selected = new Set(APP_STATE.mixedPractice.selectedUnits || []);
+  const pool = getMixedUnitsPool();
+  
+  // Update badge counters if present
+  const countBadge = document.getElementById("mixed-units-count-badge");
+  if (countBadge) {
+    countBadge.innerText = selected.size + " of " + CURRICULUM.length + " Units (" + pool.length + " Problems)";
+  }
+
+  containers.forEach(container => {
+    if (!container) return;
+    container.innerHTML = "";
+
+    CURRICULUM.forEach(u => {
+      const isSel = selected.has(u.id);
+      const unitNum = u.id.replace('unit-', '');
+      const count = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u.id).length;
+      
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "unit-toggle-pill " + (isSel ? "active" : "");
+      pill.setAttribute("data-unit", u.id);
+      pill.onclick = () => toggleMixedUnit(u.id);
+      
+      pill.innerHTML = 
+        '<span class="pill-check">' + (isSel ? "✓" : "+") + '</span>' +
+        '<strong>Unit ' + unitNum + ':</strong> ' +
+        '<span style="opacity: 0.9;">' + (u.title.includes(':') ? u.title.split(':')[1].trim() : u.title) + '</span>' +
+        '<span class="pill-count">(' + count + ')</span>';
+
+      container.appendChild(pill);
+    });
+  });
+}
+
+function toggleMixedUnit(unitId) {
+  const list = APP_STATE.mixedPractice.selectedUnits;
+  const idx = list.indexOf(unitId);
+  if (idx === -1) {
+    list.push(unitId);
+  } else {
+    list.splice(idx, 1);
+  }
+  list.sort();
+  APP_STATE.mixedPractice.deck = []; // Clear deck so next draws reflect new pool
+  saveMixedUnitsPref();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
+}
+
+function selectAllMixedUnits(selectAll) {
+  if (selectAll) {
+    APP_STATE.mixedPractice.selectedUnits = CURRICULUM.map(u => u.id);
+  } else {
+    APP_STATE.mixedPractice.selectedUnits = [];
+  }
+  APP_STATE.mixedPractice.deck = [];
+  saveMixedUnitsPref();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
+}
+
+function saveMixedUnitsPref() {
+  try {
+    localStorage.setItem("me_ixl_selected_units", JSON.stringify(APP_STATE.mixedPractice.selectedUnits));
+  } catch (e) {}
+}
+
+function launchMixedPractice() {
+  if (!APP_STATE.mixedPractice.selectedUnits || APP_STATE.mixedPractice.selectedUnits.length === 0) {
+    alert("Please select at least one unit to practice!");
+    return;
+  }
+  APP_STATE.mixedPractice.active = true;
+  APP_STATE.mixedPractice.deck = [];
+  switchView('practice-view');
+  loadNextProblem();
+}
+
+function getNextMixedProblem() {
+  const units = APP_STATE.mixedPractice.selectedUnits;
+  if (!units || units.length === 0) {
+    return getProblemForSkill(APP_STATE.currentSkillId);
+  }
+
+  if (!APP_STATE.mixedPractice.deck || APP_STATE.mixedPractice.deck.length === 0) {
+    // Build an interleaved round-robin deck across all selected units to guarantee topic variety
+    const byUnit = {};
+    units.forEach(u => {
+      byUnit[u] = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u).sort(() => 0.5 - Math.random());
+    });
+
+    const interleaved = [];
+    let added = true;
+    const unitOrder = [...units].sort(() => 0.5 - Math.random());
+    while (added) {
+      added = false;
+      for (const u of unitOrder) {
+        if (byUnit[u] && byUnit[u].length > 0) {
+          interleaved.push(byUnit[u].pop().id);
+          added = true;
+        }
+      }
+    }
+
+    // Ensure the first question does not immediately repeat the last played question
+    if (APP_STATE.mixedPractice.lastProblemId && interleaved[0] === APP_STATE.mixedPractice.lastProblemId && interleaved.length > 1) {
+      const swap = 1 + Math.floor(Math.random() * (interleaved.length - 1));
+      const temp = interleaved[0];
+      interleaved[0] = interleaved[swap];
+      interleaved[swap] = temp;
+    }
+
+    APP_STATE.mixedPractice.deck = interleaved;
+  }
+
+  const nextId = APP_STATE.mixedPractice.deck.shift();
+  APP_STATE.mixedPractice.lastProblemId = nextId;
+  const raw = EXPANDED_QUESTION_BANK.find(q => q.id === nextId) || EXPANDED_QUESTION_BANK[0];
+  APP_STATE.mixedPractice.lastUnitId = raw.unitId;
+  return formatProblem(raw);
+}
+
+function updateMixedPracticeBannerUI() {
+  const banner = document.getElementById("practice-mode-banner");
+  if (!banner) return;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    banner.style.display = "flex";
+    const uCount = APP_STATE.mixedPractice.selectedUnits.length;
+    const uNums = APP_STATE.mixedPractice.selectedUnits.map(u => u.replace('unit-', '')).join(', ');
+    const pool = getMixedUnitsPool();
+    const titleEl = document.getElementById("practice-mode-title");
+    if (titleEl) titleEl.innerText = "🎯 Mixed Units Practice (" + uCount + " Units Active)";
+    const descEl = document.getElementById("practice-mode-desc");
+    if (descEl) descEl.innerText = "Interleaving varied problems across Units " + uNums + " • " + pool.length + " questions in pool";
+  } else {
+    banner.style.display = "none";
+  }
+}
+
+function openMixedUnitsModal() {
+  const modal = document.getElementById("mixed-units-modal");
+  if (modal) {
+    renderMixedUnitPills();
+    modal.style.display = "flex";
+  }
+}
+
+function closeMixedUnitsModal(andReload) {
+  const modal = document.getElementById("mixed-units-modal");
+  if (modal) modal.style.display = "none";
+  if (andReload && APP_STATE.mixedPractice.active) {
+    loadNextProblem();
+  }
+}
+
+
 function loadSkillProblem(skillId) {
+  APP_STATE.mixedPractice.active = false;
   APP_STATE.currentSkillId = skillId;
   switchView('practice-view');
   const prob = getProblemForSkill(skillId);
@@ -547,6 +904,7 @@ function loadSkillProblem(skillId) {
 }
 
 function loadSpecificProblem(problemId) {
+  APP_STATE.mixedPractice.active = false;
   const base = EXPANDED_QUESTION_BANK.find(q => q.id === problemId);
   if (!base) return loadSkillProblem("s1_2");
   APP_STATE.currentSkillId = base.skillId;
@@ -744,6 +1102,7 @@ function submitAnswer() {
   saveState();
   updateGlobalUI();
   renderSkillsGrid();
+  renderMixedUnitPills();
   renderMath(document.getElementById("feedback-banner"));
 }
 
@@ -853,7 +1212,12 @@ function showWalkthroughRequested() {
 }
 
 function loadNextProblem() {
-  const prob = getProblemForSkill(APP_STATE.currentSkillId);
+  let prob;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    prob = getNextMixedProblem();
+  } else {
+    prob = getProblemForSkill(APP_STATE.currentSkillId);
+  }
   displayProblem(prob);
   const box = document.getElementById("walkthrough-box");
   if (box) {
@@ -936,6 +1300,8 @@ function renderSkillsGrid() {
       '</div>';
     container.appendChild(card);
   });
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
 }
 
 function resetAllProgress() {
@@ -1288,7 +1654,7 @@ function startExam(customMinutes) {
     if (!unitsSeen.has(q.unitId)) {
       selected.push(formatProblem(q));
       unitsSeen.add(q.unitId);
-      if (selected.length === 7) break;
+      if (selected.length === CURRICULUM.length) break;
     }
   }
   for (const q of shuffled) {
@@ -1983,6 +2349,51 @@ const FORMULA_SECTIONS = [
         "name": "Point-to-Plane Distance via Lagrange Multipliers",
         "formula": "$$ \\min (x-x_0)^2 + (y-y_0)^2 + (z-z_0)^2 \\text{ on } Ax+By+Cz=D \\implies d = \\frac{|Ax_0+By_0+Cz_0-D|}{\\sqrt{A^2+B^2+C^2}} $$",
         "note": "Geometric orthogonal distance directly derived from ∇f = λ∇g."
+      },
+      {
+        "name": "Lagrange Multipliers (Single Constraint)",
+        "formula": "$$ \\nabla f(x,y,z) = \\lambda \\nabla g(x,y,z), \\quad g(x,y,z) = k $$",
+        "note": "Extremize objective f subject to constraint g=k. At extrema, level sets are tangent and gradients are collinear."
+      },
+      {
+        "name": "Lagrange Multipliers (Two Constraints)",
+        "formula": "$$ \\nabla f(x,y,z) = \\lambda \\nabla g(x,y,z) + \\mu \\nabla h(x,y,z), \\quad g = k_1, \\; h = k_2 $$",
+        "note": "Extremize f along intersection curve of two surfaces g=k₁ and h=k₂. Gradients ∇f, ∇g, ∇h are coplanar."
+      },
+      {
+        "name": "Maximum Strength Rectangular Beam from Circular Log",
+        "formula": "$$ S = w d^2, \\; w^2 + d^2 = D^2 \\implies w = \\frac{D}{\\sqrt{3}}, \\; d = D\\sqrt{\\frac{2}{3}}, \\; \\frac{d}{w} = \\sqrt{2} \\approx 1.414 $$",
+        "note": "Section modulus Z = wd²/6. Beam bending strength is maximized when depth is √2 times width."
+      },
+      {
+        "name": "Maximum Flexural Stiffness Beam from Circular Log",
+        "formula": "$$ I = \\frac{w d^3}{12}, \\; w^2 + d^2 = D^2 \\implies w = \\frac{D}{2}, \\; d = \\frac{\\sqrt{3} D}{2}, \\; \\frac{d}{w} = \\sqrt{3} \\approx 1.732 $$",
+        "note": "Area moment of inertia I maximized when width is D/2 and depth is (√3/2)D."
+      },
+      {
+        "name": "Minimum Weight Symmetric 2-Bar Truss",
+        "formula": "$$ V(h) = \\frac{P (L^2 + h^2)}{\\sigma_{\\text{allow}} h} \\implies \\frac{dV}{dh} = 0 \\implies h^* = L, \\quad \\theta^* = 45^\\circ $$",
+        "note": "Optimal truss depth equals half-span L; inclination angle is 45°."
+      },
+      {
+        "name": "Fermat's Principle of Least Time & Snell's Law",
+        "formula": "$$ T(x) = \\frac{\\sqrt{a^2+x^2}}{v_1} + \\frac{\\sqrt{b^2+(d-x)^2}}{v_2} \\implies \\frac{dT}{dx} = 0 \\iff \\frac{\\sin\\theta_1}{v_1} = \\frac{\\sin\\theta_2}{v_2} $$",
+        "note": "Minimizing travel transit time across refractive interface directly yields Snell's law."
+      },
+      {
+        "name": "Economic Pipe Diameter (Installation vs. Pumping Friction)",
+        "formula": "$$ C(D) = a D + \\frac{b}{D^5} \\implies \\frac{dC}{dD} = a - \\frac{5b}{D^6} = 0 \\implies D^* = \\left(\\frac{5b}{a}\\right)^{1/6} $$",
+        "note": "Balances linear capital pipe installation cost against quintic Darcy-Weisbach pumping power loss."
+      },
+      {
+        "name": "Critical Radius of Pipe Insulation (Conduction vs. Convection)",
+        "formula": "$$ R_{\\text{tot}}(r) = \\frac{\\ln(r/r_i)}{2\\pi k} + \\frac{1}{2\\pi r h} \\implies \\frac{dR_{\\text{tot}}}{dr} = 0 \\implies r_{\\text{cr}} = \\frac{k}{h} $$",
+        "note": "Thermal resistance is minimized at r_cr = k/h; adding insulation for r < r_cr increases heat dissipation."
+      },
+      {
+        "name": "Optimal Light / Radiation Source Height",
+        "formula": "$$ E(h) = \\frac{I \\cos\\theta}{R^2+h^2} = \\frac{I h}{(R^2+h^2)^{3/2}} \\implies \\frac{dE}{dh} = 0 \\implies h^* = \\frac{R}{\\sqrt{2}} \\approx 0.707 R $$",
+        "note": "Maximizes peripheral illuminance at the edge of a circular receiver of radius R."
       }
     ]
   },
@@ -2073,6 +2484,21 @@ const FORMULA_SECTIONS = [
         "name": "Harmonic Trigonometric Orthogonality on [0, L]",
         "formula": "$$ \\int_0^L \\sin\\left(\\frac{m\\pi x}{L}\\right)\\sin\\left(\\frac{n\\pi x}{L}\\right)dx = \\begin{cases} 0 & m \\neq n \\\\ \\frac{L}{2} & m = n \\end{cases} $$",
         "note": "Normalized basis functions are √(2/L) sin(nπx/L)."
+      },
+      {
+        "name": "Cauchy-Schwarz Inequality & Function Space Angle",
+        "formula": "$$ |\\langle f, g \\rangle| \\le \\|f\\|\\|g\\|, \\quad \\cos\\theta = \\frac{\\langle f, g \\rangle}{\\|f\\|\\|g\\|} $$",
+        "note": "Applies to both Euclidean vectors u·v and function inner products ∫ f(x)g(x)dx."
+      },
+      {
+        "name": "Gram-Schmidt Orthogonalization Process",
+        "formula": "$$ v_k = u_k - \\sum_{j=1}^{k-1} \\frac{\\langle u_k, v_j \\rangle}{\\|v_j\\|^2} v_j, \\quad e_k = \\frac{v_k}{\\|v_k\\|} $$",
+        "note": "Converts any linearly independent set {uₖ} into an orthogonal basis {vₖ} and orthonormal basis {eₖ}."
+      },
+      {
+        "name": "Vector Projection & Orthogonal Decomposition",
+        "formula": "$$ \\text{proj}_\\mathbf{v}\\mathbf{u} = \\frac{\\mathbf{u}\\cdot\\mathbf{v}}{\\|\\mathbf{v}\\|^2}\\mathbf{v}, \\quad \\mathbf{u}_\\perp = \\mathbf{u} - \\text{proj}_\\mathbf{v}\\mathbf{u} \\implies \\mathbf{u}_\\perp \\cdot \\mathbf{v} = 0 $$",
+        "note": "Decomposes any vector into parallel and orthogonal components."
       }
     ]
   },
@@ -2198,6 +2624,66 @@ const FORMULA_SECTIONS = [
         "name": "Line & Plane Orthogonality vs Parallelism Criteria",
         "formula": "$$ \\text{Line } \\parallel \\text{ Plane} \\iff \\vec{v} \\cdot \\vec{n} = 0; \\qquad \\text{Line } \\perp \\text{ Plane} \\iff \\vec{v} \\times \\vec{n} = \\mathbf{0} \\quad (\\vec{v} = k\\vec{n}) $$",
         "note": "Crucial rule: A line is parallel to a plane when its direction vector is perpendicular to the normal!"
+      },
+      {
+        "name": "Scalar Triple Product & Parallelepiped Volume",
+        "formula": "$$ V = |\\mathbf{a}\\cdot(\\mathbf{b}\\times\\mathbf{c})| = |\\det[\\mathbf{a}, \\mathbf{b}, \\mathbf{c}]|, \\quad V_{\\text{tet}} = \\frac{1}{6}|\\mathbf{a}\\cdot(\\mathbf{b}\\times\\mathbf{c})| $$",
+        "note": "Cyclic invariant: a·(b×c) = b·(c×a) = c·(a×b). Four points are coplanar if and only if triple product is 0."
+      },
+      {
+        "name": "Vector Triple Product (BAC-CAB Rule)",
+        "formula": "$$ \\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) = (\\mathbf{a}\\cdot\\mathbf{c})\\mathbf{b} - (\\mathbf{a}\\cdot\\mathbf{b})\\mathbf{c} $$",
+        "note": "Lagrange's expansion formula. Note that the cross product is NOT associative."
+      },
+      {
+        "name": "Plane Through Three Points",
+        "formula": "$$ \\mathbf{n} = \\vec{PQ} \\times \\vec{PR}, \\quad A(x-x_0) + B(y-y_0) + C(z-z_0) = 0 $$",
+        "note": "Normal vector is computed from the cross product of two displacement vectors in the plane."
+      },
+      {
+        "name": "Distance Between Parallel Planes & Point-to-Plane Distance",
+        "formula": "$$ D_{\\text{planes}} = \\frac{|D_1 - D_2|}{\\sqrt{A^2+B^2+C^2}}, \\quad D_{\\text{point}} = \\frac{|Ax_0+By_0+Cz_0+D|}{\\sqrt{A^2+B^2+C^2}} $$",
+        "note": "Shortest perpendicular distance formula derived via vector projection onto unit normal."
+      },
+      {
+        "name": "Line of Intersection of Two Planes",
+        "formula": "$$ \\mathbf{d} = \\mathbf{n}_1 \\times \\mathbf{n}_2, \\quad \\cos\\theta = \\frac{|\\mathbf{n}_1\\cdot\\mathbf{n}_2|}{\\|\\mathbf{n}_1\\|\\|\\mathbf{n}_2\\|} $$",
+        "note": "Intersection line direction is perpendicular to both plane normals. θ is the dihedral angle between planes."
+      },
+      {
+        "name": "Line-Plane Piercing Point & Parallel Condition",
+        "formula": "$$ \\mathbf{r}(t) = \\mathbf{r}_0 + t\\mathbf{d} \\text{ in } Ax+By+Cz=D \\implies t = \\frac{D - \\mathbf{n}\\cdot\\mathbf{r}_0}{\\mathbf{n}\\cdot\\mathbf{d}} $$",
+        "note": "If n·d = 0, line is parallel to plane (no intersection, or line lies entirely in plane if point satisfies equation)."
+      }
+    ]
+  },
+  {
+    "title": "7. Vector Differential Calculus: Normals, Divergence & Curl (Unit 8)",
+    "formulas": [
+      {
+        "name": "Level Surface Normal & Tangent Plane",
+        "formula": "$$ \\mathbf{n} = \\nabla F(x_0,y_0,z_0), \\quad \\hat{n} = \\frac{\\nabla F}{\\|\\nabla F\\|}, \\quad F_x(x-x_0) + F_y(y-y_0) + F_z(z-z_0) = 0 $$",
+        "note": "Gradient ∇F is normal to level surface F(x,y,z)=c. For explicit surface z=f(x,y), n = ⟨f_x, f_y, -1⟩."
+      },
+      {
+        "name": "Divergence & Solenoidal (Incompressible) Fields",
+        "formula": "$$ \\text{div}\\,\\mathbf{F} = \\nabla \\cdot \\mathbf{F} = \\frac{\\partial P}{\\partial x} + \\frac{\\partial Q}{\\partial y} + \\frac{\\partial R}{\\partial z} = 0 \\iff \\text{Solenoidal} $$",
+        "note": "Measures flux density/outward expansion. div F > 0 represents source; div F < 0 represents sink."
+      },
+      {
+        "name": "Curl & Conservative (Irrotational) Fields",
+        "formula": "$$ \\text{curl}\\,\\mathbf{F} = \\nabla \\times \\mathbf{F} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ \\partial_x & \\partial_y & \\partial_z \\\\ P & Q & R \\end{vmatrix} = \\mathbf{0} \\iff \\mathbf{F} = \\nabla f $$",
+        "note": "Measures local fluid rotation/vorticity. For rigid body rotation v = ω × r, curl v = 2ω."
+      },
+      {
+        "name": "Fundamental Vector Calculus Null Identities",
+        "formula": "$$ \\nabla \\cdot (\\nabla \\times \\mathbf{F}) \\equiv 0 \\quad (\\text{div curl} = 0), \\qquad \\nabla \\times (\\nabla f) \\equiv \\mathbf{0} \\quad (\\text{curl grad} = \\mathbf{0}) $$",
+        "note": "Direct consequence of Clairaut's theorem on the equality of mixed partial derivatives."
+      },
+      {
+        "name": "Laplacian Operator & Harmonic Functions",
+        "formula": "$$ \\nabla^2 f = \\nabla \\cdot (\\nabla f) = \\frac{\\partial^2 f}{\\partial x^2} + \\frac{\\partial^2 f}{\\partial y^2} + \\frac{\\partial^2 f}{\\partial z^2} = 0 \\iff f \\text{ is Harmonic} $$",
+        "note": "Governs steady-state heat conduction, electrostatics (Laplace's equation), and potential flows."
       }
     ]
   }
@@ -2242,6 +2728,7 @@ function switchView(viewId) {
   else if (viewId === "practice-view") {
     const tab = document.getElementById("tab-practice");
     if (tab) tab.classList.add("active");
+    updateMixedPracticeBannerUI();
   }
   else if (viewId === "bank-view") {
     const tab = document.getElementById("tab-bank");
@@ -2329,6 +2816,8 @@ document.addEventListener("keydown", (e) => {
 window.addEventListener("DOMContentLoaded", () => {
   loadSavedState();
   renderSkillsGrid();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
   initScratchpad();
   renderFormulaSheet();
   

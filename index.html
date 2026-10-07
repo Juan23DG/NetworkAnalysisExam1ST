@@ -872,6 +872,65 @@
     .mt-1 { margin-top: 0.25rem; }
     .mt-2 { margin-top: 0.5rem; }
     .mt-4 { margin-top: 1rem; }
+  
+    /* Unit Toggle Pills for Mixed Practice */
+    .unit-toggle-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .unit-toggle-pill:hover {
+      border-color: var(--primary-light);
+      color: var(--text-main);
+    }
+    .unit-toggle-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+    }
+    .unit-toggle-pill .pill-check {
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .unit-toggle-pill .pill-count {
+      opacity: 0.75;
+      font-size: 0.75rem;
+    }
+
+    /* Modal for Changing Units in Practice Arena */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      max-width: 650px;
+      width: 100%;
+      padding: 1.75rem;
+      animation: fadeIn 0.2s ease-out;
+    }
+
   </style>
 </head>
 <body>
@@ -934,7 +993,7 @@
       </button>
       <button class="tab-btn" id="tab-bank" onclick="switchView('bank-view')">
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-        Expanded Problem Bank (85 Curated Problems)
+        Expanded Problem Bank (118 Curated Problems)
       </button>
       <button class="tab-btn" id="tab-assignment" onclick="switchView('assignment-view')">
         <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -969,6 +1028,31 @@
           <button class="btn btn-outline text-sm" onclick="resetAllProgress()">Reset Progress</button>
           <button class="btn btn-primary text-sm" onclick="startRandomPractice()">Quick Practice Any</button>
         </div>
+      </div>
+
+      
+      <!-- Mixed Units Practice Selector Banner -->
+      <div class="card" id="mixed-practice-banner" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(59,130,246,0.12)); border: 1.5px solid var(--primary-light);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.25rem;">🎯</span>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary);">Mixed Unit Practice Mode</h3>
+              <span class="badge badge-primary" id="mixed-units-count-badge">8 Units</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.2rem;">
+              Practice varied questions interleaved across your selected units instead of repeating a single topic.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-outline text-xs" style="padding: 0.35rem 0.65rem;" onclick="selectAllMixedUnits(true)">Select All</button>
+            <button class="btn btn-outline text-xs" style="padding: 0.35rem 0.65rem;" onclick="selectAllMixedUnits(false)">Clear</button>
+            <button class="btn btn-primary text-sm" style="padding: 0.45rem 1rem;" onclick="launchMixedPractice()">⚡ Start Mixed Practice</button>
+          </div>
+        </div>
+
+        <!-- Unit Selector Pills -->
+        <div class="unit-pills-selector" id="unit-pills-selector" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
       </div>
 
       <div class="grid-layout" id="unit-grid"></div>
@@ -1060,7 +1144,7 @@
     <!-- VIEW 3: Expanded Problem Bank Explorer (40+ Problems) -->
     <div id="bank-view" class="view-panel">
       <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 800;">Expanded Problem Bank (85 Curated Problems)</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 800;">Expanded Problem Bank (118 Curated Problems)</h2>
         <p style="color: var(--text-muted);">Browse, search, and practice complete exam-level problems across all course topics with full step-by-step solutions.</p>
       </div>
 
@@ -1076,6 +1160,7 @@
           <option value="unit-5">Unit 5: Fourier Series</option>
           <option value="unit-6">Unit 6: Vector Algebra</option>
           <option value="unit-7">Unit 7: 3D Lines & Planes</option>
+          <option value="unit-8">Unit 8: Vector Differential Calculus</option>
         </select>
 
         <select id="bank-diff-filter" class="filter-select" onchange="filterBankQuestions()">
@@ -3644,6 +3729,1284 @@ const EXPANDED_QUESTION_BANK = [
       }
     ],
     "examTip": "Crucial rule: A line is PARALLEL to a plane when $\\vec{v} \\cdot \\vec{n} = 0$. A line is PERPENDICULAR to a plane when $\\vec{v} \\times \\vec{n} = \\mathbf{0}$ (i.e. $\\vec{v} = k\\vec{n}$)."
+  },
+  {
+    "id": "q2_lagrange_box",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Standard",
+    "title": "Open-Top Box Volume Maximization via Lagrange Multipliers",
+    "prompt": "Use the method of Lagrange multipliers to find the maximum volume $V = xyz$ of a rectangular open-top box (no lid) constructed from a fixed sheet metal area of $S = 12\\text{ m}^2$.",
+    "options": [
+      "Maximum volume $V = 8\\text{ m}^3$ with dimensions $x = 2, y = 2, z = 2$",
+      "Maximum volume $V = 2\\sqrt{3}\\text{ m}^3$ with dimensions $x = \\sqrt{3}, y = \\sqrt{3}, z = 2$",
+      "Maximum volume $V = 6\\text{ m}^3$ with dimensions $x = 3, y = 2, z = 1$",
+      "Maximum volume $V = 4\\text{ m}^3$ with dimensions $x = 2, y = 2, z = 1$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Objective and Constraint Functions",
+        "body": "Maximize $V(x,y,z) = xyz$ subject to the surface area of an open-top box:\n\\[ g(x,y,z) = xy + 2xz + 2yz = 12 \\]"
+      },
+      {
+        "title": "Step 2: Apply Lagrange Multiplier System $\\nabla V = \\lambda \\nabla g$",
+        "body": "Compute gradients:\n\\[ \\nabla V = \\langle yz, xz, xy \\rangle, \\quad \\nabla g = \\langle y + 2z, x + 2z, 2x + 2y \\rangle \\]\nSet up the equations:\n1) $yz = \\lambda(y + 2z)$\n2) $xz = \\lambda(x + 2z)$\n3) $xy = \\lambda(2x + 2y)$"
+      },
+      {
+        "title": "Step 3: Solve for Dimensions",
+        "body": "Multiply (1) by $x$, (2) by $y$, (3) by $z$:\n\\[ xyz = \\lambda(xy + 2xz) = \\lambda(xy + 2yz) = \\lambda(2xz + 2yz) \\]\nEquating the terms inside the parentheses reveals:\n\\[ 2xz = 2yz \\implies x = y \\]\nFrom $\\lambda(xy + 2xz) = \\lambda(2xz + 2yz)$ with $x=y$, we get $xy = 2xz \\implies y = 2z$, so $x = y = 2z$.\nSubstitute into constraint $g=12$:\n\\[ (2z)(2z) + 2(2z)(z) + 2(2z)(z) = 4z^2 + 4z^2 + 4z^2 = 12z^2 = 12 \\implies z = 1 \\]\nThus $x = 2\\text{ m}$, $y = 2\\text{ m}$, $z = 1\\text{ m}$.\nMaximum volume is $V = (2)(2)(1) = 4\\text{ m}^3$."
+      }
+    ],
+    "examTip": "For an open-top box with fixed surface area, the optimal base is always square ($x=y$) and the height is exactly half the side length ($z = x/2$)."
+  },
+  {
+    "id": "q2_lagrange_linear_sphere",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Standard",
+    "title": "Extreme Values of Linear Function on a Sphere",
+    "prompt": "Find the maximum and minimum values of the linear function $f(x,y,z) = 2x - y + 2z$ subject to the spherical constraint $x^2 + y^2 + z^2 = 4$ using Lagrange multipliers.",
+    "options": [
+      "Maximum is $6$ at $(4/3, -2/3, 4/3)$; Minimum is $-6$ at $(-4/3, 2/3, -4/3)$",
+      "Maximum is $4$ at $(1, 0, 1)$; Minimum is $-4$ at $(-1, 0, -1)$",
+      "Maximum is $12$ at $(2, -1, 2)$; Minimum is $-12$ at $(-2, 1, -2)$",
+      "Maximum is $3\\sqrt{2}$ at $(\\sqrt{2}, 0, \\sqrt{2})$; Minimum is $-3\\sqrt{2}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Gradients",
+        "body": "Objective: $f(x,y,z) = 2x - y + 2z$. Constraint: $g(x,y,z) = x^2 + y^2 + z^2 = 4$.\n\\[ \\nabla f = \\langle 2, -1, 2 \\rangle, \\quad \\nabla g = \\langle 2x, 2y, 2z \\rangle \\]\nLagrange condition $\\nabla f = \\lambda \\nabla g$ gives:\n\\[ 2 = 2\\lambda x \\implies x = \\frac{1}{\\lambda} \\]\n\\[ -1 = 2\\lambda y \\implies y = -\\frac{1}{2\\lambda} \\]\n\\[ 2 = 2\\lambda z \\implies z = \\frac{1}{\\lambda} \\]"
+      },
+      {
+        "title": "Step 2: Solve for Multiplier $\\lambda$",
+        "body": "Substitute $x, y, z$ into the constraint $x^2 + y^2 + z^2 = 4$:\n\\[ \\left(\\frac{1}{\\lambda}\\right)^2 + \\left(-\\frac{1}{2\\lambda}\\right)^2 + \\left(\\frac{1}{\\lambda}\\right)^2 = \\frac{1}{\\lambda^2}\\left(1 + \\frac{1}{4} + 1\\right) = \\frac{9}{4\\lambda^2} = 4 \\]\n\\[ 4\\lambda^2 = \\frac{9}{4} \\implies \\lambda^2 = \\frac{9}{16} \\implies \\lambda = \\pm \\frac{3}{4} \\]"
+      },
+      {
+        "title": "Step 3: Evaluate Extreme Points",
+        "body": "When $\\lambda = \\frac{3}{4}$:\n\\[ x = \\frac{4}{3}, \\quad y = -\\frac{2}{3}, \\quad z = \\frac{4}{3} \\implies f = 2\\left(\\frac{4}{3}\\right) - \\left(-\\frac{2}{3}\\right) + 2\\left(\\frac{4}{3}\\right) = \\frac{8 + 2 + 8}{3} = 6 \\]\nWhen $\\lambda = -\\frac{3}{4}$:\n\\[ x = -\\frac{4}{3}, \\quad y = \\frac{2}{3}, \\quad z = -\\frac{4}{3} \\implies f = -6 \\]\nThus, maximum is $6$ and minimum is $-6$."
+      }
+    ],
+    "examTip": "Geometric shortcut: The maximum of $\\mathbf{c} \\cdot \\mathbf{x}$ on a sphere of radius $R$ is $\\|\\mathbf{c}\\| R = \\sqrt{2^2+(-1)^2+2^2}(2) = 3(2) = 6$."
+  },
+  {
+    "id": "q2_lagrange_point_plane_dist",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Standard",
+    "title": "Point on Plane Closest to Origin via Lagrange Multipliers",
+    "prompt": "Use the method of Lagrange multipliers to find the point on the plane $x + 2y + 3z = 14$ that is closest to the origin $(0,0,0)$, and find this minimum distance.",
+    "options": [
+      "Point $(2, 2, 2)$, minimum distance $d = 2\\sqrt{3}$",
+      "Point $(1, 2, 3)$, minimum distance $d = \\sqrt{14}$",
+      "Point $(0, 4, 2)$, minimum distance $d = 2\\sqrt{5}$",
+      "Point $(3, 1, 3)$, minimum distance $d = \\sqrt{19}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Formulate the Square Distance Objective",
+        "body": "Minimizing distance $d = \\sqrt{x^2+y^2+z^2}$ is equivalent to minimizing square distance:\n\\[ f(x,y,z) = x^2 + y^2 + z^2 \\]\nsubject to $g(x,y,z) = x + 2y + 3z = 14$."
+      },
+      {
+        "title": "Step 2: Gradients & Lagrange Equations",
+        "body": "\\[ \\nabla f = \\langle 2x, 2y, 2z \\rangle, \\quad \\nabla g = \\langle 1, 2, 3 \\rangle \\]\n$\\nabla f = \\lambda \\nabla g$ gives:\n\\[ 2x = \\lambda \\implies x = \\frac{\\lambda}{2} \\]\n\\[ 2y = 2\\lambda \\implies y = \\lambda \\]\n\\[ 2z = 3\\lambda \\implies z = \\frac{3\\lambda}{2} \\]"
+      },
+      {
+        "title": "Step 3: Solve for $\\lambda$ and Coordinates",
+        "body": "Substitute into the plane equation:\n\\[ \\frac{\\lambda}{2} + 2(\\lambda) + 3\\left(\\frac{3\\lambda}{2}\\right) = \\lambda\\left(\\frac{1}{2} + 2 + \\frac{9}{2}\\right) = 7\\lambda = 14 \\implies \\lambda = 2 \\]\nTherefore:\n\\[ x = 1, \\quad y = 2, \\quad z = 3 \\]\nThe closest point is $(1, 2, 3)$, and the minimum distance is $d = \\sqrt{1^2 + 2^2 + 3^2} = \\sqrt{14}$."
+      }
+    ],
+    "examTip": "Notice that $\\langle x, y, z \\rangle = \\langle 1, 2, 3 \\rangle$ is a scalar multiple of the normal vector $\\mathbf{n} = \\langle 1, 2, 3 \\rangle$. The shortest path from origin to a plane is always parallel to the normal!"
+  },
+  {
+    "id": "q2_lagrange_two_constraints",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Hard",
+    "title": "Lagrange Multipliers with Two Constraints (Cylinder & Slanted Plane)",
+    "prompt": "Find the highest and lowest points (extreme values of $z$) on the elliptical curve formed by the intersection of the slanted plane $x + y + z = 1$ and the circular cylinder $x^2 + y^2 = 1$.",
+    "options": [
+      "Highest $z = 2$, Lowest $z = -2$",
+      "Highest $z = 1 + \\sqrt{3}$, Lowest $z = 1 - \\sqrt{3}$",
+      "Highest $z = 1 + \\sqrt{2}$, Lowest $z = 1 - \\sqrt{2}$",
+      "Highest $z = 3$, Lowest $z = 0$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Dual Constraints System",
+        "body": "Objective: $f(x,y,z) = z$. Constraints:\n\\[ g(x,y,z) = x + y + z - 1 = 0 \\]\n\\[ h(x,y,z) = x^2 + y^2 - 1 = 0 \\]\nLagrange multiplier condition with two multipliers $\\lambda$ and $\\mu$:\n\\[ \\nabla f = \\lambda \\nabla g + \\mu \\nabla h \\]\n\\[ \\langle 0, 0, 1 \\rangle = \\lambda \\langle 1, 1, 1 \\rangle + \\mu \\langle 2x, 2y, 0 \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Solve Component Equations",
+        "body": "From the $z$-component:\n\\[ 1 = \\lambda(1) + \\mu(0) \\implies \\lambda = 1 \\]\nFrom $x$ and $y$ components:\n\\[ 0 = 1 + 2\\mu x \\implies x = -\\frac{1}{2\\mu} \\]\n\\[ 0 = 1 + 2\\mu y \\implies y = -\\frac{1}{2\\mu} \\implies x = y \\]"
+      },
+      {
+        "title": "Step 3: Determine Coordinates and Extrema",
+        "body": "Since $x = y$, cylinder constraint gives:\n\\[ x^2 + x^2 = 2x^2 = 1 \\implies x = \\pm \\frac{1}{\\sqrt{2}}, \\quad y = \\pm \\frac{1}{\\sqrt{2}} \\]\nFrom plane equation $z = 1 - x - y$:\n- At $(-1/\\sqrt{2}, -1/\\sqrt{2})$: $z = 1 - (-1/\\sqrt{2}) - (-1/\\sqrt{2}) = 1 + \\frac{2}{\\sqrt{2}} = 1 + \\sqrt{2}$ (Highest Point).\n- At $(1/\\sqrt{2}, 1/\\sqrt{2})$: $z = 1 - 1/\\sqrt{2} - 1/\\sqrt{2} = 1 - \\sqrt{2}$ (Lowest Point)."
+      }
+    ],
+    "examTip": "With two constraints $g=0$ and $h=0$, write $\\nabla f = \\lambda \\nabla g + \\mu \\nabla h$. When $f=z$, $\\lambda$ is determined instantly by the $z$-component!"
+  },
+  {
+    "id": "q2_lagrange_ellipsoid_box",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Hard",
+    "title": "Maximum Volume Rectangular Box Inscribed in an Ellipsoid",
+    "prompt": "Find the maximum volume of a rectangular box with sides parallel to coordinate planes that can be inscribed in the ellipsoid $\\frac{x^2}{a^2} + \\frac{y^2}{b^2} + \\frac{z^2}{c^2} = 1$ using Lagrange multipliers.",
+    "options": [
+      "Maximum volume $V = \\frac{8abc}{3\\sqrt{3}}$",
+      "Maximum volume $V = \\frac{4abc}{3}$",
+      "Maximum volume $V = \\frac{abc}{\\sqrt{3}}$",
+      "Maximum volume $V = \\frac{8abc}{9}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Formulate the Objective and Constraint",
+        "body": "Let the vertex in the first octant be $(x,y,z)$ with $x,y,z > 0$. The total box volume is:\n\\[ V(x,y,z) = (2x)(2y)(2z) = 8xyz \\]\nConstraint: $g(x,y,z) = \\frac{x^2}{a^2} + \\frac{y^2}{b^2} + \\frac{z^2}{c^2} = 1$."
+      },
+      {
+        "title": "Step 2: Apply $\\nabla V = \\lambda \\nabla g$",
+        "body": "\\[ \\langle 8yz, 8xz, 8xy \\rangle = \\lambda \\left\\langle \\frac{2x}{a^2}, \\frac{2y}{b^2}, \\frac{2z}{c^2} \\right\\rangle \\]\nMultiply first equation by $x$, second by $y$, third by $z$:\n\\[ 8xyz = \\lambda \\frac{2x^2}{a^2} = \\lambda \\frac{2y^2}{b^2} = \\lambda \\frac{2z^2}{c^2} \\]\nSince $8xyz > 0$ and $\\lambda \\neq 0$, the three terms must be equal:\n\\[ \\frac{x^2}{a^2} = \\frac{y^2}{b^2} = \\frac{z^2}{c^2} \\]"
+      },
+      {
+        "title": "Step 3: Solve for Dimensions and Maximum Volume",
+        "body": "Summing the three equal terms in the constraint:\n\\[ \\frac{x^2}{a^2} + \\frac{x^2}{a^2} + \\frac{x^2}{a^2} = 3\\frac{x^2}{a^2} = 1 \\implies x = \\frac{a}{\\sqrt{3}}, \\quad y = \\frac{b}{\\sqrt{3}}, \\quad z = \\frac{c}{\\sqrt{3}} \\]\nSubstitute into $V = 8xyz$:\n\\[ V_{\\max} = 8\\left(\\frac{a}{\\sqrt{3}}\\right)\\left(\\frac{b}{\\sqrt{3}}\\right)\\left(\\frac{c}{\\sqrt{3}}\\right) = \\frac{8abc}{3\\sqrt{3}} \\]"
+      }
+    ],
+    "examTip": "Symmetry rule for $p$-norm or ellipsoid optimizations: each coordinate axis contributes an equal fraction ($1/3$) to the total constraint sum."
+  },
+  {
+    "id": "q2_lagrange_cylinder_tank",
+    "unitId": "unit-2",
+    "skillId": "s2_4",
+    "difficulty": "Standard",
+    "title": "Optimal Cylindrical Tank Surface Area for Fixed Volume",
+    "prompt": "A closed cylindrical tank of radius $r$ and height $h$ must have a volume of $V = 16\\pi\\text{ m}^3$. Use Lagrange multipliers to determine the dimensions $(r, h)$ that minimize the total surface area $A = 2\\pi r^2 + 2\\pi rh$.",
+    "options": [
+      "Radius $r = 1\\text{ m}$, Height $h = 16\\text{ m}$",
+      "Radius $r = 2\\text{ m}$, Height $h = 4\\text{ m}$",
+      "Radius $r = 4\\text{ m}$, Height $h = 1\\text{ m}$",
+      "Radius $r = 2\\sqrt{2}\\text{ m}$, Height $h = 2\\text{ m}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Objective and Constraint",
+        "body": "Minimize surface area $A(r,h) = 2\\pi r^2 + 2\\pi rh$ subject to volume constraint $g(r,h) = \\pi r^2 h = 16\\pi$ (or $r^2 h = 16$)."
+      },
+      {
+        "title": "Step 2: Gradients and Lagrange Condition",
+        "body": "\\[ \\nabla A = \\langle 4\\pi r + 2\\pi h, 2\\pi r \\rangle, \\quad \\nabla g = \\langle 2\\pi rh, \\pi r^2 \\rangle \\]\n$\\nabla A = \\lambda \\nabla g$ gives:\n1) $4\\pi r + 2\\pi h = \\lambda(2\\pi rh)$\n2) $2\\pi r = \\lambda(\\pi r^2) \\implies \\lambda = \\frac{2}{r}$"
+      },
+      {
+        "title": "Step 3: Deduce Optimal Aspect Ratio and Compute Values",
+        "body": "Substitute $\\lambda = 2/r$ into equation (1):\n\\[ 4\\pi r + 2\\pi h = \\left(\\frac{2}{r}\\right)(2\\pi rh) = 4\\pi h \\]\n\\[ 4\\pi r = 2\\pi h \\implies h = 2r \\]\nNow substitute $h = 2r$ into the volume equation:\n\\[ \\pi r^2 (2r) = 2\\pi r^3 = 16\\pi \\implies r^3 = 8 \\implies r = 2\\text{ m} \\]\nSince $h = 2r$, we have $h = 4\\text{ m}$."
+      }
+    ],
+    "examTip": "For any closed cylinder with minimal surface area for a given volume, height always equals diameter: $h = 2r$."
+  },
+  {
+    "id": "q4_inner_proj_decomp",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Standard",
+    "title": "Vector Inner Product, Orthogonal Projection & Decomposition",
+    "prompt": "Given the 3D vectors $\\mathbf{u} = \\langle 2, -1, 3 \\rangle$ and $\\mathbf{v} = \\langle 1, 2, -2 \\rangle$, compute the inner product $\\mathbf{u} \\cdot \\mathbf{v}$, the vector projection $\\text{proj}_\\mathbf{v}\\mathbf{u}$, and the orthogonal component $\\mathbf{u}_\\perp = \\mathbf{u} - \\text{proj}_\\mathbf{v}\\mathbf{u}$.",
+    "options": [
+      "$\\mathbf{u}\\cdot\\mathbf{v} = 4$; $\\text{proj}_\\mathbf{v}\\mathbf{u} = \\langle 4/9, 8/9, -8/9 \\rangle$; $\\mathbf{u}_\\perp = \\langle 14/9, -17/9, 35/9 \\rangle$",
+      "$\\mathbf{u}\\cdot\\mathbf{v} = 0$; $\\text{proj}_\\mathbf{v}\\mathbf{u} = \\mathbf{0}$; $\\mathbf{u}_\\perp = \\mathbf{u}$",
+      "$\\mathbf{u}\\cdot\\mathbf{v} = -6$; $\\text{proj}_\\mathbf{v}\\mathbf{u} = \\langle -2/3, -4/3, 4/3 \\rangle$; $\\mathbf{u}_\\perp = \\langle 8/3, 1/3, 5/3 \\rangle$",
+      "$\\mathbf{u}\\cdot\\mathbf{v} = -6$; $\\text{proj}_\\mathbf{v}\\mathbf{u} = \\langle 2/3, 4/3, -4/3 \\rangle$; $\\mathbf{u}_\\perp = \\langle 4/3, -7/3, 13/3 \\rangle$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Inner Product & Norm Squared",
+        "body": "\\[ \\mathbf{u} \\cdot \\mathbf{v} = (2)(1) + (-1)(2) + (3)(-2) = 2 - 2 - 6 = -6 \\]\n\\[ \\|\\mathbf{v}\\|^2 = 1^2 + 2^2 + (-2)^2 = 1 + 4 + 4 = 9 \\]"
+      },
+      {
+        "title": "Step 2: Compute Vector Projection",
+        "body": "\\[ \\text{proj}_\\mathbf{v}\\mathbf{u} = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\|\\mathbf{v}\\|^2} \\mathbf{v} = \\frac{-6}{9}\\langle 1, 2, -2 \\rangle = -\\frac{2}{3}\\langle 1, 2, -2 \\rangle = \\left\\langle -\\frac{2}{3}, -\\frac{4}{3}, \\frac{4}{3} \\right\\rangle \\]"
+      },
+      {
+        "title": "Step 3: Orthogonal Component & Verification",
+        "body": "\\[ \\mathbf{u}_\\perp = \\mathbf{u} - \\text{proj}_\\mathbf{v}\\mathbf{u} = \\langle 2, -1, 3 \\rangle - \\left\\langle -\\frac{2}{3}, -\\frac{4}{3}, \\frac{4}{3} \\right\\rangle = \\left\\langle \\frac{8}{3}, \\frac{1}{3}, \\frac{5}{3} \\right\\rangle \\]\nVerification of orthogonality:\n\\[ \\mathbf{u}_\\perp \\cdot \\mathbf{v} = \\frac{8}{3}(1) + \\frac{1}{3}(2) + \\frac{5}{3}(-2) = \\frac{8 + 2 - 10}{3} = 0 \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Always verify that $\\mathbf{u}_\\perp \\cdot \\mathbf{v} = 0$. If the dot product is not zero, re-check your subtraction!"
+  },
+  {
+    "id": "q4_gram_schmidt_poly",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Hard",
+    "title": "Gram-Schmidt Orthogonalization of Polynomials on [-1, 1]",
+    "prompt": "Apply the Gram-Schmidt orthogonalization process to the basis $\\{1, x, x^2\\}$ on $[-1, 1]$ under the inner product $\\langle f, g \\rangle = \\int_{-1}^1 f(x)g(x)\\,dx$ to construct an orthogonal set of polynomials $\\{v_1, v_2, v_3\\}$.",
+    "options": [
+      "$\\{v_1, v_2, v_3\\} = \\{1, x, x^2\\}$",
+      "$\\{v_1, v_2, v_3\\} = \\left\\{1, x, x^2 - \\frac{1}{3}\\right\\}$",
+      "$\\{v_1, v_2, v_3\\} = \\left\\{1, x - 1, x^2 - x\\right\\}$",
+      "$\\{v_1, v_2, v_3\\} = \\left\\{1, x, x^2 - \\frac{1}{2}\\right\\}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: First Element $v_1(x)$",
+        "body": "Set $v_1(x) = u_1(x) = 1$.\nCompute norm squared:\n\\[ \\|v_1\\|^2 = \\langle 1, 1 \\rangle = \\int_{-1}^1 1\\,dx = 2 \\]"
+      },
+      {
+        "title": "Step 2: Second Element $v_2(x)$",
+        "body": "\\[ v_2(x) = x - \\frac{\\langle x, v_1 \\rangle}{\\|v_1\\|^2}v_1(x) \\]\n\\[ \\langle x, 1 \\rangle = \\int_{-1}^1 x\\,dx = 0 \\quad (\\text{odd integrand over symmetric interval}) \\]\nThus $v_2(x) = x - 0 = x$.\nNorm squared:\n\\[ \\|v_2\\|^2 = \\int_{-1}^1 x^2\\,dx = \\left[ \\frac{x^3}{3} \\right]_{-1}^1 = \\frac{2}{3} \\]"
+      },
+      {
+        "title": "Step 3: Third Element $v_3(x)$",
+        "body": "\\[ v_3(x) = x^2 - \\frac{\\langle x^2, v_1 \\rangle}{\\|v_1\\|^2}v_1 - \\frac{\\langle x^2, v_2 \\rangle}{\\|v_2\\|^2}v_2 \\]\nCompute inner products:\n\\[ \\langle x^2, 1 \\rangle = \\int_{-1}^1 x^2\\,dx = \\frac{2}{3} \\]\n\\[ \\langle x^2, x \\rangle = \\int_{-1}^1 x^3\\,dx = 0 \\quad (\\text{odd integrand}) \\]\nTherefore:\n\\[ v_3(x) = x^2 - \\frac{2/3}{2}(1) - 0 = x^2 - \\frac{1}{3} \\]\nThe resulting orthogonal polynomials are $\\{1, x, x^2 - 1/3\\}$."
+      }
+    ],
+    "examTip": "These are the unnormalized Legendre polynomials! Scaling them gives $P_0(x)=1$, $P_1(x)=x$, and $P_2(x)=\\frac{1}{2}(3x^2-1)$."
+  },
+  {
+    "id": "q4_function_angle_cauchy",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Standard",
+    "title": "Angle and Cauchy-Schwarz Inequality in Function Space",
+    "prompt": "For the functions $f(x) = x$ and $g(x) = x^2$ on $[0, 1]$ equipped with inner product $\\langle f, g \\rangle = \\int_0^1 f(x)g(x)\\,dx$, compute $\\langle f, g \\rangle$, the norms $\\|f\\|$ and $\\|g\\|$, and the cosine of the angle $\\theta$ between them.",
+    "options": [
+      "$\\langle f, g \\rangle = 1/4$; $\\|f\\| = 1/\\sqrt{3}$; $\\|g\\| = 1/\\sqrt{5}$; $\\cos\\theta = \\frac{\\sqrt{15}}{4} \\approx 0.968$",
+      "$\\langle f, g \\rangle = 1/3$; $\\|f\\| = 1/3$; $\\|g\\| = 1/5$; $\\cos\\theta = 1$",
+      "$\\langle f, g \\rangle = 1/2$; $\\|f\\| = 1$; $\\|g\\| = 1$; $\\cos\\theta = 1/2$",
+      "$\\langle f, g \\rangle = 1/4$; $\\|f\\| = 1/3$; $\\|g\\| = 1/5$; $\\cos\\theta = \\frac{15}{4}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Inner Product",
+        "body": "\\[ \\langle f, g \\rangle = \\int_0^1 (x)(x^2)\\,dx = \\int_0^1 x^3\\,dx = \\left[ \\frac{x^4}{4} \\right]_0^1 = \\frac{1}{4} \\]"
+      },
+      {
+        "title": "Step 2: Compute $L^2$ Norms",
+        "body": "\\[ \\|f\\|^2 = \\int_0^1 x^2\\,dx = \\frac{1}{3} \\implies \\|f\\| = \\frac{1}{\\sqrt{3}} \\]\n\\[ \\|g\\|^2 = \\int_0^1 x^4\\,dx = \\frac{1}{5} \\implies \\|g\\| = \\frac{1}{\\sqrt{5}} \\]"
+      },
+      {
+        "title": "Step 3: Compute $\\cos\\theta$ and Cauchy-Schwarz Verification",
+        "body": "\\[ \\cos\\theta = \\frac{\\langle f, g \\rangle}{\\|f\\|\\|g\\|} = \\frac{1/4}{(1/\\sqrt{3})(1/\\sqrt{5})} = \\frac{1/4}{1/\\sqrt{15}} = \\frac{\\sqrt{15}}{4} \\approx 0.9682 \\]\nSince $|\\cos\\theta| = \\frac{\\sqrt{15}}{4} = \\frac{\\sqrt{15}}{\\sqrt{16}} < 1$, the Cauchy-Schwarz inequality $|\\langle f, g \\rangle| \\le \\|f\\|\\|g\\|$ holds strictly."
+      }
+    ],
+    "examTip": "In $L^2$ function space, the cosine of the angle between two functions is defined identically to vectors: $\\cos\\theta = \\frac{\\langle f, g \\rangle}{\\|f\\|\\|g\\|}$."
+  },
+  {
+    "id": "q4_trig_orthogonality_gen",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Standard",
+    "title": "Orthogonality of Sine Modes over Arbitrary Interval [0, L]",
+    "prompt": "Evaluate the inner product $\\langle \\sin(m\\pi x/L), \\sin(n\\pi x/L) \\rangle = \\int_0^L \\sin\\left(\\frac{m\\pi x}{L}\\right)\\sin\\left(\\frac{n\\pi x}{L}\\right)\\,dx$ for positive integers $m$ and $n$, demonstrating orthogonality.",
+    "options": [
+      "Equals $L$ for all $m, n$",
+      "Equals $0$ when $m \\neq n$, and $\\frac{L}{2}$ when $m = n$",
+      "Equals $\\frac{L}{\\pi}$ when $m = n$, and $0$ otherwise",
+      "Equals $\\frac{L}{4}$ for all $m, n$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Apply Product-to-Sum Trigonometric Identity",
+        "body": "Recall $\\sin(A)\\sin(B) = \\frac{1}{2}[\\cos(A - B) - \\cos(A + B)]$. Thus:\n\\[ I = \\frac{1}{2}\\int_0^L \\left[ \\cos\\left(\\frac{(m - n)\\pi x}{L}\\right) - \\cos\\left(\\frac{(m + n)\\pi x}{L}\\right) \\right]dx \\]"
+      },
+      {
+        "title": "Step 2: Case $m \\neq n$",
+        "body": "Integrating both cosines:\n\\[ I = \\frac{1}{2}\\left[ \\frac{L}{(m - n)\\pi}\\sin\\left(\\frac{(m - n)\\pi x}{L}\\right) - \\frac{L}{(m + n)\\pi}\\sin\\left(\\frac{(m + n)\\pi x}{L}\\right) \\right]_0^L \\]\nEvaluating at $x = L$ gives $\\sin((m - n)\\pi) = 0$ and $\\sin((m + n)\\pi) = 0$ since $(m \\pm n)$ are integers. At $x = 0$, both sines are 0. Thus $I = 0$."
+      },
+      {
+        "title": "Step 3: Case $m = n$",
+        "body": "When $m = n$, $\\cos((m-n)\\pi x/L) = \\cos(0) = 1$:\n\\[ I = \\frac{1}{2}\\int_0^L \\left[ 1 - \\cos\\left(\\frac{2n\\pi x}{L}\\right) \\right]dx = \\frac{1}{2}\\left[ x - \\frac{L}{2n\\pi}\\sin\\left(\\frac{2n\\pi x}{L}\\right) \\right]_0^L = \\frac{L}{2} \\]\nHence $\\langle \\sin(m\\pi x/L), \\sin(n\\pi x/L) \\rangle = \\frac{L}{2}\\delta_{mn}$."
+      }
+    ],
+    "examTip": "This fundamental relation $\\frac{L}{2}\\delta_{mn}$ is the cornerstone of all Fourier sine series and boundary-value heat/wave equation solutions!"
+  },
+  {
+    "id": "q4_inner_prod_axioms",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Standard",
+    "title": "Axiomatic Criteria for Valid Inner Products in R^2",
+    "prompt": "Which of the following bilinear forms defines a valid inner product $\\langle \\mathbf{u}, \\mathbf{v} \\rangle$ for vectors $\\mathbf{u} = \\langle u_1, u_2 \\rangle$ and $\\mathbf{v} = \\langle v_1, v_2 \\rangle$ in $\\mathbb{R}^2$?",
+    "options": [
+      "$\\langle \\mathbf{u}, \\mathbf{v} \\rangle = u_1 v_1 - 4u_2 v_2$",
+      "$\\langle \\mathbf{u}, \\mathbf{v} \\rangle = u_1^2 v_1^2 + u_2^2 v_2^2$",
+      "$\\langle \\mathbf{u}, \\mathbf{v} \\rangle = 3u_1 v_1 + 5u_2 v_2$",
+      "$\\langle \\mathbf{u}, \\mathbf{v} \\rangle = u_1 v_2 + u_2 v_1$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Check Axiom 1 (Symmetry) & Axiom 2 (Linearity)",
+        "body": "A real inner product must satisfy:\n1. Symmetry: $\\langle \\mathbf{u}, \\mathbf{v} \\rangle = \\langle \\mathbf{v}, \\mathbf{u} \\rangle$\n2. Linearity in the first argument: $\\langle c\\mathbf{u} + \\mathbf{w}, \\mathbf{v} \\rangle = c\\langle \\mathbf{u}, \\mathbf{v} \\rangle + \\langle \\mathbf{w}, \\mathbf{v} \\rangle$\nForm (C) $3u_1 v_1 + 5u_2 v_2$ is symmetric ($3v_1 u_1 + 5v_2 u_2$) and clearly linear."
+      },
+      {
+        "title": "Step 2: Check Axiom 3 (Positive Definiteness)",
+        "body": "Evaluate $\\langle \\mathbf{u}, \\mathbf{u} \\rangle$:\n\\[ \\langle \\mathbf{u}, \\mathbf{u} \\rangle = 3u_1^2 + 5u_2^2 \\]\nSince squares of real numbers are non-negative, $3u_1^2 + 5u_2^2 \\ge 0$.\nFurthermore, $3u_1^2 + 5u_2^2 = 0$ if and only if $u_1 = 0$ and $u_2 = 0$, meaning $\\mathbf{u} = \\mathbf{0}$. Positive definiteness holds!"
+      },
+      {
+        "title": "Step 3: Analyze Why Other Options Fail",
+        "body": "- (A) $u_1^2 - 4u_2^2$ fails positive definiteness (e.g. For $\\mathbf{u}=\\langle 0, 1 \\rangle$, $\\langle \\mathbf{u}, \\mathbf{u} \\rangle = -4 < 0$).\n- (B) $u_1^2 v_1^2 + u_2^2 v_2^2$ fails linearity (quadratic in inputs).\n- (D) $u_1 v_2 + u_2 v_1$ fails positive definiteness (For $\\mathbf{u}=\\langle 1, -1 \\rangle$, $\\langle \\mathbf{u}, \\mathbf{u} \\rangle = 2(1)(-1) = -2 < 0$)."
+      }
+    ],
+    "examTip": "A matrix form $\\mathbf{u}^T A \\mathbf{v}$ is an inner product if and only if $A$ is symmetric and positive definite (all eigenvalues $> 0$)."
+  },
+  {
+    "id": "q4_fourier_bessel_inequality",
+    "unitId": "unit-4",
+    "skillId": "s4_4",
+    "difficulty": "Hard",
+    "title": "Bessel's Inequality & Parseval's Completeness in Hilbert Spaces",
+    "prompt": "Let $\\{\\phi_n\\}_{n=1}^\\infty$ be an orthonormal sequence in $L^2[a, b]$ and let $c_n = \\langle f, \\phi_n \\rangle$. What mathematical theorem guarantees that $\\sum_{n=1}^\\infty |c_n|^2 \\le \\|f\\|^2$, and when does equality hold?",
+    "options": [
+      "Taylor's theorem; equality holds for all polynomial functions",
+      "Cauchy's integral formula; equality holds when $f$ is real-valued",
+      "Bessel's inequality; equality holds (Parseval's identity) if and only if the set is complete",
+      "Lagrange multiplier theorem; equality holds only at stationary points"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Orthogonal Projection Error",
+        "body": "Consider the partial approximation $s_N = \\sum_{n=1}^N c_n \\phi_n$. The norm of the error is non-negative:\n\\[ \\left\\| f - \\sum_{n=1}^N c_n \\phi_n \\right\\|^2 \\ge 0 \\]"
+      },
+      {
+        "title": "Step 2: Expand the Squared Norm",
+        "body": "\\[ \\left\\| f - \\sum_{n=1}^N c_n \\phi_n \\right\\|^2 = \\|f\\|^2 - 2\\sum_{n=1}^N c_n \\langle f, \\phi_n \\rangle + \\sum_{n=1}^N c_n^2 \\|\\phi_n\\|^2 \\]\nSince $\\langle f, \\phi_n \\rangle = c_n$ and $\\|\\phi_n\\|^2 = 1$:\n\\[ = \\|f\\|^2 - 2\\sum_{n=1}^N c_n^2 + \\sum_{n=1}^N c_n^2 = \\|f\\|^2 - \\sum_{n=1}^N c_n^2 \\ge 0 \\implies \\sum_{n=1}^N c_n^2 \\le \\|f\\|^2 \\]"
+      },
+      {
+        "title": "Step 3: Bessel's Inequality and Completeness",
+        "body": "Taking $N \\to \\infty$ yields **Bessel's Inequality**:\n\\[ \\sum_{n=1}^\\infty |c_n|^2 \\le \\|f\\|^2 \\]\nEquality $\\sum_{n=1}^\\infty |c_n|^2 = \\|f\\|^2$ is **Parseval's Identity**, which holds if and only if the orthonormal system $\\{\\phi_n\\}$ is complete (forms an orthonormal basis of $L^2$)."
+      }
+    ],
+    "examTip": "Parseval's identity is the infinite-dimensional generalization of the Pythagorean theorem: the total energy equals the sum of modal energies."
+  },
+  {
+    "id": "q6_triple_vol_parallelepiped",
+    "unitId": "unit-6",
+    "skillId": "s6_5",
+    "difficulty": "Standard",
+    "title": "Parallelepiped Volume via Scalar Triple Product",
+    "prompt": "Calculate the volume of the parallelepiped determined by the vectors $\\mathbf{a} = \\langle 1, 2, 3 \\rangle$, $\\mathbf{b} = \\langle 3, -1, 2 \\rangle$, and $\\mathbf{c} = \\langle 1, 1, -1 \\rangle$ using the scalar triple product $\\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c})$.",
+    "options": [
+      "Volume $V = 14$",
+      "Volume $V = 28$",
+      "Volume $V = 21$",
+      "Volume $V = 7$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up 3x3 Determinant",
+        "body": "The scalar triple product equals the determinant of the 3x3 matrix whose rows are $\\mathbf{a}, \\mathbf{b}, \\mathbf{c}$:\n\\[ \\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c}) = \\begin{vmatrix} 1 & 2 & 3 \\\\ 3 & -1 & 2 \\\\ 1 & 1 & -1 \\end{vmatrix} \\]"
+      },
+      {
+        "title": "Step 2: Expand along Row 1",
+        "body": "\\[ = 1\\begin{vmatrix} -1 & 2 \\\\ 1 & -1 \\end{vmatrix} - 2\\begin{vmatrix} 3 & 2 \\\\ 1 & -1 \\end{vmatrix} + 3\\begin{vmatrix} 3 & -1 \\\\ 1 & 1 \\end{vmatrix} \\]\nEvaluate 2x2 minors:\n- First minor: $(-1)(-1) - (2)(1) = 1 - 2 = -1$\n- Second minor: $(3)(-1) - (2)(1) = -3 - 2 = -5$\n- Third minor: $(3)(1) - (-1)(1) = 3 + 1 = 4$"
+      },
+      {
+        "title": "Step 3: Compute Final Value and Volume",
+        "body": "\\[ \\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c}) = 1(-1) - 2(-5) + 3(4) = -1 + 10 + 12 = 21 \\]\nThe volume of the parallelepiped is the absolute value:\n\\[ V = |21| = 21 \\]"
+      }
+    ],
+    "examTip": "If the problem asks for the volume of a tetrahedron formed by the same three vectors, divide the parallelepiped volume by 6: $V_{tet} = 21/6 = 3.5$."
+  },
+  {
+    "id": "q6_triple_coplanar_test",
+    "unitId": "unit-6",
+    "skillId": "s6_5",
+    "difficulty": "Standard",
+    "title": "Coplanarity Condition for 4 Space Points via Determinant",
+    "prompt": "Find the value of $k$ such that the four points $P(1, 0, 1)$, $Q(2, 3, 0)$, $R(-1, 1, 4)$, and $S(0, k, 2)$ lie in the same geometric plane.",
+    "options": [
+      "$k = 5$",
+      "$k = -3$",
+      "$k = 2$",
+      "$k = -1$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Construct Three Displacement Vectors from P",
+        "body": "\\[ \\vec{PQ} = \\langle 2 - 1, 3 - 0, 0 - 1 \\rangle = \\langle 1, 3, -1 \\rangle \\]\n\\[ \\vec{PR} = \\langle -1 - 1, 1 - 0, 4 - 1 \\rangle = \\langle -2, 1, 3 \\rangle \\]\n\\[ \\vec{PS} = \\langle 0 - 1, k - 0, 2 - 1 \\rangle = \\langle -1, k, 1 \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Set Scalar Triple Product Equal to Zero",
+        "body": "Four points are coplanar if and only if the parallelepiped volume spanned by their displacement vectors is zero:\n\\[ \\begin{vmatrix} 1 & 3 & -1 \\\\ -2 & 1 & 3 \\\\ -1 & k & 1 \\end{vmatrix} = 0 \\]"
+      },
+      {
+        "title": "Step 3: Expand and Solve for $k$",
+        "body": "\\[ = 1(1 - 3k) - 3((-2)(1) - (3)(-1)) - 1((-2)(k) - (1)(-1)) = 0 \\]\n\\[ = (1 - 3k) - 3(-2 + 3) - 1(-2k + 1) = 0 \\]\n\\[ = 1 - 3k - 3(1) + 2k - 1 = 0 \\]\n\\[ = -k - 3 = 0 \\implies k = -3 \\]"
+      }
+    ],
+    "examTip": "Remember: Coplanar vectors $\\iff$ linearly dependent $\\iff$ scalar triple product equals 0."
+  },
+  {
+    "id": "q6_triple_baccab_identity",
+    "unitId": "unit-6",
+    "skillId": "s6_5",
+    "difficulty": "Hard",
+    "title": "Vector Triple Product (BAC-CAB Lagrange Expansion)",
+    "prompt": "For the vectors $\\mathbf{a} = \\langle 1, 1, 0 \\rangle$, $\\mathbf{b} = \\langle 0, 1, 1 \\rangle$, and $\\mathbf{c} = \\langle 1, 0, 1 \\rangle$, evaluate the vector triple product $\\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c})$ using the BAC-CAB Lagrange expansion identity.",
+    "options": [
+      "$\\langle 1, -1, 0 \\rangle$",
+      "$\\langle 0, 1, -1 \\rangle$",
+      "$\\langle -1, 1, 0 \\rangle$",
+      "$\\langle 0, 0, 0 \\rangle$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Recall the BAC-CAB Identity",
+        "body": "\\[ \\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) = \\mathbf{b}(\\mathbf{a} \\cdot \\mathbf{c}) - \\mathbf{c}(\\mathbf{a} \\cdot \\mathbf{b}) = (\\mathbf{a} \\cdot \\mathbf{c})\\mathbf{b} - (\\mathbf{a} \\cdot \\mathbf{b})\\mathbf{c} \\]"
+      },
+      {
+        "title": "Step 2: Compute Dot Products",
+        "body": "\\[ \\mathbf{a} \\cdot \\mathbf{c} = (1)(1) + (1)(0) + (0)(1) = 1 \\]\n\\[ \\mathbf{a} \\cdot \\mathbf{b} = (1)(0) + (1)(1) + (0)(1) = 1 \\]"
+      },
+      {
+        "title": "Step 3: Combine Terms and Direct Verification",
+        "body": "\\[ \\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) = 1\\langle 0, 1, 1 \\rangle - 1\\langle 1, 0, 1 \\rangle = \\langle -1, 1, 0 \\rangle \\]\nDirect check:\n\\[ \\mathbf{b} \\times \\mathbf{c} = \\langle (1)(1)-(1)(0), -(0-1), 0-1 \\rangle = \\langle 1, 1, -1 \\rangle \\]\n\\[ \\mathbf{a} \\times \\langle 1, 1, -1 \\rangle = \\langle -1 - 0, -(-1 - 0), 1 - 1 \\rangle = \\langle -1, 1, 0 \\rangle \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Mnemonic: $\\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) = \\text{BAC} - \\text{CAB}$. Note that the vector triple product is NOT associative: $\\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) \\neq (\\mathbf{a} \\times \\mathbf{b}) \\times \\mathbf{c}$."
+  },
+  {
+    "id": "q6_triple_cyclic_invariance",
+    "unitId": "unit-6",
+    "skillId": "s6_5",
+    "difficulty": "Standard",
+    "title": "Cyclic Permutation Invariance of Scalar Triple Products",
+    "prompt": "Which algebraic equality accurately describes the cyclic permutation symmetry of the scalar triple product for any three 3D vectors $\\mathbf{u}, \\mathbf{v}, \\mathbf{w}$?",
+    "options": [
+      "$\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = \\mathbf{v} \\cdot (\\mathbf{u} \\times \\mathbf{w}) = \\mathbf{w} \\cdot (\\mathbf{u} \\times \\mathbf{v})$",
+      "$\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = -\\mathbf{v} \\cdot (\\mathbf{w} \\times \\mathbf{u}) = -\\mathbf{w} \\cdot (\\mathbf{u} \\times \\mathbf{v})$",
+      "$\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = (\\mathbf{u} \\cdot \\mathbf{v}) \\times \\mathbf{w}$",
+      "$\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = \\mathbf{v} \\cdot (\\mathbf{w} \\times \\mathbf{u}) = \\mathbf{w} \\cdot (\\mathbf{u} \\times \\mathbf{v})$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Determinant Row Swap Properties",
+        "body": "The scalar triple product $\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = \\det[\\mathbf{u}, \\mathbf{v}, \\mathbf{w}]$.\nSwapping two rows inverts the determinant sign:\n\\[ \\det[\\mathbf{v}, \\mathbf{u}, \\mathbf{w}] = -\\det[\\mathbf{u}, \\mathbf{v}, \\mathbf{w}] \\]"
+      },
+      {
+        "title": "Step 2: Two Successive Row Swaps (Cyclic Shift)",
+        "body": "A cyclic permutation $\\mathbf{u} \\to \\mathbf{v} \\to \\mathbf{w} \\to \\mathbf{u}$ corresponds to two consecutive adjacent row swaps:\n\\[ [\\mathbf{u}, \\mathbf{v}, \\mathbf{w}] \\xrightarrow{\\text{swap 1}} [\\mathbf{v}, \\mathbf{u}, \\mathbf{w}] \\xrightarrow{\\text{swap 2}} [\\mathbf{v}, \\mathbf{w}, \\mathbf{u}] \\]\nSince $(-1)^2 = +1$, the determinant value is unchanged:\n\\[ \\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = \\mathbf{v} \\cdot (\\mathbf{w} \\times \\mathbf{u}) = \\mathbf{w} \\cdot (\\mathbf{u} \\times \\mathbf{v}) \\]"
+      },
+      {
+        "title": "Step 3: Anti-cyclic Sign Flip",
+        "body": "Reversing the cyclic order (odd permutation) negates the value:\n\\[ \\mathbf{u} \\cdot (\\mathbf{w} \\times \\mathbf{v}) = -\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) \\]"
+      }
+    ],
+    "examTip": "Keep the circular order in mind: $u \\to v \\to w \\to u$. Dot and cross can be swapped freely: $\\mathbf{u} \\cdot (\\mathbf{v} \\times \\mathbf{w}) = (\\mathbf{u} \\times \\mathbf{v}) \\cdot \\mathbf{w}$."
+  },
+  {
+    "id": "q6_triple_tetrahedron_vol",
+    "unitId": "unit-6",
+    "skillId": "s6_5",
+    "difficulty": "Standard",
+    "title": "Tetrahedron Volume Spanned by Coordinate Vectors",
+    "prompt": "Find the volume of the tetrahedron having one vertex at the origin and edge vectors $\\mathbf{a} = \\langle 2, 0, 0 \\rangle$, $\\mathbf{b} = \\langle 0, 3, 0 \\rangle$, and $\\mathbf{c} = \\langle 1, 1, 4 \\rangle$ using $V = \\frac{1}{6}|\\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c})|$.",
+    "options": [
+      "Volume $V = 4$",
+      "Volume $V = 12$",
+      "Volume $V = 8$",
+      "Volume $V = 24$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Cross Product $\\mathbf{b} \\times \\mathbf{c}$",
+        "body": "\\[ \\mathbf{b} \\times \\mathbf{c} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ 0 & 3 & 0 \\\\ 1 & 1 & 4 \\end{vmatrix} = \\mathbf{i}(12 - 0) - \\mathbf{j}(0 - 0) + \\mathbf{k}(0 - 3) = \\langle 12, 0, -3 \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Compute Scalar Triple Product",
+        "body": "\\[ \\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c}) = \\langle 2, 0, 0 \\rangle \\cdot \\langle 12, 0, -3 \\rangle = 2(12) + 0 + 0 = 24 \\]"
+      },
+      {
+        "title": "Step 3: Calculate Tetrahedron Volume",
+        "body": "\\[ V_{\\text{tet}} = \\frac{1}{6}|\\mathbf{a} \\cdot (\\mathbf{b} \\times \\mathbf{c})| = \\frac{1}{6}(24) = 4 \\]"
+      }
+    ],
+    "examTip": "A parallelepiped can be dissected into 6 equal-volume tetrahedra sharing the same vertex."
+  },
+  {
+    "id": "q7_plane_three_points",
+    "unitId": "unit-7",
+    "skillId": "s7_4",
+    "difficulty": "Standard",
+    "title": "Equation of Plane Passing Through Three Non-Collinear Points",
+    "prompt": "Find the Cartesian equation of the plane passing through the three points $P(1, 2, -1)$, $Q(2, 3, 1)$, and $R(3, -1, 2)$.",
+    "options": [
+      "$2x - 3y + z = -5$",
+      "$5x + 2y - 3z = 12$",
+      "$9x + y - 5z = 16$",
+      "$3x + y - 2z = 7$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Find Two In-Plane Vectors",
+        "body": "\\[ \\vec{PQ} = \\langle 2 - 1, 3 - 2, 1 - (-1) \\rangle = \\langle 1, 1, 2 \\rangle \\]\n\\[ \\vec{PR} = \\langle 3 - 1, -1 - 2, 2 - (-1) \\rangle = \\langle 2, -3, 3 \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Compute Normal Vector via Cross Product",
+        "body": "\\[ \\mathbf{n} = \\vec{PQ} \\times \\vec{PR} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ 1 & 1 & 2 \\\\ 2 & -3 & 3 \\end{vmatrix} \\]\n\\[ = \\mathbf{i}(3 - (-6)) - \\mathbf{j}(3 - 4) + \\mathbf{k}(-3 - 2) = \\langle 9, 1, -5 \\rangle \\]"
+      },
+      {
+        "title": "Step 3: Point-Normal Equation of Plane",
+        "body": "Using point $P(1, 2, -1)$:\n\\[ 9(x - 1) + 1(y - 2) - 5(z - (-1)) = 0 \\]\n\\[ 9x - 9 + y - 2 - 5z - 5 = 0 \\implies 9x + y - 5z = 16 \\]\nSanity check on $Q(2, 3, 1)$: $9(2) + 3 - 5(1) = 18 + 3 - 5 = 16$. Valid!"
+      }
+    ],
+    "examTip": "Always plug in the other two given points into your final plane equation to ensure you didn't make an arithmetic error during the cross product."
+  },
+  {
+    "id": "q7_plane_line_and_point",
+    "unitId": "unit-7",
+    "skillId": "s7_4",
+    "difficulty": "Hard",
+    "title": "Plane Containing a Given Line and an External Point",
+    "prompt": "Find the equation of the plane containing the point $P(3, 1, -2)$ and the line with parametric equations $x = 1 + 2t$, $y = -2 - t$, $z = 3 + 4t$.",
+    "options": [
+      "$7x - 18y - 8z = 19$",
+      "$2x - y + 4z = -3$",
+      "$5x + 3y - 2z = 22$",
+      "$18x + 7y + 8z = 45$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Extract Line Direction and Anchor Point",
+        "body": "The line passes through point $Q(1, -2, 3)$ with direction vector $\\mathbf{d} = \\langle 2, -1, 4 \\rangle$."
+      },
+      {
+        "title": "Step 2: Find a Second In-Plane Vector from Line to External Point",
+        "body": "Vector from line point $Q$ to external point $P$:\n\\[ \\vec{QP} = \\langle 3 - 1, 1 - (-2), -2 - 3 \\rangle = \\langle 2, 3, -5 \\rangle \\]"
+      },
+      {
+        "title": "Step 3: Compute Plane Normal and Final Equation",
+        "body": "\\[ \\mathbf{n} = \\mathbf{d} \\times \\vec{QP} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ 2 & -1 & 4 \\\\ 2 & 3 & -5 \\end{vmatrix} = \\langle 5 - 12, -(-10 - 8), 6 - (-2) \\rangle = \\langle -7, 18, 8 \\rangle \\]\nUsing point $P(3, 1, -2)$:\n\\[ -7(x - 3) + 18(y - 1) + 8(z + 2) = 0 \\]\n\\[ -7x + 21 + 18y - 18 + 8z + 16 = 0 \\implies -7x + 18y + 8z + 19 = 0 \\]\nMultiplying by $-1$: $7x - 18y - 8z = 19$."
+      }
+    ],
+    "examTip": "A plane containing a line and an external point requires two direction vectors: the line's direction vector $\\mathbf{d}$ and the vector connecting any point on the line to the external point."
+  },
+  {
+    "id": "q7_plane_parallel_dist",
+    "unitId": "unit-7",
+    "skillId": "s7_4",
+    "difficulty": "Standard",
+    "title": "Perpendicular Distance Between Parallel Planes",
+    "prompt": "Find the perpendicular distance $D$ between the two parallel planes $\\Pi_1: 2x - 2y + z = 5$ and $\\Pi_2: 2x - 2y + z = -4$.",
+    "options": [
+      "$D = 1$",
+      "$D = 3$",
+      "$D = 9$",
+      "$D = \\sqrt{3}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Check Common Normal Vector",
+        "body": "Both planes share the normal vector $\\mathbf{n} = \\langle 2, -2, 1 \\rangle$.\nLength of normal:\n\\[ \\|\\mathbf{n}\\| = \\sqrt{2^2 + (-2)^2 + 1^2} = \\sqrt{4 + 4 + 1} = \\sqrt{9} = 3 \\]"
+      },
+      {
+        "title": "Step 2: Apply Parallel Plane Distance Formula",
+        "body": "For planes $Ax + By + Cz = D_1$ and $Ax + By + Cz = D_2$, the distance is:\n\\[ D = \\frac{|D_1 - D_2|}{\\sqrt{A^2 + B^2 + C^2}} \\]\nHere $D_1 = 5$ and $D_2 = -4$:\n\\[ D = \\frac{|5 - (-4)|}{3} = \\frac{9}{3} = 3 \\]"
+      }
+    ],
+    "examTip": "If the plane coefficients are proportional rather than identical (e.g. $4x - 4y + 2z = -8$), normalize them first so $A, B, C$ match before subtracting constants!"
+  },
+  {
+    "id": "q7_plane_intersect_line",
+    "unitId": "unit-7",
+    "skillId": "s7_5",
+    "difficulty": "Hard",
+    "title": "Parametric Line of Intersection of Two Planes",
+    "prompt": "Find the parametric equations for the line of intersection $L$ of the two planes $\\Pi_1: 2x - y + 3z = 4$ and $\\Pi_2: x + 2y - z = 2$.",
+    "options": [
+      "$x = 2 + t, \\quad y = -t, \\quad z = -t$",
+      "$x = 1 + 2t, \\quad y = 2 - t, \\quad z = 3t$",
+      "$x = t, \\quad y = 2 + t, \\quad z = 1 - t$",
+      "$x = 2 - 3t, \\quad y = t, \\quad z = 2t$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Determine Line Direction Vector $\\mathbf{d} = \\mathbf{n}_1 \\times \\mathbf{n}_2$",
+        "body": "Normals are $\\mathbf{n}_1 = \\langle 2, -1, 3 \\rangle$ and $\\mathbf{n}_2 = \\langle 1, 2, -1 \\rangle$.\n\\[ \\mathbf{d} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ 2 & -1 & 3 \\\\ 1 & 2 & -1 \\end{vmatrix} = \\langle 1 - 6, -(-2 - 3), 4 - (-1) \\rangle = \\langle -5, 5, 5 \\rangle \\]\nFactor out $-5$ to simplify direction vector: $\\mathbf{d}' = \\langle 1, -1, -1 \\rangle$."
+      },
+      {
+        "title": "Step 2: Find a Common Point on Both Planes",
+        "body": "Set $z = 0$ in both plane equations:\n1) $2x - y = 4 \\implies y = 2x - 4$\n2) $x + 2y = 2$\nSubstitute (1) into (2):\n\\[ x + 2(2x - 4) = 2 \\implies 5x - 8 = 2 \\implies 5x = 10 \\implies x = 2 \\]\nThen $y = 2(2) - 4 = 0$.\nCommon point is $(2, 0, 0)$."
+      },
+      {
+        "title": "Step 3: Write Parametric Form",
+        "body": "Using point $(2, 0, 0)$ and direction $\\langle 1, -1, -1 \\rangle$:\n\\[ x = 2 + t, \\quad y = -t, \\quad z = -t \\]"
+      }
+    ],
+    "examTip": "The line of intersection must be orthogonal to BOTH plane normals, so its direction is ALWAYS $\\mathbf{n}_1 \\times \\mathbf{n}_2$."
+  },
+  {
+    "id": "q7_plane_dihedral_angle",
+    "unitId": "unit-7",
+    "skillId": "s7_5",
+    "difficulty": "Standard",
+    "title": "Acute Dihedral Angle Between Two Intersecting Planes",
+    "prompt": "Find the acute angle $\\theta$ between the planes $\\Pi_1: x + y + z = 1$ and $\\Pi_2: x - 2y + 3z = 5$.",
+    "options": [
+      "$\\theta = 45.0^\\circ$",
+      "$\\theta = 90.0^\\circ$ (Orthogonal)",
+      "$\\theta = \\arccos\\left(\\frac{2}{\\sqrt{42}}\\right) \\approx 72.0^\\circ$",
+      "$\\theta = 30.0^\\circ$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Identify Plane Normals",
+        "body": "\\[ \\mathbf{n}_1 = \\langle 1, 1, 1 \\rangle, \\quad \\mathbf{n}_2 = \\langle 1, -2, 3 \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Compute Dot Product and Magnitudes",
+        "body": "\\[ \\mathbf{n}_1 \\cdot \\mathbf{n}_2 = (1)(1) + (1)(-2) + (1)(3) = 1 - 2 + 3 = 2 \\]\n\\[ \\|\\mathbf{n}_1\\| = \\sqrt{1^2 + 1^2 + 1^2} = \\sqrt{3} \\]\n\\[ \\|\\mathbf{n}_2\\| = \\sqrt{1^2 + (-2)^2 + 3^2} = \\sqrt{1 + 4 + 9} = \\sqrt{14} \\]"
+      },
+      {
+        "title": "Step 3: Calculate Angle",
+        "body": "\\[ \\cos\\theta = \\frac{|\\mathbf{n}_1 \\cdot \\mathbf{n}_2|}{\\|\\mathbf{n}_1\\|\\|\\mathbf{n}_2\\|} = \\frac{2}{\\sqrt{3}\\sqrt{14}} = \\frac{2}{\\sqrt{42}} \\]\n\\[ \\theta = \\arccos\\left(\\frac{2}{\\sqrt{42}}\\right) \\approx 72.02^\\circ \\]"
+      }
+    ],
+    "examTip": "The dihedral angle between two planes is defined as the acute angle between their normal vectors. Always take the absolute value of the dot product: $|\\mathbf{n}_1 \\cdot \\mathbf{n}_2|$."
+  },
+  {
+    "id": "q7_line_plane_pierce",
+    "unitId": "unit-7",
+    "skillId": "s7_6",
+    "difficulty": "Standard",
+    "title": "Line-Plane Piercing Point (Point of Intersection)",
+    "prompt": "Find the point of intersection where the line $\\mathbf{r}(t) = \\langle 1 + 2t, -2 + 3t, 4 - t \\rangle$ pierces the plane $3x - 2y + 4z = 11$.",
+    "options": [
+      "Point $(3, 1, 3)$ at $t = 1$",
+      "Point $(7, 7, 1)$ at $t = 3$",
+      "Point $(5, 4, 2)$ at $t = 2$",
+      "Point $(-1, -5, 5)$ at $t = -1$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Substitute Parametric Expressions into Plane Equation",
+        "body": "Given $x = 1 + 2t$, $y = -2 + 3t$, $z = 4 - t$. Substitute into $3x - 2y + 4z = 11$:\n\\[ 3(1 + 2t) - 2(-2 + 3t) + 4(4 - t) = 11 \\]"
+      },
+      {
+        "title": "Step 2: Solve for Parameter $t$",
+        "body": "\\[ 3 + 6t + 4 - 6t + 16 - 4t = 11 \\]\nNotice that $6t - 6t = 0$:\n\\[ 23 - 4t = 11 \\implies -4t = -12 \\implies t = 3 \\]"
+      },
+      {
+        "title": "Step 3: Evaluate Point of Intersection",
+        "body": "Substitute $t = 3$ into line coordinates:\n\\[ x = 1 + 2(3) = 7 \\]\n\\[ y = -2 + 3(3) = 7 \\]\n\\[ z = 4 - 3 = 1 \\]\nPiercing point is $(7, 7, 1)$. Check in plane: $3(7) - 2(7) + 4(1) = 21 - 14 + 4 = 11$. Valid!"
+      }
+    ],
+    "examTip": "To find where a line intersects a plane, always substitute the parametric equations into the plane equation and solve for parameter $t$."
+  },
+  {
+    "id": "q7_line_plane_parallel_check",
+    "unitId": "unit-7",
+    "skillId": "s7_6",
+    "difficulty": "Standard",
+    "title": "Geometric Relationship Between Line and Plane (Parallelism Check)",
+    "prompt": "Determine the geometric relationship between the line $x = 2 + 3t, y = 1 - t, z = -4 + 2t$ and the plane $2x + 4y - z = 12$.",
+    "options": [
+      "The line intersects the plane at a single point $(5, 0, -2)$",
+      "The line is orthogonal to the plane",
+      "The line is parallel to the plane and does not intersect it",
+      "The line lies entirely within the plane"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Check Dot Product of Line Direction and Plane Normal",
+        "body": "Line direction $\\mathbf{d} = \\langle 3, -1, 2 \\rangle$.\nPlane normal $\\mathbf{n} = \\langle 2, 4, -1 \\rangle$.\n\\[ \\mathbf{d} \\cdot \\mathbf{n} = (3)(2) + (-1)(4) + (2)(-1) = 6 - 4 - 2 = 0 \\]\nBecause $\\mathbf{d} \\cdot \\mathbf{n} = 0$, the line direction is perpendicular to the normal, which means the line is parallel to the plane."
+      },
+      {
+        "title": "Step 2: Test if Line Anchor Point Lies on Plane",
+        "body": "Test $t = 0$ point $(2, 1, -4)$ in the plane equation:\n\\[ 2(2) + 4(1) - (-4) = 4 + 4 + 4 = 12 = 12 \\]\nSince the point satisfies the plane equation, the entire line lies within the plane!"
+      }
+    ],
+    "examTip": "If $\\mathbf{d} \\cdot \\mathbf{n} = 0$, the line is either strictly parallel (no intersections) or entirely contained within the plane (infinite intersections). Test $t=0$ to distinguish!"
+  },
+  {
+    "id": "q7_point_to_plane_distance",
+    "unitId": "unit-7",
+    "skillId": "s7_4",
+    "difficulty": "Standard",
+    "title": "Perpendicular Distance from a Point to a Plane",
+    "prompt": "Find the shortest perpendicular distance from the point $P(2, -3, 4)$ to the plane $2x - y + 2z = 3$.",
+    "options": [
+      "Distance $D = 4$",
+      "Distance $D = 2$",
+      "Distance $D = 12$",
+      "Distance $D = \\sqrt{5}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Apply Point-Plane Distance Formula",
+        "body": "For plane $Ax + By + Cz + D = 0$ (or $Ax + By + Cz = k$) and point $(x_0, y_0, z_0)$:\n\\[ D = \\frac{|Ax_0 + By_0 + Cz_0 - k|}{\\sqrt{A^2 + B^2 + C^2}} \\]"
+      },
+      {
+        "title": "Step 2: Substitute Values",
+        "body": "Plane: $2x - y + 2z - 3 = 0$. Point: $(2, -3, 4)$.\nNumerator:\n\\[ |2(2) - (-3) + 2(4) - 3| = |4 + 3 + 8 - 3| = |12| = 12 \\]\nDenominator:\n\\[ \\sqrt{2^2 + (-1)^2 + 2^2} = \\sqrt{4 + 1 + 4} = \\sqrt{9} = 3 \\]"
+      },
+      {
+        "title": "Step 3: Compute Distance",
+        "body": "\\[ D = \\frac{12}{3} = 4 \\]"
+      }
+    ],
+    "examTip": "Geometric interpretation: $D$ is the length of the projection of vector $\\vec{QP}$ onto the plane normal $\\mathbf{n}$, where $Q$ is any point on the plane."
+  },
+  {
+    "id": "q8_normal_level_surface",
+    "unitId": "unit-8",
+    "skillId": "s8_1",
+    "difficulty": "Standard",
+    "title": "Unit Normal Vector and Tangent Plane to Level Surface",
+    "prompt": "Find the unit normal vector $\\hat{n}$ and the equation of the tangent plane to the ellipsoid level surface $F(x,y,z) = x^2 + 2y^2 + 3z^2 = 21$ at the point $P(1, 2, 2)$.",
+    "options": [
+      "$\\hat{n} = \\frac{1}{\\sqrt{14}}\\langle 1, 2, 3 \\rangle$; Tangent plane: $x + 2y + 3z = 11$",
+      "$\\hat{n} = \\frac{1}{\\sqrt{53}}\\langle 1, 4, 6 \\rangle$; Tangent plane: $x + 4y + 6z = 21$",
+      "$\\hat{n} = \\frac{1}{\\sqrt{6}}\\langle 1, 1, 2 \\rangle$; Tangent plane: $2x + 4y + 6z = 22$",
+      "$\\hat{n} = \\langle 2, 8, 12 \\rangle$; Tangent plane: $2x + 8y + 12z = 0$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Gradient Vector as Surface Normal",
+        "body": "For any level surface $F(x,y,z) = c$, the gradient $\\nabla F$ is normal to the surface:\n\\[ \\nabla F = \\left\\langle \\frac{\\partial F}{\\partial x}, \\frac{\\partial F}{\\partial y}, \\frac{\\partial F}{\\partial z} \\right\\rangle = \\langle 2x, 4y, 6z \\rangle \\]"
+      },
+      {
+        "title": "Step 2: Evaluate Gradient at P(1, 2, 2)",
+        "body": "\\[ \\nabla F(1, 2, 2) = \\langle 2(1), 4(2), 6(2) \\rangle = \\langle 2, 8, 12 \\rangle = 2\\langle 1, 4, 6 \\rangle \\]\nMagnitude:\n\\[ \\|\\nabla F\\| = 2\\sqrt{1^2 + 4^2 + 6^2} = 2\\sqrt{1 + 16 + 36} = 2\\sqrt{53} \\]\nUnit normal vector:\n\\[ \\hat{n} = \\frac{\\nabla F}{\\|\\nabla F\\|} = \\frac{1}{\\sqrt{53}}\\langle 1, 4, 6 \\rangle \\]"
+      },
+      {
+        "title": "Step 3: Tangent Plane Equation",
+        "body": "Using direction $\\langle 1, 4, 6 \\rangle$ and point $(1, 2, 2)$:\n\\[ 1(x - 1) + 4(y - 2) + 6(z - 2) = 0 \\]\n\\[ x - 1 + 4y - 8 + 6z - 12 = 0 \\implies x + 4y + 6z = 21 \\]"
+      }
+    ],
+    "examTip": "The gradient of $F$ at $(x_0,y_0,z_0)$ is always perpendicular to the level surface $F(x,y,z)=c$ passing through that point."
+  },
+  {
+    "id": "q8_normal_explicit_surface",
+    "unitId": "unit-8",
+    "skillId": "s8_1",
+    "difficulty": "Standard",
+    "title": "Normal Line to Explicit Surface z = f(x, y)",
+    "prompt": "Find the symmetric equations of the normal line to the paraboloid surface $z = 4 - x^2 - 2y^2$ at the point $P(1, 1, 1)$.",
+    "options": [
+      "$\\frac{x - 1}{2} = \\frac{y - 1}{4} = z - 1$",
+      "$\\frac{x - 1}{1} = \\frac{y - 1}{2} = \\frac{z - 1}{4}$",
+      "$x - 1 = y - 1 = z - 1$",
+      "$\\frac{x - 1}{4} = \\frac{y - 1}{2} = z - 1$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Express Explicit Surface as Level Surface",
+        "body": "Rewrite $z = 4 - x^2 - 2y^2$ as:\n\\[ F(x,y,z) = x^2 + 2y^2 + z - 4 = 0 \\]"
+      },
+      {
+        "title": "Step 2: Compute Gradient Normal Vector",
+        "body": "\\[ \\nabla F = \\langle 2x, 4y, 1 \\rangle \\]\nAt $P(1, 1, 1)$:\n\\[ \\nabla F(1, 1, 1) = \\langle 2(1), 4(1), 1 \\rangle = \\langle 2, 4, 1 \\rangle \\]"
+      },
+      {
+        "title": "Step 3: Symmetric Equations of Normal Line",
+        "body": "The normal line passes through $(x_0, y_0, z_0) = (1, 1, 1)$ in direction $\\langle 2, 4, 1 \\rangle$:\n\\[ \\frac{x - 1}{2} = \\frac{y - 1}{4} = \\frac{z - 1}{1} \\]"
+      }
+    ],
+    "examTip": "For explicit surfaces $z = f(x,y)$, rewriting as $f(x,y) - z = 0$ gives normal $\\langle f_x, f_y, -1 \\rangle$. Rewriting as $z - f(x,y) = 0$ gives $\\langle -f_x, -f_y, 1 \\rangle$. Both are collinear normals!"
+  },
+  {
+    "id": "q8_div_eval_solenoidal",
+    "unitId": "unit-8",
+    "skillId": "s8_2",
+    "difficulty": "Standard",
+    "title": "Divergence Computation and Solenoidal Check",
+    "prompt": "Compute the divergence $\\nabla \\cdot \\mathbf{F}$ of the vector field $\\mathbf{F} = \\langle 2x^2 y, -xy^2, 3z + x^2 \\rangle$ at $(1, 2, -1)$, and determine whether $\\mathbf{F}$ is solenoidal (incompressible).",
+    "options": [
+      "$\\nabla \\cdot \\mathbf{F} = 0$; $\\mathbf{F}$ is solenoidal everywhere",
+      "$\\nabla \\cdot \\mathbf{F} = 7$; $\\mathbf{F}$ is not solenoidal (acts as a net source)",
+      "$\\nabla \\cdot \\mathbf{F} = -4$; $\\mathbf{F}$ acts as a net sink",
+      "$\\nabla \\cdot \\mathbf{F} = 3$; $\\mathbf{F}$ is solenoidal only when $x = 0$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Definition of Divergence",
+        "body": "For $\\mathbf{F} = \\langle P, Q, R \\rangle$, the divergence is the scalar field:\n\\[ \\nabla \\cdot \\mathbf{F} = \\frac{\\partial P}{\\partial x} + \\frac{\\partial Q}{\\partial y} + \\frac{\\partial R}{\\partial z} \\]"
+      },
+      {
+        "title": "Step 2: Partial Derivatives",
+        "body": "\\[ \\frac{\\partial}{\\partial x}(2x^2 y) = 4xy \\]\n\\[ \\frac{\\partial}{\\partial y}(-xy^2) = -2xy \\]\n\\[ \\frac{\\partial}{\\partial z}(3z + x^2) = 3 \\]\nCombining:\n\\[ \\nabla \\cdot \\mathbf{F} = 4xy - 2xy + 3 = 2xy + 3 \\]"
+      },
+      {
+        "title": "Step 3: Evaluate at Point and Physical Meaning",
+        "body": "At $(1, 2, -1)$:\n\\[ \\nabla \\cdot \\mathbf{F} = 2(1)(2) + 3 = 7 \\]\nSince $\\nabla \\cdot \\mathbf{F} = 7 \\neq 0$, the vector field is NOT solenoidal. Because $\\text{div}\\,\\mathbf{F} > 0$, fluid is expanding outwards from this point (source behavior)."
+      }
+    ],
+    "examTip": "A vector field is solenoidal (incompressible) if and only if $\\nabla \\cdot \\mathbf{F} = 0$ everywhere."
+  },
+  {
+    "id": "q8_div_param_solenoidal",
+    "unitId": "unit-8",
+    "skillId": "s8_2",
+    "difficulty": "Standard",
+    "title": "Parameter Value for Incompressible (Solenoidal) Flow",
+    "prompt": "Determine the constant $k$ such that the velocity field $\\mathbf{V} = (2x + 3y)\\mathbf{i} + (ky - z)\\mathbf{j} + (3x - 4z)\\mathbf{k}$ is everywhere solenoidal (incompressible, $\\nabla \\cdot \\mathbf{V} = 0$).",
+    "options": [
+      "$k = -2$",
+      "$k = 4$",
+      "$k = 2$",
+      "$k = 0$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Divergence",
+        "body": "\\[ \\nabla \\cdot \\mathbf{V} = \\frac{\\partial}{\\partial x}(2x + 3y) + \\frac{\\partial}{\\partial y}(ky - z) + \\frac{\\partial}{\\partial z}(3x - 4z) \\]\n\\[ = 2 + k - 4 = k - 2 \\]"
+      },
+      {
+        "title": "Step 2: Impose Solenoidal Condition",
+        "body": "For an incompressible field:\n\\[ \\nabla \\cdot \\mathbf{V} = 0 \\implies k - 2 = 0 \\implies k = 2 \\]"
+      }
+    ],
+    "examTip": "In fluid mechanics, the continuity equation for constant-density fluid flow simplifies directly to the solenoidal condition: $\\nabla \\cdot \\mathbf{V} = 0$."
+  },
+  {
+    "id": "q8_curl_conservative_field",
+    "unitId": "unit-8",
+    "skillId": "s8_3",
+    "difficulty": "Standard",
+    "title": "Curl Evaluation and Conservative Vector Field Test",
+    "prompt": "Evaluate $\\text{curl}\\,\\mathbf{F} = \\nabla \\times \\mathbf{F}$ for $\\mathbf{F} = \\langle 2xy + z^3, \\, x^2 + 3y^2, \\, 3xz^2 - 4 \\rangle$ and state whether $\\mathbf{F}$ is conservative (irrotational).",
+    "options": [
+      "$\\text{curl}\\,\\mathbf{F} = \\langle 2x, 0, 3z \\rangle$; not conservative",
+      "$\\text{curl}\\,\\mathbf{F} = \\langle z^2, -x, 2y \\rangle$; not conservative",
+      "$\\text{curl}\\,\\mathbf{F} = \\langle 0, 0, 2 \\rangle$; represents vortex flow",
+      "$\\text{curl}\\,\\mathbf{F} = \\mathbf{0}$; $\\mathbf{F}$ is conservative (irrotational)"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Determinant Formula for Curl",
+        "body": "\\[ \\nabla \\times \\mathbf{F} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ \\frac{\\partial}{\\partial x} & \\frac{\\partial}{\\partial y} & \\frac{\\partial}{\\partial z} \\\\ 2xy + z^3 & x^2 + 3y^2 & 3xz^2 - 4 \\end{vmatrix} \\]"
+      },
+      {
+        "title": "Step 2: Component Computations",
+        "body": "\\[ \\mathbf{i}\\text{-comp}: \\frac{\\partial}{\\partial y}(3xz^2 - 4) - \\frac{\\partial}{\\partial z}(x^2 + 3y^2) = 0 - 0 = 0 \\]\n\\[ \\mathbf{j}\\text{-comp}: -\\left[ \\frac{\\partial}{\\partial x}(3xz^2 - 4) - \\frac{\\partial}{\\partial z}(2xy + z^3) \\right] = -(3z^2 - 3z^2) = 0 \\]\n\\[ \\mathbf{k}\\text{-comp}: \\frac{\\partial}{\\partial x}(x^2 + 3y^2) - \\frac{\\partial}{\\partial y}(2xy + z^3) = 2x - 2x = 0 \\]"
+      },
+      {
+        "title": "Step 3: Conservative Property",
+        "body": "Since $\\nabla \\times \\mathbf{F} = \\langle 0, 0, 0 \\rangle = \\mathbf{0}$ on the simply connected domain $\\mathbb{R}^3$, the vector field is irrotational and conservative.\nPotential function: $f(x,y,z) = x^2 y + xz^3 + y^3 - 4z + C$."
+      }
+    ],
+    "examTip": "A vector field in $\\mathbb{R}^3$ with continuous partial derivatives on a simply connected domain is conservative if and only if its curl is identically zero: $\\nabla \\times \\mathbf{F} = \\mathbf{0}$."
+  },
+  {
+    "id": "q8_curl_vorticity_rotation",
+    "unitId": "unit-8",
+    "skillId": "s8_3",
+    "difficulty": "Hard",
+    "title": "Curl of Rigid Body Rotation Velocity Field (Vorticity)",
+    "prompt": "A fluid element undergoes rigid body rotation about the $z$-axis with angular velocity $\\boldsymbol{\\omega} = \\langle 0, 0, \\omega_0 \\rangle$. Its velocity field is $\\mathbf{v} = \\boldsymbol{\\omega} \\times \\mathbf{r} = \\langle -\\omega_0 y, \\omega_0 x, 0 \\rangle$. Compute $\\text{curl}\\,\\mathbf{v}$ and relate it to $\\boldsymbol{\\omega}$.",
+    "options": [
+      "$\\text{curl}\\,\\mathbf{v} = 2\\boldsymbol{\\omega} = 2\\omega_0 \\mathbf{k}$",
+      "$\\text{curl}\\,\\mathbf{v} = \\boldsymbol{\\omega} = \\omega_0 \\mathbf{k}$",
+      "$\\text{curl}\\,\\mathbf{v} = \\mathbf{0}$",
+      "$\\text{curl}\\,\\mathbf{v} = -2\\omega_0 \\mathbf{k}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Curl using Determinant",
+        "body": "\\[ \\nabla \\times \\mathbf{v} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ \\partial_x & \\partial_y & \\partial_z \\\\ -\\omega_0 y & \\omega_0 x & 0 \\end{vmatrix} \\]"
+      },
+      {
+        "title": "Step 2: Evaluate Components",
+        "body": "\\[ \\mathbf{i}\\text{-comp}: 0 - 0 = 0 \\]\n\\[ \\mathbf{j}\\text{-comp}: -(0 - 0) = 0 \\]\n\\[ \\mathbf{k}\\text{-comp}: \\frac{\\partial}{\\partial x}(\\omega_0 x) - \\frac{\\partial}{\\partial y}(-\\omega_0 y) = \\omega_0 - (-\\omega_0) = 2\\omega_0 \\]"
+      },
+      {
+        "title": "Step 3: Physical Interpretation",
+        "body": "\\[ \\nabla \\times \\mathbf{v} = \\langle 0, 0, 2\\omega_0 \\rangle = 2\\boldsymbol{\\omega} \\]\nThe curl of the velocity field equals exactly **twice the angular velocity vector**. In fluid mechanics, this quantity is known as the **vorticity vector** $\\boldsymbol{\\zeta} = \\nabla \\times \\mathbf{v} = 2\\boldsymbol{\\omega}$."
+      }
+    ],
+    "examTip": "Curl measures microscopic local rotation. For rigid-body rotation, $\\text{curl}(\\mathbf{v}) = 2\\boldsymbol{\\omega}$."
+  },
+  {
+    "id": "q8_identities_div_curl",
+    "unitId": "unit-8",
+    "skillId": "s8_4",
+    "difficulty": "Standard",
+    "title": "Fundamental Vector Calculus Identities: Div of Curl & Curl of Grad",
+    "prompt": "For any twice continuously differentiable scalar field $f$ and vector field $\\mathbf{F}$, which of the following identities are identically zero: (I) $\\nabla \\cdot (\\nabla \\times \\mathbf{F})$, (II) $\\nabla \\times (\\nabla f)$, (III) $\\nabla (\\nabla \\cdot \\mathbf{F})$?",
+    "options": [
+      "Only (I) is zero",
+      "Only (II) is zero",
+      "Both (I) and (II) are identically zero",
+      "All three (I, II, and III) are identically zero"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Prove (I) $\\nabla \\cdot (\\nabla \\times \\mathbf{F}) \\equiv 0$",
+        "body": "Let $\\mathbf{F} = \\langle P, Q, R \\rangle$. The curl is $\\langle R_y - Q_z, P_z - R_x, Q_x - P_y \\rangle$.\nTaking the divergence:\n\\[ \\nabla \\cdot (\\nabla \\times \\mathbf{F}) = \\frac{\\partial}{\\partial x}(R_y - Q_z) + \\frac{\\partial}{\\partial y}(P_z - R_x) + \\frac{\\partial}{\\partial z}(Q_x - P_y) \\]\n\\[ = R_{yx} - Q_{zx} + P_{zy} - R_{xy} + Q_{xz} - P_{yz} \\]\nBy Clairaut's Theorem ($R_{yx} = R_{xy}$, $Q_{zx} = Q_{xz}$, $P_{zy} = P_{yz}$), every pair cancels identically:\n\\[ \\nabla \\cdot (\\nabla \\times \\mathbf{F}) \\equiv 0 \\]"
+      },
+      {
+        "title": "Step 2: Prove (II) $\\nabla \\times (\\nabla f) \\equiv \\mathbf{0}$",
+        "body": "The gradient is $\\nabla f = \\langle f_x, f_y, f_z \\rangle$.\nTaking the curl:\n\\[ \\nabla \\times (\\nabla f) = \\langle f_{zy} - f_{yz}, \\, f_{xz} - f_{zx}, \\, f_{yx} - f_{xy} \\rangle = \\langle 0, 0, 0 \\rangle = \\mathbf{0} \\]"
+      },
+      {
+        "title": "Step 3: Analyze (III) $\\nabla(\\nabla \\cdot \\mathbf{F})$",
+        "body": "$\\nabla(\\nabla \\cdot \\mathbf{F})$ is the gradient of a scalar divergence. For example, if $\\mathbf{F} = \\langle x^2, 0, 0 \\rangle$, $\\nabla \\cdot \\mathbf{F} = 2x$, and $\\nabla(2x) = \\langle 2, 0, 0 \\rangle \\neq \\mathbf{0}$. Thus (III) is not generally zero.\nHence, only (I) and (II) are identically zero."
+      }
+    ],
+    "examTip": "Remember the classic rhymes: 'The divergence of a curl is zero' and 'The curl of a gradient is zero'."
+  },
+  {
+    "id": "q8_laplacian_harmonic",
+    "unitId": "unit-8",
+    "skillId": "s8_4",
+    "difficulty": "Standard",
+    "title": "Laplacian Operator and Harmonic Functions",
+    "prompt": "Compute the Laplacian $\\nabla^2 f = \\nabla \\cdot (\\nabla f) = f_{xx} + f_{yy} + f_{zz}$ of the scalar function $f(x,y,z) = x^3 - 3xy^2 + z^2$, and determine whether $f$ is harmonic.",
+    "options": [
+      "$\\nabla^2 f = 6x$; not harmonic",
+      "$\\nabla^2 f = 0$; $f$ is harmonic everywhere",
+      "$\\nabla^2 f = 2$; not harmonic (does not satisfy Laplace's equation)",
+      "$\\nabla^2 f = 6x - 6y + 2$; harmonic only on the plane $x - y = -1/3$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute First Partial Derivatives",
+        "body": "\\[ f_x = \\frac{\\partial}{\\partial x}(x^3 - 3xy^2 + z^2) = 3x^2 - 3y^2 \\]\n\\[ f_y = \\frac{\\partial}{\\partial y}(x^3 - 3xy^2 + z^2) = -6xy \\]\n\\[ f_z = \\frac{\\partial}{\\partial z}(x^3 - 3xy^2 + z^2) = 2z \\]"
+      },
+      {
+        "title": "Step 2: Compute Second Pure Partial Derivatives",
+        "body": "\\[ f_{xx} = \\frac{\\partial}{\\partial x}(3x^2 - 3y^2) = 6x \\]\n\\[ f_{yy} = \\frac{\\partial}{\\partial y}(-6xy) = -6x \\]\n\\[ f_{zz} = \\frac{\\partial}{\\partial z}(2z) = 2 \\]"
+      },
+      {
+        "title": "Step 3: Sum to Form the Laplacian",
+        "body": "\\[ \\nabla^2 f = f_{xx} + f_{yy} + f_{zz} = 6x + (-6x) + 2 = 2 \\]\nA function is defined to be harmonic if and only if it satisfies Laplace's equation $\\nabla^2 f = 0$ everywhere. Since $\\nabla^2 f = 2 \\neq 0$, $f$ is not harmonic."
+      }
+    ],
+    "examTip": "Notice how $x^3 - 3xy^2$ has $f_{xx} + f_{yy} = 6x - 6x = 0$, which is harmonic in 2D (the real part of $(x+iy)^3$). But the $z^2$ term adds $2$, so the 3D function is not harmonic."
+  },
+  {
+    "id": "q2_opt_beam_strength",
+    "unitId": "unit-2",
+    "skillId": "s2_5",
+    "difficulty": "Standard",
+    "title": "Maximum Strength Rectangular Beam from a Cylindrical Log",
+    "prompt": "A timber beam of rectangular cross-section with width $w$ and depth $d$ is cut from a cylindrical tree log of circular diameter $D$. The bending strength $S$ of a rectangular beam is proportional to the width and the square of the depth, namely $S = k w d^2$, where $k$ is an empirical material constant. Find the optimal ratio of depth to width, $d/w$, and the dimensions $w$ and $d$ that maximize the beam's bending strength.",
+    "options": [
+      "Width $w = D/2$, depth $d = D\\sqrt{3}/2$, with ratio $d/w = \\sqrt{3} \\approx 1.732$",
+      "Width $w = D/\\sqrt{2}$, depth $d = D/\\sqrt{2}$, with ratio $d/w = 1.000$ (square cross-section)",
+      "Width $w = D/\\sqrt{3}$, depth $d = D\\sqrt{2/3}$, with ratio $d/w = \\sqrt{2} \\approx 1.414$",
+      "Width $w = 2D/3$, depth $d = D/3$, with ratio $d/w = 0.500$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Constraint & Objective Function",
+        "body": "The beam's rectangular cross-section fits inside the circle of diameter $D$:\n\\[ w^2 + d^2 = D^2 \\implies d^2 = D^2 - w^2 \\]\nSubstitute $d^2$ directly into the bending strength formula:\n\\[ S(w) = k w (D^2 - w^2) = k (D^2 w - w^3) \\]"
+      },
+      {
+        "title": "Step 2: Differentiate with Respect to Width",
+        "body": "Set the first derivative to zero for a critical point:\n\\[ \\frac{dS}{dw} = k (D^2 - 3w^2) = 0 \\implies 3w^2 = D^2 \\implies w = \\frac{D}{\\sqrt{3}} \\]\nCheck the second derivative:\n\\[ \\frac{d^2S}{dw^2} = -6kw < 0 \\quad (\\text{strictly concave for } w > 0, \\text{ confirming an absolute maximum}) \\]"
+      },
+      {
+        "title": "Step 3: Depth and Aspect Ratio",
+        "body": "Substitute $w = D/\\sqrt{3}$ into $d^2 = D^2 - w^2$:\n\\[ d^2 = D^2 - \\frac{D^2}{3} = \\frac{2D^2}{3} \\implies d = D\\sqrt{\\frac{2}{3}} \\]\nThe optimal ratio of depth to width is:\n\\[ \\frac{d}{w} = \\frac{D\\sqrt{2/3}}{D/\\sqrt{3}} = \\sqrt{\\frac{2/3}{1/3}} = \\sqrt{2} \\approx 1.414 \\]"
+      }
+    ],
+    "examTip": "Bending strength depends on the elastic section modulus $Z = \\frac{w d^2}{6}$, which is quadratic in depth. Therefore, making the beam deeper ($d/w = \\sqrt{2}$) yields much higher strength than a square beam ($d/w = 1$) cut from the same tree trunk!"
+  },
+  {
+    "id": "q2_opt_beam_stiffness",
+    "unitId": "unit-2",
+    "skillId": "s2_5",
+    "difficulty": "Standard",
+    "title": "Maximum Flexural Stiffness Beam Cut from a Circular Log",
+    "prompt": "A rectangular wooden beam of width $w$ and depth $d$ is milled from a circular tree trunk of diameter $D$. The beam's resistance to elastic deflection (flexural stiffness) is governed by its area moment of inertia $I = \\frac{1}{12} w d^3$. Find the dimensions $w$ and $d$ in terms of $D$, and the depth-to-width ratio $d/w$, that maximize the flexural stiffness of the beam.",
+    "options": [
+      "Width $w = \\frac{D}{2}$, depth $d = \\frac{\\sqrt{3}D}{2}$, ratio $\\frac{d}{w} = \\sqrt{3} \\approx 1.732$",
+      "Width $w = \\frac{D}{\\sqrt{3}}$, depth $d = D\\sqrt{\\frac{2}{3}}$, ratio $\\frac{d}{w} = \\sqrt{2} \\approx 1.414$",
+      "Width $w = \\frac{D}{\\sqrt{2}}$, depth $d = \\frac{D}{\\sqrt{2}}$, ratio $\\frac{d}{w} = 1.000$",
+      "Width $w = \\frac{D}{4}$, depth $d = \\frac{\\sqrt{15}D}{4}$, ratio $\\frac{d}{w} = \\sqrt{15} \\approx 3.873$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Constraint & Objective Formulation",
+        "body": "The circular log provides the constraint $w^2 + d^2 = D^2$.\nWe wish to maximize $I(w, d) = \\frac{1}{12} w d^3$, which is equivalent to maximizing $f(w, d) = w d^3$ subject to $g(w, d) = w^2 + d^2 = D^2$."
+      },
+      {
+        "title": "Step 2: Lagrange Multiplier Gradient Condition",
+        "body": "Using $\\nabla f = \\lambda \\nabla g$:\n\\[ \\nabla f = \\langle d^3, 3wd^2 \\rangle, \\quad \\nabla g = \\langle 2w, 2d \\rangle \\]\nEquating components:\n\\[ d^3 = 2\\lambda w \\implies \\lambda = \\frac{d^3}{2w} \\]\n\\[ 3wd^2 = 2\\lambda d \\implies \\lambda = \\frac{3wd}{2} \\]\nEquating the two expressions for $\\lambda$:\n\\[ \\frac{d^3}{2w} = \\frac{3wd}{2} \\implies d^2 = 3w^2 \\implies \\frac{d}{w} = \\sqrt{3} \\approx 1.732 \\]"
+      },
+      {
+        "title": "Step 3: Determining the Dimensions",
+        "body": "Substitute $d^2 = 3w^2$ into $w^2 + d^2 = D^2$:\n\\[ w^2 + 3w^2 = D^2 \\implies 4w^2 = D^2 \\implies w = \\frac{D}{2} \\]\n\\[ d = \\sqrt{3} w = \\frac{\\sqrt{3}D}{2} \\]\nThus, maximum flexural stiffness requires width $w = D/2$, depth $d = D\\sqrt{3}/2$, with aspect ratio $d/w = \\sqrt{3} \\approx 1.732$."
+      }
+    ],
+    "examTip": "Contrast this with bending strength ($S \\propto w d^2$, ratio $\\sqrt{2}$): because deflection depends cubically on depth ($I \\propto w d^3$), stiffness favors an even deeper and narrower beam with aspect ratio $\\sqrt{3} \\approx 1.732$!"
+  },
+  {
+    "id": "q2_opt_truss_weight",
+    "unitId": "unit-2",
+    "skillId": "s2_5",
+    "difficulty": "Exam Challenge",
+    "title": "Minimum Weight Symmetric Two-Bar Pin-Jointed Truss",
+    "prompt": "A symmetric two-bar pin-jointed truss spans a horizontal distance $2L$ between two rigid wall supports at the same elevation. A single vertical downward load $P$ is applied at the central apex node located at height $h$ below the support level. The length of each strut is $S = \\sqrt{L^2 + h^2}$. The allowable compressive stress in each strut is $\\sigma_{allow}$. The total volume (and hence total weight) of the two struts is $V(h) = 2 A S = \\frac{P(L^2 + h^2)}{\\sigma_{allow} h}$. Find the optimal height $h^*$ and member inclination angle $\\theta$ with respect to the horizontal that minimizes the total material weight of the truss.",
+    "options": [
+      "Height $h^* = \\frac{L}{\\sqrt{3}}$, angle $\\theta = 30^\\circ$",
+      "Height $h^* = L$, angle $\\theta = 45^\\circ$",
+      "Height $h^* = L\\sqrt{3}$, angle $\\theta = 60^\\circ$",
+      "Height $h^* = \\frac{L}{2}$, angle $\\theta = 26.6^\\circ$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Statics & Strut Sizing",
+        "body": "Let $\\theta$ be the angle each bar makes below the horizontal, so $\\sin\\theta = \\frac{h}{\\sqrt{L^2+h^2}}$.\nVertical equilibrium at the loaded joint:\n\\[ 2 F \\sin\\theta = P \\implies F = \\frac{P}{2\\sin\\theta} = \\frac{P\\sqrt{L^2+h^2}}{2h} \\]\nThe minimum required cross-sectional area per strut is $A = \\frac{F}{\\sigma_{allow}} = \\frac{P\\sqrt{L^2+h^2}}{2\\sigma_{allow} h}$."
+      },
+      {
+        "title": "Step 2: Total Truss Volume Formulation",
+        "body": "The combined volume of both struts, each of length $S = \\sqrt{L^2+h^2}$, is:\n\\[ V(h) = 2 A S = 2\\left(\\frac{P\\sqrt{L^2+h^2}}{2\\sigma_{allow} h}\\right)\\sqrt{L^2+h^2} = \\frac{P(L^2 + h^2)}{\\sigma_{allow} h} = \\frac{P}{\\sigma_{allow}}\\left(\\frac{L^2}{h} + h\\right) \\]"
+      },
+      {
+        "title": "Step 3: Minimization & Optimal Geometry",
+        "body": "Differentiating with respect to height $h$:\n\\[ \\frac{dV}{dh} = \\frac{P}{\\sigma_{allow}}\\left(-\\frac{L^2}{h^2} + 1\\right) = 0 \\implies h^2 = L^2 \\implies h^* = L \\]\nThe second derivative is $\\frac{d^2V}{dh^2} = \\frac{2PL^2}{\\sigma_{allow} h^3} > 0$, guaranteeing a minimum.\nAt $h^* = L$, $\\tan\\theta = \\frac{h^*}{L} = \\frac{L}{L} = 1 \\implies \\theta = 45^\\circ$."
+      }
+    ],
+    "examTip": "This classic structural mechanics problem demonstrates the trade-off: a shallow truss ($h \\to 0$) experiences huge compressive forces, while a deep truss ($h \\to \\infty$) requires excessively long bars. The optimal balance occurs exactly at $h = L$ ($\theta = 45^\\circ$)!"
+  },
+  {
+    "id": "q2_opt_snell_fermat",
+    "unitId": "unit-2",
+    "skillId": "s2_5",
+    "difficulty": "Exam Challenge",
+    "title": "Fermat's Principle of Least Time & Derivation of Snell's Law",
+    "prompt": "A wave travels from point $A(0, a)$ in Medium 1 (propagation speed $v_1$) to point $B(d, -b)$ in Medium 2 (propagation speed $v_2$), crossing the horizontal interface $y=0$ at point $P(x, 0)$ where $0 \\le x \\le d$. Fermat's Principle states that the actual path taken minimizes the total travel time $T(x)$. Express $T(x)$ in terms of $x$, take its derivative $dT/dx = 0$, and identify the fundamental physical law that results.",
+    "options": [
+      "Conservation of momentum: $v_1 \\cos\\theta_1 = v_2 \\cos\\theta_2$",
+      "Brewster's angle criterion: $\\tan\\theta_1 \\tan\\theta_2 = v_1 / v_2$",
+      "Doppler frequency shift: $\\frac{\\lambda_1}{v_1} = \\frac{\\lambda_2}{v_2}$",
+      "Snell's Law of Refraction: $\\frac{\\sin\\theta_1}{v_1} = \\frac{\\sin\\theta_2}{v_2}$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Path Geometry & Travel Time Expression",
+        "body": "The straight-line path from $A(0, a)$ to interface crossing point $P(x, 0)$ has length $s_1 = \\sqrt{x^2 + a^2}$.\nThe path from $P(x, 0)$ to $B(d, -b)$ has length $s_2 = \\sqrt{(d - x)^2 + b^2}$.\nTotal transit time $T(x)$ is:\n\\[ T(x) = \\frac{s_1}{v_1} + \\frac{s_2}{v_2} = \\frac{\\sqrt{x^2 + a^2}}{v_1} + \\frac{\\sqrt{(d - x)^2 + b^2}}{v_2} \\]"
+      },
+      {
+        "title": "Step 2: Stationary Time Condition",
+        "body": "Differentiating with respect to $x$:\n\\[ \\frac{dT}{dx} = \\frac{1}{v_1} \\frac{x}{\\sqrt{x^2 + a^2}} + \\frac{1}{v_2} \\frac{-(d - x)}{\\sqrt{(d - x)^2 + b^2}} = 0 \\]\n\\[ \\implies \\frac{1}{v_1}\\frac{x}{\\sqrt{x^2 + a^2}} = \\frac{1}{v_2}\\frac{d - x}{\\sqrt{(d - x)^2 + b^2}} \\]"
+      },
+      {
+        "title": "Step 3: Geometric Identification of Angles",
+        "body": "From the right triangles formed by the interface normal at $P$:\n\\[ \\sin\\theta_1 = \\frac{x}{\\sqrt{x^2 + a^2}}, \\quad \\sin\\theta_2 = \\frac{d - x}{\\sqrt{(d - x)^2 + b^2}} \\]\nSubstituting these trigonometric identities yields:\n\\[ \\frac{\\sin\\theta_1}{v_1} = \\frac{\\sin\\theta_2}{v_2} \\iff n_1 \\sin\\theta_1 = n_2 \\sin\\theta_2 \\]\nwhich is Snell's Law of Refraction!"
+      }
+    ],
+    "examTip": "Calculus reveals why light bends at interfaces: light always takes the path of least time, not the path of least distance! The stationarity condition $dT/dx = 0$ directly produces Snell's Law."
+  },
+  {
+    "id": "q2_opt_pipe_diameter",
+    "unitId": "unit-2",
+    "skillId": "s2_5",
+    "difficulty": "Standard",
+    "title": "Economic Pipe Diameter Balancing Capital Cost & Pumping Power",
+    "prompt": "In pipeline design, increasing pipe inner diameter $D$ increases pipe manufacturing and excavation capital cost $C_{cap}(D) = a D$, but drastically decreases fluid friction pressure drop and annual pumping electrical cost $C_{pump}(D) = \\frac{b}{D^5}$ (by the Darcy-Weisbach / Hagen-Poiseuille relations). The total life-cycle annual cost is $C(D) = a D + \\frac{b}{D^5}$, where $a, b > 0$. Find the optimal economic diameter $D^*$ that minimizes total annual cost.",
+    "options": [
+      "$D^* = \\left(\\frac{5b}{a}\\right)^{1/6}$",
+      "$D^* = \\left(\\frac{b}{5a}\\right)^{1/5}$",
+      "$D^* = \\left(\\frac{a}{5b}\\right)^{1/6}$",
+      "$D^* = \\left(\\frac{5b}{a}\\right)^{1/4}$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Cost Objective Function",
+        "body": "The total cost function is:\n\\[ C(D) = a D + b D^{-5} \\quad (D > 0) \\]"
+      },
+      {
+        "title": "Step 2: First Derivative & Critical Diameter",
+        "body": "Differentiating with respect to diameter $D$:\n\\[ \\frac{dC}{dD} = a - 5b D^{-6} = a - \\frac{5b}{D^6} = 0 \\]\nSolving for $D^6$:\n\\[ D^6 = \\frac{5b}{a} \\implies D^* = \\left(\\frac{5b}{a}\\right)^{1/6} \\]"
+      },
+      {
+        "title": "Step 3: Verification of Minimum",
+        "body": "Checking the second derivative:\n\\[ \\frac{d^2C}{dD^2} = (-6)(-5b) D^{-7} = \\frac{30b}{D^7} > 0 \\quad (\\text{for all } D > 0) \\]\nBecause the second derivative is strictly positive, $D^*$ represents the unique global cost minimum."
+      }
+    ],
+    "examTip": "In engineering economics, when an objective has opposing terms of powers $D^1$ and $D^{-n}$, the optimal scale is always of the form $D^* = (n b / a)^{1/(n+1)}$. Here $n=5$, producing exponent $1/6$!"
+  },
+  {
+    "id": "q2_opt_critical_insulation",
+    "unitId": "unit-2",
+    "skillId": "s2_6",
+    "difficulty": "Standard",
+    "title": "Critical Radius of Thermal Insulation on a Cylindrical Pipe",
+    "prompt": "A circular pipe of outer radius $r_i$ carrying hot fluid is wrapped with insulation of thermal conductivity $k$ and outer radius $r \\ge r_i$. Heat dissipates into ambient air with convection coefficient $h$. Per unit length, the total thermal resistance is $R_{tot}(r) = R_{cond} + R_{conv} = \\frac{\\ln(r/r_i)}{2\\pi k} + \\frac{1}{2\\pi r h}$. Find the critical insulation radius $r_{cr}$ where total thermal resistance is stationary, and determine whether heat transfer is maximized or minimized at this radius.",
+    "options": [
+      "$r_{cr} = \\frac{h}{k}$; thermal resistance is maximized (heat transfer is minimized)",
+      "$r_{cr} = \\frac{2k}{h}$; thermal resistance is minimized (heat transfer is maximized)",
+      "$r_{cr} = \\frac{k}{h}$; thermal resistance is minimized (heat transfer is maximized)",
+      "$r_{cr} = \\sqrt{\\frac{k}{h}}$; thermal resistance is stationary with an inflection point"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Thermal Resistance Function",
+        "body": "The total thermal resistance per unit length of pipe is:\n\\[ R_{tot}(r) = \\frac{1}{2\\pi}\\left[ \\frac{\\ln(r) - \\ln(r_i)}{k} + \\frac{1}{h r} \\right] \\]"
+      },
+      {
+        "title": "Step 2: Differentiating to Find Critical Radius",
+        "body": "Differentiating with respect to outer radius $r$:\n\\[ \\frac{dR_{tot}}{dr} = \\frac{1}{2\\pi}\\left[ \\frac{1}{k r} - \\frac{1}{h r^2} \\right] = 0 \\]\nMultiplying inside the brackets by $k h r^2$:\n\\[ h r - k = 0 \\implies r_{cr} = \\frac{k}{h} \\]"
+      },
+      {
+        "title": "Step 3: Second Derivative & Heat Transfer Interpretation",
+        "body": "Computing the second derivative:\n\\[ \\frac{d^2R_{tot}}{dr^2} = \\frac{1}{2\\pi}\\left[ -\\frac{1}{k r^2} + \\frac{2}{h r^3} \\right] \\]\nEvaluating at $r_{cr} = k/h$:\n\\[ \\left.\\frac{d^2R_{tot}}{dr^2}\\right|_{r=k/h} = \\frac{1}{2\\pi}\\left[ -\\frac{h^2}{k^3} + \\frac{2h^2}{k^3} \\right] = \\frac{h^2}{2\\pi k^3} > 0 \\]\nSince $\\frac{d^2R_{tot}}{dr^2} > 0$, thermal resistance $R_{tot}$ reaches a local MINIMUM at $r_{cr} = k/h$.\nBecause heat loss is $Q = \\Delta T / R_{tot}$, minimizing resistance MAXIMIZES heat transfer!"
+      }
+    ],
+    "examTip": "A vital ME heat transfer concept: for cylinders, adding insulation with radius $r < r_{cr} = k/h$ actually increases heat loss because increasing the convective surface area dominates over adding conduction resistance!"
+  },
+  {
+    "id": "q2_opt_lamp_illuminance",
+    "unitId": "unit-2",
+    "skillId": "s2_6",
+    "difficulty": "Standard",
+    "title": "Optimal Lamp Height for Maximum Peripheral Illuminance",
+    "prompt": "A point light source of luminous intensity $I$ hangs at height $h > 0$ directly above the center of a circular table of radius $R$. By Lambert's cosine law and the inverse square law, the illuminance at a point on the perimeter of the table is $E(h) = \\frac{I \\cos\\theta}{d^2}$, where $d = \\sqrt{R^2 + h^2}$ is the distance to the edge and $\\cos\\theta = \\frac{h}{d} = \\frac{h}{\\sqrt{R^2 + h^2}}$. Thus $E(h) = \\frac{I h}{(R^2 + h^2)^{3/2}}$. What height $h^*$ maximizes illuminance at the edge of the table?",
+    "options": [
+      "$h^* = R$",
+      "$h^* = \\frac{R}{\\sqrt{2}} \\approx 0.707 R$",
+      "$h^* = R\\sqrt{2} \\approx 1.414 R$",
+      "$h^* = \\frac{R}{2} = 0.500 R$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Illuminance Function Setup",
+        "body": "The illuminance expression is:\n\\[ E(h) = I h (R^2 + h^2)^{-3/2} \\quad (h > 0) \\]"
+      },
+      {
+        "title": "Step 2: Differentiating Using the Product Rule",
+        "body": "Differentiating with respect to $h$:\n\\[ \\frac{dE}{dh} = I \\left[ 1 \\cdot (R^2 + h^2)^{-3/2} + h \\left(-\\frac{3}{2}\\right)(R^2 + h^2)^{-5/2}(2h) \\right] \\]\nFactor out $(R^2 + h^2)^{-5/2}$:\n\\[ \\frac{dE}{dh} = I (R^2 + h^2)^{-5/2} \\left[ (R^2 + h^2) - 3h^2 \\right] = I (R^2 + h^2)^{-5/2} (R^2 - 2h^2) \\]"
+      },
+      {
+        "title": "Step 3: Finding the Optimal Height",
+        "body": "Setting $\\frac{dE}{dh} = 0$:\n\\[ R^2 - 2h^2 = 0 \\implies 2h^2 = R^2 \\implies h^* = \\frac{R}{\\sqrt{2}} \\approx 0.707 R \\]\nFor $h < R/\\sqrt{2}$, $dE/dh > 0$; for $h > R/\\sqrt{2}$, $dE/dh < 0$. Therefore, $h^* = R/\\sqrt{2}$ yields the global maximum illuminance."
+      }
+    ],
+    "examTip": "At $h = 0$, the light hits horizontally so $\\cos\\theta = 0 \\implies E = 0$. At $h \\to \\infty$, distance is infinite so $E \\to 0$. The peak is exactly at $h^* = R/\\sqrt{2} \\approx 0.707 R$!"
+  },
+  {
+    "id": "q2_opt_elliptic_paraboloid_dist",
+    "unitId": "unit-2",
+    "skillId": "s2_6",
+    "difficulty": "Exam Challenge",
+    "title": "Shortest Distance from a Point to an Elliptic Paraboloid",
+    "prompt": "Use the method of Lagrange multipliers to find the shortest distance from the point $(0, 0, 4)$ to the elliptic paraboloid $z = 2x^2 + y^2$.",
+    "options": [
+      "Shortest distance is $d = 4$, occurring at $(0, 0, 0)$",
+      "Shortest distance is $d = \\sqrt{7} \\approx 2.646$, occurring at $(0, \\pm\\sqrt{3}, 3)$",
+      "Shortest distance is $d = \\frac{\\sqrt{31}}{4} \\approx 1.392$, occurring at $\\left(\\pm\\sqrt{\\frac{15}{8}}, 0, \\frac{15}{4}\\right)$",
+      "Shortest distance is $d = \\frac{\\sqrt{15}}{2} \\approx 1.936$, occurring at $(\\pm 1, \\pm 1, 3)$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Formulate the Objective & Constraint",
+        "body": "Minimize squared distance from $(0, 0, 4)$:\n\\[ f(x, y, z) = x^2 + y^2 + (z - 4)^2 \\]\nsubject to the surface constraint:\n\\[ g(x, y, z) = 2x^2 + y^2 - z = 0 \\]"
+      },
+      {
+        "title": "Step 2: Lagrange Multiplier Equations",
+        "body": "Equating gradients $\\nabla f = \\lambda \\nabla g$:\n\\[ \\langle 2x, 2y, 2(z - 4) \\rangle = \\lambda \\langle 4x, 2y, -1 \\rangle \\]\nThis gives three scalar equations:\n1) $2x = 4\\lambda x \\implies 2x(1 - 2\\lambda) = 0$\n2) $2y = 2\\lambda y \\implies 2y(1 - \\lambda) = 0$\n3) $2(z - 4) = -\\lambda$"
+      },
+      {
+        "title": "Step 3: Solve Cases and Compare Distances",
+        "body": "Case 1: $x = 0, y = 0 \\implies z = 0$. At $(0,0,0)$, $f = 0^2 + 0^2 + (0-4)^2 = 16 \\implies d = 4$.\nCase 2: $y \\neq 0 \\implies \\lambda = 1$. Then $x = 0$, and eq 3 gives $2(z - 4) = -1 \\implies z = 7/2$. Constraint gives $y^2 = 7/2$. Squared distance is $f = 0 + 7/2 + (7/2-4)^2 = 7/2 + 1/4 = 15/4 \\implies d = \\sqrt{15}/2 \\approx 1.936$.\nCase 3: $x \\neq 0 \\implies \\lambda = 1/2$. Then $y = 0$, and eq 3 gives $2(z - 4) = -1/2 \\implies z = 15/4$. Constraint gives $2x^2 = 15/4 \\implies x^2 = 15/8$. Squared distance is $f = 15/8 + 0 + (15/4-4)^2 = 15/8 + 1/16 = 31/16 \\implies d = \\frac{\\sqrt{31}}{4} \\approx 1.392$.\nComparing all cases, $1.392 < 1.936 < 4$, so the shortest distance is $d = \\sqrt{31}/4 \\approx 1.392$."
+      }
+    ],
+    "examTip": "Because the coefficient of $x^2$ (2) is larger than that of $y^2$ (1), the surface curves upward more steeply in the $x$-direction, reaching closest to $(0,0,4)$ along the $xz$-plane where $y = 0$!"
+  },
+  {
+    "id": "q2_opt_cobb_douglas_budget",
+    "unitId": "unit-2",
+    "skillId": "s2_6",
+    "difficulty": "Standard",
+    "title": "Constrained Resource Allocation: Cobb-Douglas Production Function",
+    "prompt": "An engineering manufacturing plant's output is modeled by the Cobb-Douglas production function $P(K, L) = 100 K^{0.4} L^{0.6}$, where $K$ is capital units (at a cost of 20 per unit) and $L$ is labor units (at a cost of 30 per unit). The total budget is fixed at 1,200, so $20K + 30L = 1200$. Use Lagrange multipliers to determine the optimal capital $K^*$ and labor $L^*$ that maximize production output, and compute the maximum production $P_{\\max}$.",
+    "options": [
+      "$K^* = 24$, $L^* = 24$, with $P_{\\max} = 2,400$",
+      "$K^* = 30$, $L^* = 20$, with $P_{\\max} = 2,150$",
+      "$K^* = 20$, $L^* = 26.7$, with $P_{\\max} = 1,980$",
+      "$K^* = 40$, $L^* = 13.3$, with $P_{\\max} = 1,600$"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Gradients & Lagrange Multipliers",
+        "body": "Objective: $P(K, L) = 100 K^{0.4} L^{0.6}$, subject to $g(K, L) = 20K + 30L = 1200$.\n\\[ \\nabla P = \\left\\langle 40 K^{-0.6} L^{0.6}, 60 K^{0.4} L^{-0.4} \\right\\rangle, \\quad \\nabla g = \\langle 20, 30 \\rangle \\]\nEquating $\\nabla P = \\lambda \\nabla g$:\n\\[ 40 K^{-0.6} L^{0.6} = 20\\lambda \\implies \\lambda = 2 K^{-0.6} L^{0.6} \\]\n\\[ 60 K^{0.4} L^{-0.4} = 30\\lambda \\implies \\lambda = 2 K^{0.4} L^{-0.4} \\]"
+      },
+      {
+        "title": "Step 2: Relate Factors of Production",
+        "body": "Equating the two expressions for $\\lambda$:\n\\[ 2 K^{-0.6} L^{0.6} = 2 K^{0.4} L^{-0.4} \\implies \\frac{L^{0.6}}{L^{-0.4}} = \\frac{K^{0.4}}{K^{-0.6}} \\implies L = K \\]"
+      },
+      {
+        "title": "Step 3: Solve for Optimal Inputs and Maximum Output",
+        "body": "Substitute $L = K$ into the budget equation $20K + 30L = 1200$:\n\\[ 20K + 30K = 50K = 1200 \\implies K^* = 24, \\quad L^* = 24 \\]\nCompute maximum production output:\n\\[ P_{\\max} = 100 (24)^{0.4} (24)^{0.6} = 100 (24)^{1.0} = 2,400 \\]"
+      }
+    ],
+    "examTip": "For Cobb-Douglas $P = A K^a L^b$ with budget $p_K K + p_L L = B$, the expenditure on $K$ is always fraction $\\frac{a}{a+b}$ of the budget: $20K = \\frac{0.4}{1.0}(1200) = 480 \\implies K = 24$!"
+  },
+  {
+    "id": "q2_opt_paraboloid_plane_dual",
+    "unitId": "unit-2",
+    "skillId": "s2_6",
+    "difficulty": "Exam Challenge",
+    "title": "Dual Lagrange Multipliers: Extreme Heights on Paraboloid-Plane Intersection",
+    "prompt": "Find the maximum and minimum $z$-coordinates (highest and lowest points) along the curve of intersection formed by the circular paraboloid $z = x^2 + y^2$ and the tilted plane $x + y + z = 1$.",
+    "options": [
+      "$z_{\\min} = 0$, $z_{\\max} = 4$",
+      "$z_{\\min} = 2 - \\sqrt{3} \\approx 0.268$, $z_{\\max} = 2 + \\sqrt{3} \\approx 3.732$",
+      "$z_{\\min} = 1 - \\frac{1}{\\sqrt{2}} \\approx 0.293$, $z_{\\max} = 1 + \\frac{1}{\\sqrt{2}} \\approx 1.707$",
+      "$z_{\\min} = \\frac{1}{2}$, $z_{\\max} = 2$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Two Constraints Lagrange Multipliers",
+        "body": "We seek to extremize $f(x, y, z) = z$ subject to two constraints:\n\\[ g(x, y, z) = x^2 + y^2 - z = 0, \\quad h(x, y, z) = x + y + z - 1 = 0 \\]\nUsing two multipliers $\\nabla f = \\lambda \\nabla g + \\mu \\nabla h$:\n\\[ \\langle 0, 0, 1 \\rangle = \\lambda \\langle 2x, 2y, -1 \\rangle + \\mu \\langle 1, 1, 1 \\rangle \\]\nThis gives:\n\\[ 2\\lambda x + \\mu = 0, \\quad 2\\lambda y + \\mu = 0, \\quad -\\lambda + \\mu = 1 \\]"
+      },
+      {
+        "title": "Step 2: Symmetry Condition",
+        "body": "Subtracting the first two equations gives $2\\lambda (x - y) = 0$.\nIf $\\lambda = 0$, then $\\mu = 0$, which contradicts $-\\lambda + \\mu = 1$.\nTherefore, $\\lambda \\neq 0$, which requires $x = y$."
+      },
+      {
+        "title": "Step 3: Solve the Resulting Quadratic in $z$",
+        "body": "Substitute $y = x$ into both equations:\nPlane: $2x + z = 1 \\implies x = \\frac{1 - z}{2}$\nParaboloid: $z = 2x^2$\nSubstitute $x$ into paraboloid:\n\\[ z = 2\\left(\\frac{1 - z}{2}\\right)^2 = \\frac{(1 - z)^2}{2} = \\frac{z^2 - 2z + 1}{2} \\]\n\\[ 2z = z^2 - 2z + 1 \\implies z^2 - 4z + 1 = 0 \\]\nApplying the quadratic formula:\n\\[ z = \\frac{4 \\pm \\sqrt{16 - 4}}{2} = 2 \\pm \\sqrt{3} \\]\nThus:\n\\[ z_{\\min} = 2 - \\sqrt{3} \\approx 0.268, \\quad z_{\\max} = 2 + \\sqrt{3} \\approx 3.732 \\]"
+      }
+    ],
+    "examTip": "Whenever both constraints are symmetric in $x$ and $y$, the Lagrange system immediately forces $x = y$, which eliminates two variables and leaves a single quadratic equation for $z$!"
   }
 ];
 
@@ -3655,82 +5018,242 @@ const EXPANDED_QUESTION_BANK = [
 
 const CURRICULUM = [
   {
-    id: "unit-1",
-    title: "Unit 1: Curves, Extrema & Asymptotes",
-    assignment: "Assignment 1 (Q1 - Q3)",
-    description: "Polynomial inflection points, rational curve sketching, critical points, relative extrema, and slant asymptotes.",
-    skills: [
-      { id: "s1_1", name: "Cubic Critical Numbers & Inflection Abscissa", ref: "Assgn 1, Q1" },
-      { id: "s1_2", name: "Rational Function Extrema & Concavity (y = (x+k)/x²)", ref: "Assgn 1, Q2" },
-      { id: "s1_3", name: "Rational Curves with Oblique (Slant) Asymptotes", ref: "Assgn 1, Q3" }
+    "id": "unit-1",
+    "title": "Unit 1: Curves, Extrema & Asymptotes",
+    "assignment": "Assignment 1 (Q1 - Q3)",
+    "description": "Polynomial inflection points, rational curve sketching, critical points, relative extrema, and slant asymptotes.",
+    "skills": [
+      {
+        "id": "s1_1",
+        "name": "Cubic Critical Numbers & Inflection Abscissa",
+        "ref": "Assgn 1, Q1"
+      },
+      {
+        "id": "s1_2",
+        "name": "Rational Function Extrema & Concavity (y = (x+k)/x²)",
+        "ref": "Assgn 1, Q2"
+      },
+      {
+        "id": "s1_3",
+        "name": "Rational Curves with Oblique (Slant) Asymptotes",
+        "ref": "Assgn 1, Q3"
+      }
     ]
   },
   {
-    id: "unit-2",
-    title: "Unit 2: Multivariable Optimization & Constraints",
-    assignment: "Assignment 1 (Q4 - Q6)",
-    description: "Open-top rectangular box volume maximization, Lagrange multipliers on cone/plane intersections, and distance to spheres.",
-    skills: [
-      { id: "s2_1", name: "Physical Box & Storage Silo Optimization", ref: "Assgn 1, Q4" },
-      { id: "s2_2", name: "Extreme Points on Intersection of Plane & Cone", ref: "Assgn 1, Q5" },
-      { id: "s2_3", name: "Points on Sphere & Planes Closest/Farthest to Points", ref: "Assgn 1, Q6" }
+    "id": "unit-2",
+    "title": "Unit 2: Multivariable Optimization & Constraints",
+    "assignment": "Assignment 1 (Q4 - Q6)",
+    "description": "Open-top rectangular box volume maximization, Lagrange multipliers on cone/plane intersections, and distance to spheres.",
+    "skills": [
+      {
+        "id": "s2_1",
+        "name": "Physical Box & Storage Silo Optimization",
+        "ref": "Assgn 1, Q4"
+      },
+      {
+        "id": "s2_2",
+        "name": "Extreme Points on Intersection of Plane & Cone",
+        "ref": "Assgn 1, Q5"
+      },
+      {
+        "id": "s2_3",
+        "name": "Points on Sphere & Planes Closest/Farthest to Points",
+        "ref": "Assgn 1, Q6"
+      },
+      {
+        "id": "s2_4",
+        "name": "Lagrange Multipliers: Single & Multiple Constraints",
+        "ref": "Lamar Calc III & Exam"
+      },
+      {
+        "id": "s2_5",
+        "name": "Engineering & Physical Optimization (Beams, Trusses & Transport)",
+        "ref": "ME Mechanics & Physics"
+      },
+      {
+        "id": "s2_6",
+        "name": "Advanced Multi-Variable & Thermal Lagrange Multipliers",
+        "ref": "Thermal & Applied Calc"
+      }
     ]
   },
   {
-    id: "unit-3",
-    title: "Unit 3: Power Series & Taylor Approximations",
-    assignment: "Assignment 1 (Q7 - Q10)",
-    description: "Ratio test radius of convergence, trigonometric Taylor expansions in sigma notation, polynomial expansions, and fractional powers.",
-    skills: [
-      { id: "s3_1", name: "Power Series Radius of Convergence (Ratio Test)", ref: "Assgn 1, Q7" },
-      { id: "s3_2", name: "Trigonometric & Exp Taylor Series in Two Summation Groups", ref: "Assgn 1, Q8" },
-      { id: "s3_3", name: "Polynomial Taylor Series & Remainder Vanishing", ref: "Assgn 1, Q9" },
-      { id: "s3_4", name: "Fractional Power Taylor Series & Convergence Rate", ref: "Assgn 1, Q10" }
+    "id": "unit-3",
+    "title": "Unit 3: Power Series & Taylor Approximations",
+    "assignment": "Assignment 1 (Q7 - Q10)",
+    "description": "Ratio test radius of convergence, trigonometric Taylor expansions in sigma notation, polynomial expansions, and fractional powers.",
+    "skills": [
+      {
+        "id": "s3_1",
+        "name": "Power Series Radius of Convergence (Ratio Test)",
+        "ref": "Assgn 1, Q7"
+      },
+      {
+        "id": "s3_2",
+        "name": "Trigonometric & Exp Taylor Series in Two Summation Groups",
+        "ref": "Assgn 1, Q8"
+      },
+      {
+        "id": "s3_3",
+        "name": "Polynomial Taylor Series & Remainder Vanishing",
+        "ref": "Assgn 1, Q9"
+      },
+      {
+        "id": "s3_4",
+        "name": "Fractional Power Taylor Series & Convergence Rate",
+        "ref": "Assgn 1, Q10"
+      }
     ]
   },
   {
-    id: "unit-4",
-    title: "Unit 4: Orthogonal Functions & Hilbert Spaces",
-    assignment: "Assignment 2 (Q1 - Q3)",
-    description: "Function inner products, orthogonality of function pairs, orthogonal sets, norm computation, and Pythagorean theorem.",
-    skills: [
-      { id: "s4_1", name: "Orthogonality of Function Pairs over Intervals", ref: "Assgn 2, Q1" },
-      { id: "s4_2", name: "Orthogonal Sets & L² Norm Computation", ref: "Assgn 2, Q2" },
-      { id: "s4_3", name: "Pythagorean Theorem for Orthogonal Functions", ref: "Assgn 2, Q3" }
+    "id": "unit-4",
+    "title": "Unit 4: Orthogonal Functions & Hilbert Spaces",
+    "assignment": "Assignment 2 (Q1 - Q3)",
+    "description": "Function inner products, orthogonality of function pairs, orthogonal sets, norm computation, and Pythagorean theorem.",
+    "skills": [
+      {
+        "id": "s4_1",
+        "name": "Orthogonality of Function Pairs over Intervals",
+        "ref": "Assgn 2, Q1"
+      },
+      {
+        "id": "s4_2",
+        "name": "Orthogonal Sets & L² Norm Computation",
+        "ref": "Assgn 2, Q2"
+      },
+      {
+        "id": "s4_3",
+        "name": "Pythagorean Theorem for Orthogonal Functions",
+        "ref": "Assgn 2, Q3"
+      },
+      {
+        "id": "s4_4",
+        "name": "Inner Products, Gram-Schmidt & Projections",
+        "ref": "Hilbert Spaces & Vector Spaces"
+      }
     ]
   },
   {
-    id: "unit-5",
-    title: "Unit 5: Real & Complex Fourier Series",
-    assignment: "Assignment 2 (Q4 - Q5)",
-    description: "Piecewise real Fourier series, deducing numerical infinite sums via Dirichlet theorem, complex Fourier coefficients, and frequency spectra.",
-    skills: [
-      { id: "s5_1", name: "Real Fourier Series of Piecewise Functions (a₀, aₙ, bₙ)", ref: "Assgn 2, Q4" },
-      { id: "s5_2", name: "Summing Infinite Series via Fourier Evaluations", ref: "Assgn 2, Q4" },
-      { id: "s5_3", name: "Complex Fourier Series & Harmonic Spectra", ref: "Assgn 2, Q5" }
+    "id": "unit-5",
+    "title": "Unit 5: Real & Complex Fourier Series",
+    "assignment": "Assignment 2 (Q4 - Q5)",
+    "description": "Piecewise real Fourier series, deducing numerical infinite sums via Dirichlet theorem, complex Fourier coefficients, and frequency spectra.",
+    "skills": [
+      {
+        "id": "s5_1",
+        "name": "Real Fourier Series of Piecewise Functions (a₀, aₙ, bₙ)",
+        "ref": "Assgn 2, Q4"
+      },
+      {
+        "id": "s5_2",
+        "name": "Summing Infinite Series via Fourier Evaluations",
+        "ref": "Assgn 2, Q4"
+      },
+      {
+        "id": "s5_3",
+        "name": "Complex Fourier Series & Harmonic Spectra",
+        "ref": "Assgn 2, Q5"
+      }
     ]
   },
   {
-    id: "unit-6",
-    title: "Unit 6: Vector Algebra & Geometric Applications",
-    assignment: "Assignment 2 (Q6 - Q8)",
-    description: "Displacement vectors, initial/terminal points, parallel vectors with given magnitude, rhombus diagonal orthogonality, and coplanar points.",
-    skills: [
-      { id: "s6_1", name: "Displacement Vectors & Endpoint Calculation", ref: "Assgn 2, Q6" },
-      { id: "s6_2", name: "Parallel Vectors with Specific Magnitude & Polygon Loops", ref: "Assgn 2, Q7" },
-      { id: "s6_3", name: "Orthogonal Diagonals of Rhombus & Dual-Perpendicular Vectors", ref: "Assgn 2, Q8" },
-      { id: "s6_4", name: "Coplanarity of 4 Points via Scalar Triple Product", ref: "Assgn 2, Q8" }
+    "id": "unit-6",
+    "title": "Unit 6: Vector Algebra & Geometric Applications",
+    "assignment": "Assignment 2 (Q6 - Q8)",
+    "description": "Displacement vectors, initial/terminal points, parallel vectors with given magnitude, rhombus diagonal orthogonality, and coplanar points.",
+    "skills": [
+      {
+        "id": "s6_1",
+        "name": "Displacement Vectors & Endpoint Calculation",
+        "ref": "Assgn 2, Q6"
+      },
+      {
+        "id": "s6_2",
+        "name": "Parallel Vectors with Specific Magnitude & Polygon Loops",
+        "ref": "Assgn 2, Q7"
+      },
+      {
+        "id": "s6_3",
+        "name": "Orthogonal Diagonals of Rhombus & Dual-Perpendicular Vectors",
+        "ref": "Assgn 2, Q8"
+      },
+      {
+        "id": "s6_4",
+        "name": "Coplanarity of 4 Points via Scalar Triple Product",
+        "ref": "Assgn 2, Q8"
+      },
+      {
+        "id": "s6_5",
+        "name": "Scalar & Vector Triple Products (Volumes & BAC-CAB)",
+        "ref": "Lamar Calc II & III"
+      }
     ]
   },
   {
-    id: "unit-7",
-    title: "Unit 7: 3D Analytic Geometry (Lines & Planes)",
-    assignment: "Assignment 2 (Q9 - Q10)",
-    description: "Converting symmetric to parametric lines, angle between 3D lines, plane containing intersecting lines, and plane orthogonal to another plane.",
-    skills: [
-      { id: "s7_1", name: "Parametric Line from Symmetric Form & Line Angles", ref: "Assgn 2, Q9" },
-      { id: "s7_2", name: "Equation of Plane Containing Two Lines", ref: "Assgn 2, Q10" },
-      { id: "s7_3", name: "Plane Containing Line and Orthogonal to Another Plane", ref: "Assgn 2, Q10" }
+    "id": "unit-7",
+    "title": "Unit 7: 3D Analytic Geometry (Lines & Planes)",
+    "assignment": "Assignment 2 (Q9 - Q10)",
+    "description": "Converting symmetric to parametric lines, angle between 3D lines, plane containing intersecting lines, and plane orthogonal to another plane.",
+    "skills": [
+      {
+        "id": "s7_1",
+        "name": "Parametric Line from Symmetric Form & Line Angles",
+        "ref": "Assgn 2, Q9"
+      },
+      {
+        "id": "s7_2",
+        "name": "Equation of Plane Containing Two Lines",
+        "ref": "Assgn 2, Q10"
+      },
+      {
+        "id": "s7_3",
+        "name": "Plane Containing Line and Orthogonal to Another Plane",
+        "ref": "Assgn 2, Q10"
+      },
+      {
+        "id": "s7_4",
+        "name": "Plane Definitions: 3 Points, Point-Normal & Distance",
+        "ref": "Lamar Calc III Lines/Planes"
+      },
+      {
+        "id": "s7_5",
+        "name": "Plane-Plane Intersections & Dihedral Angles",
+        "ref": "Lamar Calc III Eqns of Planes"
+      },
+      {
+        "id": "s7_6",
+        "name": "Line-Plane Intersections & Piercing Points",
+        "ref": "Lamar Calc III Lines/Planes"
+      }
+    ]
+  },
+  {
+    "id": "unit-8",
+    "title": "Unit 8: Vector Differential Calculus (Normals, Divergence & Curl)",
+    "assignment": "Vector Field Calculus & Exam Preparation",
+    "description": "Level surface gradients, unit normal vectors, tangent planes, divergence, curl, solenoidal and irrotational fields, and vector identities.",
+    "skills": [
+      {
+        "id": "s8_1",
+        "name": "Surface Gradients, Unit Normal Vectors & Tangent Planes",
+        "ref": "Lamar Calc III Directional Derivs"
+      },
+      {
+        "id": "s8_2",
+        "name": "Divergence of Vector Fields & Solenoidal Flow",
+        "ref": "Lamar Calc III Vector Calculus"
+      },
+      {
+        "id": "s8_3",
+        "name": "Curl of Vector Fields & Conservative/Irrotational Fields",
+        "ref": "Lamar Calc III Curl & Div"
+      },
+      {
+        "id": "s8_4",
+        "name": "Vector Differential Identities & Laplacian Operator",
+        "ref": "Lamar Calc III Vector Identities"
+      }
     ]
   }
 ];
@@ -3755,6 +5278,13 @@ const APP_STATE = {
   },
   problemTimes: {},
   totalPracticeSeconds: 0,
+  mixedPractice: {
+    active: false,
+    selectedUnits: ["unit-1", "unit-2", "unit-3", "unit-4", "unit-5", "unit-6", "unit-7", "unit-8"],
+    deck: [],
+    lastProblemId: null,
+    lastUnitId: null
+  },
   examMode: {
     active: false,
     timer: null,
@@ -3850,6 +5380,15 @@ function getDifficultyTargetSec(diff) {
 }
 
 function loadSavedState() {
+  try {
+    const savedUnits = localStorage.getItem("me_ixl_selected_units");
+    if (savedUnits) {
+      const parsed = JSON.parse(savedUnits);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        APP_STATE.mixedPractice.selectedUnits = parsed;
+      }
+    }
+  } catch (e) {}
   try {
     const saved = localStorage.getItem("ME_IXL_STATE");
     if (saved) {
@@ -4119,7 +5658,14 @@ function displayProblem(prob) {
   startProblemTimer();
 
   const skillTag = document.getElementById("current-skill-tag");
-  if (skillTag) skillTag.innerText = prob.unitTag;
+  if (skillTag) {
+    if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+      skillTag.innerText = "🎯 MIXED • " + prob.unitTag;
+    } else {
+      skillTag.innerText = prob.unitTag;
+    }
+  }
+  updateMixedPracticeBannerUI();
   const skillTitle = document.getElementById("current-skill-title");
   if (skillTitle) skillTitle.innerText = prob.skillName;
   const diffElem = document.getElementById("current-difficulty");
@@ -4189,7 +5735,181 @@ function displayProblem(prob) {
   renderMath(document.getElementById("practice-view"));
 }
 
+
+/* ==========================================================================
+   Mixed Units Practice Engine (Varied Topics from Selected Units)
+   ========================================================================== */
+
+function getMixedUnitsPool() {
+  const units = APP_STATE.mixedPractice.selectedUnits || [];
+  return EXPANDED_QUESTION_BANK.filter(q => units.includes(q.unitId));
+}
+
+function renderMixedUnitPills() {
+  const containers = [
+    document.getElementById("unit-pills-selector"),
+    document.getElementById("modal-unit-pills-selector")
+  ];
+  
+  const selected = new Set(APP_STATE.mixedPractice.selectedUnits || []);
+  const pool = getMixedUnitsPool();
+  
+  // Update badge counters if present
+  const countBadge = document.getElementById("mixed-units-count-badge");
+  if (countBadge) {
+    countBadge.innerText = selected.size + " of " + CURRICULUM.length + " Units (" + pool.length + " Problems)";
+  }
+
+  containers.forEach(container => {
+    if (!container) return;
+    container.innerHTML = "";
+
+    CURRICULUM.forEach(u => {
+      const isSel = selected.has(u.id);
+      const unitNum = u.id.replace('unit-', '');
+      const count = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u.id).length;
+      
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "unit-toggle-pill " + (isSel ? "active" : "");
+      pill.setAttribute("data-unit", u.id);
+      pill.onclick = () => toggleMixedUnit(u.id);
+      
+      pill.innerHTML = 
+        '<span class="pill-check">' + (isSel ? "✓" : "+") + '</span>' +
+        '<strong>Unit ' + unitNum + ':</strong> ' +
+        '<span style="opacity: 0.9;">' + (u.title.includes(':') ? u.title.split(':')[1].trim() : u.title) + '</span>' +
+        '<span class="pill-count">(' + count + ')</span>';
+
+      container.appendChild(pill);
+    });
+  });
+}
+
+function toggleMixedUnit(unitId) {
+  const list = APP_STATE.mixedPractice.selectedUnits;
+  const idx = list.indexOf(unitId);
+  if (idx === -1) {
+    list.push(unitId);
+  } else {
+    list.splice(idx, 1);
+  }
+  list.sort();
+  APP_STATE.mixedPractice.deck = []; // Clear deck so next draws reflect new pool
+  saveMixedUnitsPref();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
+}
+
+function selectAllMixedUnits(selectAll) {
+  if (selectAll) {
+    APP_STATE.mixedPractice.selectedUnits = CURRICULUM.map(u => u.id);
+  } else {
+    APP_STATE.mixedPractice.selectedUnits = [];
+  }
+  APP_STATE.mixedPractice.deck = [];
+  saveMixedUnitsPref();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
+}
+
+function saveMixedUnitsPref() {
+  try {
+    localStorage.setItem("me_ixl_selected_units", JSON.stringify(APP_STATE.mixedPractice.selectedUnits));
+  } catch (e) {}
+}
+
+function launchMixedPractice() {
+  if (!APP_STATE.mixedPractice.selectedUnits || APP_STATE.mixedPractice.selectedUnits.length === 0) {
+    alert("Please select at least one unit to practice!");
+    return;
+  }
+  APP_STATE.mixedPractice.active = true;
+  APP_STATE.mixedPractice.deck = [];
+  switchView('practice-view');
+  loadNextProblem();
+}
+
+function getNextMixedProblem() {
+  const units = APP_STATE.mixedPractice.selectedUnits;
+  if (!units || units.length === 0) {
+    return getProblemForSkill(APP_STATE.currentSkillId);
+  }
+
+  if (!APP_STATE.mixedPractice.deck || APP_STATE.mixedPractice.deck.length === 0) {
+    // Build an interleaved round-robin deck across all selected units to guarantee topic variety
+    const byUnit = {};
+    units.forEach(u => {
+      byUnit[u] = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u).sort(() => 0.5 - Math.random());
+    });
+
+    const interleaved = [];
+    let added = true;
+    const unitOrder = [...units].sort(() => 0.5 - Math.random());
+    while (added) {
+      added = false;
+      for (const u of unitOrder) {
+        if (byUnit[u] && byUnit[u].length > 0) {
+          interleaved.push(byUnit[u].pop().id);
+          added = true;
+        }
+      }
+    }
+
+    // Ensure the first question does not immediately repeat the last played question
+    if (APP_STATE.mixedPractice.lastProblemId && interleaved[0] === APP_STATE.mixedPractice.lastProblemId && interleaved.length > 1) {
+      const swap = 1 + Math.floor(Math.random() * (interleaved.length - 1));
+      const temp = interleaved[0];
+      interleaved[0] = interleaved[swap];
+      interleaved[swap] = temp;
+    }
+
+    APP_STATE.mixedPractice.deck = interleaved;
+  }
+
+  const nextId = APP_STATE.mixedPractice.deck.shift();
+  APP_STATE.mixedPractice.lastProblemId = nextId;
+  const raw = EXPANDED_QUESTION_BANK.find(q => q.id === nextId) || EXPANDED_QUESTION_BANK[0];
+  APP_STATE.mixedPractice.lastUnitId = raw.unitId;
+  return formatProblem(raw);
+}
+
+function updateMixedPracticeBannerUI() {
+  const banner = document.getElementById("practice-mode-banner");
+  if (!banner) return;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    banner.style.display = "flex";
+    const uCount = APP_STATE.mixedPractice.selectedUnits.length;
+    const uNums = APP_STATE.mixedPractice.selectedUnits.map(u => u.replace('unit-', '')).join(', ');
+    const pool = getMixedUnitsPool();
+    const titleEl = document.getElementById("practice-mode-title");
+    if (titleEl) titleEl.innerText = "🎯 Mixed Units Practice (" + uCount + " Units Active)";
+    const descEl = document.getElementById("practice-mode-desc");
+    if (descEl) descEl.innerText = "Interleaving varied problems across Units " + uNums + " • " + pool.length + " questions in pool";
+  } else {
+    banner.style.display = "none";
+  }
+}
+
+function openMixedUnitsModal() {
+  const modal = document.getElementById("mixed-units-modal");
+  if (modal) {
+    renderMixedUnitPills();
+    modal.style.display = "flex";
+  }
+}
+
+function closeMixedUnitsModal(andReload) {
+  const modal = document.getElementById("mixed-units-modal");
+  if (modal) modal.style.display = "none";
+  if (andReload && APP_STATE.mixedPractice.active) {
+    loadNextProblem();
+  }
+}
+
+
 function loadSkillProblem(skillId) {
+  APP_STATE.mixedPractice.active = false;
   APP_STATE.currentSkillId = skillId;
   switchView('practice-view');
   const prob = getProblemForSkill(skillId);
@@ -4197,6 +5917,7 @@ function loadSkillProblem(skillId) {
 }
 
 function loadSpecificProblem(problemId) {
+  APP_STATE.mixedPractice.active = false;
   const base = EXPANDED_QUESTION_BANK.find(q => q.id === problemId);
   if (!base) return loadSkillProblem("s1_2");
   APP_STATE.currentSkillId = base.skillId;
@@ -4394,6 +6115,7 @@ function submitAnswer() {
   saveState();
   updateGlobalUI();
   renderSkillsGrid();
+  renderMixedUnitPills();
   renderMath(document.getElementById("feedback-banner"));
 }
 
@@ -4503,7 +6225,12 @@ function showWalkthroughRequested() {
 }
 
 function loadNextProblem() {
-  const prob = getProblemForSkill(APP_STATE.currentSkillId);
+  let prob;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    prob = getNextMixedProblem();
+  } else {
+    prob = getProblemForSkill(APP_STATE.currentSkillId);
+  }
   displayProblem(prob);
   const box = document.getElementById("walkthrough-box");
   if (box) {
@@ -4586,6 +6313,8 @@ function renderSkillsGrid() {
       '</div>';
     container.appendChild(card);
   });
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
 }
 
 function resetAllProgress() {
@@ -4938,7 +6667,7 @@ function startExam(customMinutes) {
     if (!unitsSeen.has(q.unitId)) {
       selected.push(formatProblem(q));
       unitsSeen.add(q.unitId);
-      if (selected.length === 7) break;
+      if (selected.length === CURRICULUM.length) break;
     }
   }
   for (const q of shuffled) {
@@ -5633,6 +7362,51 @@ const FORMULA_SECTIONS = [
         "name": "Point-to-Plane Distance via Lagrange Multipliers",
         "formula": "$$ \\min (x-x_0)^2 + (y-y_0)^2 + (z-z_0)^2 \\text{ on } Ax+By+Cz=D \\implies d = \\frac{|Ax_0+By_0+Cz_0-D|}{\\sqrt{A^2+B^2+C^2}} $$",
         "note": "Geometric orthogonal distance directly derived from ∇f = λ∇g."
+      },
+      {
+        "name": "Lagrange Multipliers (Single Constraint)",
+        "formula": "$$ \\nabla f(x,y,z) = \\lambda \\nabla g(x,y,z), \\quad g(x,y,z) = k $$",
+        "note": "Extremize objective f subject to constraint g=k. At extrema, level sets are tangent and gradients are collinear."
+      },
+      {
+        "name": "Lagrange Multipliers (Two Constraints)",
+        "formula": "$$ \\nabla f(x,y,z) = \\lambda \\nabla g(x,y,z) + \\mu \\nabla h(x,y,z), \\quad g = k_1, \\; h = k_2 $$",
+        "note": "Extremize f along intersection curve of two surfaces g=k₁ and h=k₂. Gradients ∇f, ∇g, ∇h are coplanar."
+      },
+      {
+        "name": "Maximum Strength Rectangular Beam from Circular Log",
+        "formula": "$$ S = w d^2, \\; w^2 + d^2 = D^2 \\implies w = \\frac{D}{\\sqrt{3}}, \\; d = D\\sqrt{\\frac{2}{3}}, \\; \\frac{d}{w} = \\sqrt{2} \\approx 1.414 $$",
+        "note": "Section modulus Z = wd²/6. Beam bending strength is maximized when depth is √2 times width."
+      },
+      {
+        "name": "Maximum Flexural Stiffness Beam from Circular Log",
+        "formula": "$$ I = \\frac{w d^3}{12}, \\; w^2 + d^2 = D^2 \\implies w = \\frac{D}{2}, \\; d = \\frac{\\sqrt{3} D}{2}, \\; \\frac{d}{w} = \\sqrt{3} \\approx 1.732 $$",
+        "note": "Area moment of inertia I maximized when width is D/2 and depth is (√3/2)D."
+      },
+      {
+        "name": "Minimum Weight Symmetric 2-Bar Truss",
+        "formula": "$$ V(h) = \\frac{P (L^2 + h^2)}{\\sigma_{\\text{allow}} h} \\implies \\frac{dV}{dh} = 0 \\implies h^* = L, \\quad \\theta^* = 45^\\circ $$",
+        "note": "Optimal truss depth equals half-span L; inclination angle is 45°."
+      },
+      {
+        "name": "Fermat's Principle of Least Time & Snell's Law",
+        "formula": "$$ T(x) = \\frac{\\sqrt{a^2+x^2}}{v_1} + \\frac{\\sqrt{b^2+(d-x)^2}}{v_2} \\implies \\frac{dT}{dx} = 0 \\iff \\frac{\\sin\\theta_1}{v_1} = \\frac{\\sin\\theta_2}{v_2} $$",
+        "note": "Minimizing travel transit time across refractive interface directly yields Snell's law."
+      },
+      {
+        "name": "Economic Pipe Diameter (Installation vs. Pumping Friction)",
+        "formula": "$$ C(D) = a D + \\frac{b}{D^5} \\implies \\frac{dC}{dD} = a - \\frac{5b}{D^6} = 0 \\implies D^* = \\left(\\frac{5b}{a}\\right)^{1/6} $$",
+        "note": "Balances linear capital pipe installation cost against quintic Darcy-Weisbach pumping power loss."
+      },
+      {
+        "name": "Critical Radius of Pipe Insulation (Conduction vs. Convection)",
+        "formula": "$$ R_{\\text{tot}}(r) = \\frac{\\ln(r/r_i)}{2\\pi k} + \\frac{1}{2\\pi r h} \\implies \\frac{dR_{\\text{tot}}}{dr} = 0 \\implies r_{\\text{cr}} = \\frac{k}{h} $$",
+        "note": "Thermal resistance is minimized at r_cr = k/h; adding insulation for r < r_cr increases heat dissipation."
+      },
+      {
+        "name": "Optimal Light / Radiation Source Height",
+        "formula": "$$ E(h) = \\frac{I \\cos\\theta}{R^2+h^2} = \\frac{I h}{(R^2+h^2)^{3/2}} \\implies \\frac{dE}{dh} = 0 \\implies h^* = \\frac{R}{\\sqrt{2}} \\approx 0.707 R $$",
+        "note": "Maximizes peripheral illuminance at the edge of a circular receiver of radius R."
       }
     ]
   },
@@ -5723,6 +7497,21 @@ const FORMULA_SECTIONS = [
         "name": "Harmonic Trigonometric Orthogonality on [0, L]",
         "formula": "$$ \\int_0^L \\sin\\left(\\frac{m\\pi x}{L}\\right)\\sin\\left(\\frac{n\\pi x}{L}\\right)dx = \\begin{cases} 0 & m \\neq n \\\\ \\frac{L}{2} & m = n \\end{cases} $$",
         "note": "Normalized basis functions are √(2/L) sin(nπx/L)."
+      },
+      {
+        "name": "Cauchy-Schwarz Inequality & Function Space Angle",
+        "formula": "$$ |\\langle f, g \\rangle| \\le \\|f\\|\\|g\\|, \\quad \\cos\\theta = \\frac{\\langle f, g \\rangle}{\\|f\\|\\|g\\|} $$",
+        "note": "Applies to both Euclidean vectors u·v and function inner products ∫ f(x)g(x)dx."
+      },
+      {
+        "name": "Gram-Schmidt Orthogonalization Process",
+        "formula": "$$ v_k = u_k - \\sum_{j=1}^{k-1} \\frac{\\langle u_k, v_j \\rangle}{\\|v_j\\|^2} v_j, \\quad e_k = \\frac{v_k}{\\|v_k\\|} $$",
+        "note": "Converts any linearly independent set {uₖ} into an orthogonal basis {vₖ} and orthonormal basis {eₖ}."
+      },
+      {
+        "name": "Vector Projection & Orthogonal Decomposition",
+        "formula": "$$ \\text{proj}_\\mathbf{v}\\mathbf{u} = \\frac{\\mathbf{u}\\cdot\\mathbf{v}}{\\|\\mathbf{v}\\|^2}\\mathbf{v}, \\quad \\mathbf{u}_\\perp = \\mathbf{u} - \\text{proj}_\\mathbf{v}\\mathbf{u} \\implies \\mathbf{u}_\\perp \\cdot \\mathbf{v} = 0 $$",
+        "note": "Decomposes any vector into parallel and orthogonal components."
       }
     ]
   },
@@ -5848,6 +7637,66 @@ const FORMULA_SECTIONS = [
         "name": "Line & Plane Orthogonality vs Parallelism Criteria",
         "formula": "$$ \\text{Line } \\parallel \\text{ Plane} \\iff \\vec{v} \\cdot \\vec{n} = 0; \\qquad \\text{Line } \\perp \\text{ Plane} \\iff \\vec{v} \\times \\vec{n} = \\mathbf{0} \\quad (\\vec{v} = k\\vec{n}) $$",
         "note": "Crucial rule: A line is parallel to a plane when its direction vector is perpendicular to the normal!"
+      },
+      {
+        "name": "Scalar Triple Product & Parallelepiped Volume",
+        "formula": "$$ V = |\\mathbf{a}\\cdot(\\mathbf{b}\\times\\mathbf{c})| = |\\det[\\mathbf{a}, \\mathbf{b}, \\mathbf{c}]|, \\quad V_{\\text{tet}} = \\frac{1}{6}|\\mathbf{a}\\cdot(\\mathbf{b}\\times\\mathbf{c})| $$",
+        "note": "Cyclic invariant: a·(b×c) = b·(c×a) = c·(a×b). Four points are coplanar if and only if triple product is 0."
+      },
+      {
+        "name": "Vector Triple Product (BAC-CAB Rule)",
+        "formula": "$$ \\mathbf{a} \\times (\\mathbf{b} \\times \\mathbf{c}) = (\\mathbf{a}\\cdot\\mathbf{c})\\mathbf{b} - (\\mathbf{a}\\cdot\\mathbf{b})\\mathbf{c} $$",
+        "note": "Lagrange's expansion formula. Note that the cross product is NOT associative."
+      },
+      {
+        "name": "Plane Through Three Points",
+        "formula": "$$ \\mathbf{n} = \\vec{PQ} \\times \\vec{PR}, \\quad A(x-x_0) + B(y-y_0) + C(z-z_0) = 0 $$",
+        "note": "Normal vector is computed from the cross product of two displacement vectors in the plane."
+      },
+      {
+        "name": "Distance Between Parallel Planes & Point-to-Plane Distance",
+        "formula": "$$ D_{\\text{planes}} = \\frac{|D_1 - D_2|}{\\sqrt{A^2+B^2+C^2}}, \\quad D_{\\text{point}} = \\frac{|Ax_0+By_0+Cz_0+D|}{\\sqrt{A^2+B^2+C^2}} $$",
+        "note": "Shortest perpendicular distance formula derived via vector projection onto unit normal."
+      },
+      {
+        "name": "Line of Intersection of Two Planes",
+        "formula": "$$ \\mathbf{d} = \\mathbf{n}_1 \\times \\mathbf{n}_2, \\quad \\cos\\theta = \\frac{|\\mathbf{n}_1\\cdot\\mathbf{n}_2|}{\\|\\mathbf{n}_1\\|\\|\\mathbf{n}_2\\|} $$",
+        "note": "Intersection line direction is perpendicular to both plane normals. θ is the dihedral angle between planes."
+      },
+      {
+        "name": "Line-Plane Piercing Point & Parallel Condition",
+        "formula": "$$ \\mathbf{r}(t) = \\mathbf{r}_0 + t\\mathbf{d} \\text{ in } Ax+By+Cz=D \\implies t = \\frac{D - \\mathbf{n}\\cdot\\mathbf{r}_0}{\\mathbf{n}\\cdot\\mathbf{d}} $$",
+        "note": "If n·d = 0, line is parallel to plane (no intersection, or line lies entirely in plane if point satisfies equation)."
+      }
+    ]
+  },
+  {
+    "title": "7. Vector Differential Calculus: Normals, Divergence & Curl (Unit 8)",
+    "formulas": [
+      {
+        "name": "Level Surface Normal & Tangent Plane",
+        "formula": "$$ \\mathbf{n} = \\nabla F(x_0,y_0,z_0), \\quad \\hat{n} = \\frac{\\nabla F}{\\|\\nabla F\\|}, \\quad F_x(x-x_0) + F_y(y-y_0) + F_z(z-z_0) = 0 $$",
+        "note": "Gradient ∇F is normal to level surface F(x,y,z)=c. For explicit surface z=f(x,y), n = ⟨f_x, f_y, -1⟩."
+      },
+      {
+        "name": "Divergence & Solenoidal (Incompressible) Fields",
+        "formula": "$$ \\text{div}\\,\\mathbf{F} = \\nabla \\cdot \\mathbf{F} = \\frac{\\partial P}{\\partial x} + \\frac{\\partial Q}{\\partial y} + \\frac{\\partial R}{\\partial z} = 0 \\iff \\text{Solenoidal} $$",
+        "note": "Measures flux density/outward expansion. div F > 0 represents source; div F < 0 represents sink."
+      },
+      {
+        "name": "Curl & Conservative (Irrotational) Fields",
+        "formula": "$$ \\text{curl}\\,\\mathbf{F} = \\nabla \\times \\mathbf{F} = \\begin{vmatrix} \\mathbf{i} & \\mathbf{j} & \\mathbf{k} \\\\ \\partial_x & \\partial_y & \\partial_z \\\\ P & Q & R \\end{vmatrix} = \\mathbf{0} \\iff \\mathbf{F} = \\nabla f $$",
+        "note": "Measures local fluid rotation/vorticity. For rigid body rotation v = ω × r, curl v = 2ω."
+      },
+      {
+        "name": "Fundamental Vector Calculus Null Identities",
+        "formula": "$$ \\nabla \\cdot (\\nabla \\times \\mathbf{F}) \\equiv 0 \\quad (\\text{div curl} = 0), \\qquad \\nabla \\times (\\nabla f) \\equiv \\mathbf{0} \\quad (\\text{curl grad} = \\mathbf{0}) $$",
+        "note": "Direct consequence of Clairaut's theorem on the equality of mixed partial derivatives."
+      },
+      {
+        "name": "Laplacian Operator & Harmonic Functions",
+        "formula": "$$ \\nabla^2 f = \\nabla \\cdot (\\nabla f) = \\frac{\\partial^2 f}{\\partial x^2} + \\frac{\\partial^2 f}{\\partial y^2} + \\frac{\\partial^2 f}{\\partial z^2} = 0 \\iff f \\text{ is Harmonic} $$",
+        "note": "Governs steady-state heat conduction, electrostatics (Laplace's equation), and potential flows."
       }
     ]
   }
@@ -5892,6 +7741,7 @@ function switchView(viewId) {
   else if (viewId === "practice-view") {
     const tab = document.getElementById("tab-practice");
     if (tab) tab.classList.add("active");
+    updateMixedPracticeBannerUI();
   }
   else if (viewId === "bank-view") {
     const tab = document.getElementById("tab-bank");
@@ -5979,6 +7829,8 @@ document.addEventListener("keydown", (e) => {
 window.addEventListener("DOMContentLoaded", () => {
   loadSavedState();
   renderSkillsGrid();
+  renderMixedUnitPills();
+  updateMixedPracticeBannerUI();
   initScratchpad();
   renderFormulaSheet();
   
@@ -5989,6 +7841,35 @@ window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => renderMath(document.body), 500);
 });
 
-  </script>
+</script>
+
+  <!-- Mixed Units Selector Modal -->
+  <div class="modal-overlay" id="mixed-units-modal" onclick="if(event.target === this) closeMixedUnitsModal(false)">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.3rem;">🎯</span>
+          <h3 style="font-size: 1.2rem; font-weight: 800;">Select Units for Mixed Practice</h3>
+        </div>
+        <button class="icon-btn" onclick="closeMixedUnitsModal(false)">✕</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+        Toggle which units to include. Questions will interleave and vary across your active selection.
+      </p>
+      
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+        <button class="btn btn-outline text-xs" onclick="selectAllMixedUnits(true)">Select All</button>
+        <button class="btn btn-outline text-xs" onclick="selectAllMixedUnits(false)">Clear All</button>
+      </div>
+
+      <div id="modal-unit-pills-selector" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn btn-outline" onclick="closeMixedUnitsModal(false)">Cancel</button>
+        <button class="btn btn-primary" onclick="launchMixedPractice(); closeMixedUnitsModal(false);">⚡ Apply & Continue</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

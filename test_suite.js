@@ -68,7 +68,7 @@ vm.runInContext(appCode, context);
 console.log('--- TEST 1: Question Bank Integrity ---');
 const bank = context.EXPANDED_QUESTION_BANK;
 console.log(`Total questions in bank: ${bank.length}`);
-if (bank.length < 85) throw new Error(`Expected at least 85 questions, got ${bank.length}`);
+if (bank.length !== 128) throw new Error(`Expected 128 questions, got ${bank.length}`);
 
 // Check that every question has required fields
 bank.forEach((q, i) => {
@@ -132,13 +132,13 @@ for (let examRun = 0; examRun < 5; examRun++) {
     throw new Error(`Exam Run ${examRun + 1} contains duplicate questions: ${ids.join(', ')}`);
   }
 
-  // Check unit coverage (should cover all 7 units)
+  // Check unit coverage (should cover all 8 units)
   const units = new Set(examQuestions.map(q => q.unitId));
-  if (units.size < 7) {
-    throw new Error(`Exam Run ${examRun + 1} did not cover all 7 units! Units covered: ${[...units].join(', ')}`);
+  if (units.size < 8) {
+    throw new Error(`Exam Run ${examRun + 1} did not cover all 8 units! Units covered: ${[...units].join(', ')}`);
   }
 }
-console.log('✓ 5 Mock Exam runs passed: All 10 questions strictly distinct and cover all 7 units.');
+console.log('✓ 5 Mock Exam runs passed: All 10 questions strictly distinct and cover all 8 units.');
 
 console.log('\n--- TEST 4: loadSpecificProblem Function ---');
 const testProbId = 'q2_opt_silo';
@@ -254,10 +254,10 @@ context.finishExam();
 if (context.APP_STATE.examMode.active) throw new Error('finishExam did not deactivate exam mode');
 console.log('✓ Exam Duration Controls (15m, 30m, 45m, 60m, 90m, untimed, custom) verified.');
 
-console.log('\n--- TEST 10: Formula Sheet Integrity (53 High-Yield Formulas) ---');
+console.log('\n--- TEST 10: Formula Sheet Integrity (76 High-Yield Formulas) ---');
 const formulaSections = context.FORMULA_SECTIONS;
-if (!formulaSections || formulaSections.length !== 6) {
-  throw new Error(`Expected 6 formula sections, got ${formulaSections?.length}`);
+if (!formulaSections || formulaSections.length !== 7) {
+  throw new Error(`Expected 7 formula sections, got ${formulaSections?.length}`);
 }
 let formulaCount = 0;
 formulaSections.forEach((sec, sIdx) => {
@@ -279,11 +279,52 @@ formulaSections.forEach((sec, sIdx) => {
   });
 });
 console.log(`Total verified formulas in cheat sheet: ${formulaCount}`);
-if (formulaCount !== 53) throw new Error(`Expected 53 formulas, found ${formulaCount}`);
-console.log('✓ All 53 formulas verified with valid KaTeX math delimiters and zero escape errors.');
+if (formulaCount !== 76) throw new Error(`Expected 76 formulas, found ${formulaCount}`);
+console.log('✓ All 76 formulas verified with valid KaTeX math delimiters and zero escape errors.');
+
+console.log('\n--- TEST 11: Mixed Unit Practice Engine & Topic Variety ---');
+// Select subset of units: Unit 2, Unit 7, Unit 8
+context.APP_STATE.mixedPractice.selectedUnits = ['unit-2', 'unit-7', 'unit-8'];
+context.APP_STATE.mixedPractice.deck = [];
+context.APP_STATE.mixedPractice.active = true;
+
+const servedMixed = [];
+const servedUnits = [];
+for (let i = 0; i < 15; i++) {
+  const prob = context.getNextMixedProblem();
+  servedMixed.push(prob.id);
+  servedUnits.push(prob.unitId);
+}
+
+// 1. All served problems must belong strictly to the selected units
+servedUnits.forEach((uId, idx) => {
+  if (!['unit-2', 'unit-7', 'unit-8'].includes(uId)) {
+    throw new Error(`Served question ${servedMixed[idx]} belongs to ${uId}, not in selected units!`);
+  }
+});
+
+// 2. Check interleaving: consecutive questions should vary units
+let variedTransitions = 0;
+for (let i = 0; i < servedUnits.length - 1; i++) {
+  if (servedUnits[i] !== servedUnits[i + 1]) {
+    variedTransitions++;
+  }
+}
+const transitionRate = variedTransitions / (servedUnits.length - 1);
+if (transitionRate < 0.8) {
+  throw new Error(`Expected high unit transition variety, got transition rate ${transitionRate}`);
+}
+
+// 3. Verify single skill deactivates mixed mode
+context.loadSkillProblem('s1_1');
+if (context.APP_STATE.mixedPractice.active) {
+  throw new Error('Loading specific skill did not deactivate mixed practice mode');
+}
+
+console.log(`✓ Mixed Unit Practice verified: 15 questions strictly within selected units with ${(transitionRate * 100).toFixed(0)}% topic alternation!`);
 
 console.log('\n========================================');
-console.log('ALL 10 TESTS PASSED WITH 100% SUCCESS!');
+console.log('ALL 11 TESTS PASSED WITH 100% SUCCESS!');
 console.log('========================================');
 
 
