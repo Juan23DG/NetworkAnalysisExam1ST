@@ -602,15 +602,32 @@ const mobileHtml = `<!DOCTYPE html>
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
       border-top: 1px solid var(--border);
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 -4px 25px rgba(0,0,0,0.22);
       z-index: 150;
-      padding: 1rem;
+      padding: 0.85rem 1rem;
       padding-bottom: calc(1rem + env(safe-area-inset-bottom));
       animation: slideUp 0.25s ease-out;
+      transition: height 0.22s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
     }
 
     .scratchpad-sheet.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scratchpad-sheet.height-compact {
+      max-height: 56vh;
+    }
+
+    .scratchpad-sheet.height-tall {
+      max-height: 72vh;
+    }
+
+    .scratchpad-sheet.height-max,
+    .scratchpad-sheet.expanded {
+      height: 88vh;
+      max-height: 88vh;
     }
 
     @keyframes slideUp {
@@ -622,17 +639,154 @@ const mobileHtml = `<!DOCTYPE html>
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Embedded Question Peek Reference Card: Never Obscure Prompt or Answers */
+    .scratchpad-peek-card {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+      max-height: 155px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .scratchpad-peek-card.collapsed {
+      max-height: 38px;
+      overflow: hidden;
+      padding: 0.4rem 0.75rem;
+    }
+
+    .scratchpad-peek-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .scratchpad-peek-body {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: var(--text-main);
+      max-height: 75px;
+      overflow-y: auto;
+      margin-bottom: 0.35rem;
+    }
+
+    .scratchpad-peek-card.collapsed .scratchpad-peek-body,
+    .scratchpad-peek-card.collapsed .scratchpad-peek-options {
+      display: none;
+    }
+
+    .scratchpad-peek-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+
+    .scratchpad-peek-opt {
+      font-size: 0.74rem;
+      padding: 0.3rem 0.45rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .scratchpad-peek-opt.selected {
+      border-color: var(--primary);
+      background-color: rgba(37, 99, 235, 0.1);
+      font-weight: 700;
+    }
+
+    .scratchpad-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .scratchpad-tools-group {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .scratchpad-size-pills {
+      display: inline-flex;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .scratchpad-size-pill {
+      border: none;
+      background: transparent;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    .scratchpad-size-pill.active {
+      background: var(--primary);
+      color: white;
     }
 
     .scratchpad-canvas-wrapper {
       width: 100%;
-      height: 280px;
+      height: 270px;
+      flex: 1;
+      min-height: 200px;
       border-radius: 12px;
       border: 1.5px solid var(--border);
       background-color: var(--bg-app);
       overflow: hidden;
       touch-action: none;
+      position: relative;
+    }
+
+    .scratchpad-sheet.height-compact .scratchpad-canvas-wrapper {
+      height: 230px;
+      min-height: 200px;
+    }
+
+    .scratchpad-sheet.height-tall .scratchpad-canvas-wrapper {
+      height: 380px;
+      min-height: 340px;
+    }
+
+    .scratchpad-sheet.height-max .scratchpad-canvas-wrapper,
+    .scratchpad-sheet.expanded .scratchpad-canvas-wrapper {
+      height: calc(88vh - 210px);
+      min-height: 400px;
     }
 
     #mobile-scratch-canvas {
@@ -891,13 +1045,14 @@ const mobileHtml = `<!DOCTYPE html>
       <button class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;" onclick="switchMobileView('skills')">Change Units</button>
     </div>
     <div class="arena-status">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
         <span class="badge badge-primary" id="m-unit-tag">Unit 1</span>
         <span class="badge badge-warning" id="m-difficulty-badge">Standard</span>
+        <span class="badge" id="m-problem-status-badge">★ New</span>
       </div>
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <div class="timer-badge" id="m-problem-timer">⏱️ 0:00</div>
-        <div class="smartscore-pill" id="m-smartscore">⭐ 0</div>
+        <div class="smartscore-pill" id="m-smartscore">🎯 0 / 4 Solved</div>
       </div>
     </div>
 
@@ -946,7 +1101,7 @@ const mobileHtml = `<!DOCTYPE html>
     <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h2 style="font-size: 1.3rem; font-weight: 800;">Course Skills</h2>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">33 skills across 8 exam units</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">37 skills across 8 exam units</p>
       </div>
       <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="startRandomPractice()">Quick Practice Any</button>
     </div>
@@ -1032,18 +1187,18 @@ const mobileHtml = `<!DOCTYPE html>
   <main id="view-bank" class="mobile-view">
     <div style="margin-bottom: 1rem;">
       <h2 style="font-size: 1.3rem; font-weight: 800;">Problem Bank</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">118 problems with step-by-step proofs</p>
+      <p id="m-bank-subtitle" style="font-size: 0.8rem; color: var(--text-muted);">140 problems with step-by-step proofs</p>
     </div>
 
     <input type="text" class="search-bar" id="m-bank-search" placeholder="🔍 Search problems (e.g. Taylor, Lagrange, Fourier)..." oninput="filterMobileBank()">
 
     <select id="m-bank-unit-filter" class="search-bar" style="margin-top: -0.35rem; margin-bottom: 0.85rem;" onchange="filterMobileBank()">
-      <option value="ALL">All Units (118 Problems)</option>
+      <option value="ALL">All Units (140 Problems)</option>
       <option value="unit-1">Unit 1: Curves, Extrema & Asymptotes (9)</option>
-      <option value="unit-2">Unit 2: Constrained Optimization & Lagrange (20)</option>
+      <option value="unit-2">Unit 2: Constrained Optimization & Lagrange (30)</option>
       <option value="unit-3">Unit 3: Power & Taylor Series (17)</option>
       <option value="unit-4">Unit 4: Orthogonal Functions & Inner Products (15)</option>
-      <option value="unit-5">Unit 5: Real & Complex Fourier Series (9)</option>
+      <option value="unit-5">Unit 5: Real & Complex Fourier Series (21)</option>
       <option value="unit-6">Unit 6: Vector Algebra & Triple Products (19)</option>
       <option value="unit-7">Unit 7: 3D Lines & Planes (21)</option>
       <option value="unit-8">Unit 8: Vector Differential Calculus (8)</option>
@@ -1056,7 +1211,7 @@ const mobileHtml = `<!DOCTYPE html>
   <main id="view-formulas" class="mobile-view">
     <div style="margin-bottom: 1rem;">
       <h2 style="font-size: 1.3rem; font-weight: 800;">Formula Cheat Sheet</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">69 high-yield exam formulas</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">76 high-yield exam formulas</p>
     </div>
 
     <input type="text" class="search-bar" id="m-formula-search" placeholder="🔍 Search formulas (e.g. Euler, Vieta, Parseval)..." oninput="filterMobileFormulas()">
@@ -1067,16 +1222,45 @@ const mobileHtml = `<!DOCTYPE html>
   <!-- Scratchpad Floating Action Button & Bottom Sheet -->
   <button class="scratchpad-fab" onclick="toggleScratchpad()" title="Open Scratchpad">✏️</button>
 
-  <div class="scratchpad-sheet" id="m-scratchpad-sheet">
+  <div class="scratchpad-sheet height-compact" id="m-scratchpad-sheet">
     <div class="scratchpad-header">
-      <div style="font-weight: 800; font-size: 1rem;">✏️ Touch Scratchpad</div>
-      <div style="display: flex; gap: 0.4rem;">
-        <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" id="m-pen-btn" onclick="setMobileScratch('pen')">Pen</button>
-        <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" id="m-eraser-btn" onclick="setMobileScratch('eraser')">Eraser</button>
-        <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="clearMobileScratch()">Clear</button>
-        <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="toggleScratchpad()">✕</button>
+      <div style="font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+        <span>✏️ Scratchpad</span>
+        <button id="m-scratch-expand-btn" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.72rem; border-radius: 6px;" onclick="toggleMobileScratchExpand()" title="Expand scratchpad size">⤢ Expand</button>
+      </div>
+      <div style="display: flex; gap: 0.3rem; align-items: center;">
+        <button class="btn btn-outline" style="padding: 0.22rem 0.5rem; font-size: 0.74rem;" onclick="toggleMobileQuestionPeek()" id="m-peek-toggle-btn" title="Toggle Question Reference Card">👁️ Question</button>
+        <button class="btn btn-outline" style="padding: 0.22rem 0.55rem; font-size: 0.8rem; font-weight: 700;" onclick="toggleScratchpad()">✕</button>
       </div>
     </div>
+
+    <!-- Question & Options Peek Reference Card: Never Obscure Question or Answers -->
+    <div class="scratchpad-peek-card" id="m-scratch-peek-card">
+      <div class="scratchpad-peek-header" onclick="toggleMobileQuestionPeek()">
+        <span>📌 Question Reference (Always Visible)</span>
+        <span id="m-peek-chevron" style="font-size: 0.72rem;">▲ Hide</span>
+      </div>
+      <div class="scratchpad-peek-body" id="m-scratch-peek-prompt">
+        Problem prompt appears here...
+      </div>
+      <div class="scratchpad-peek-options" id="m-scratch-peek-options">
+        <!-- Rendered A, B, C, D choices -->
+      </div>
+    </div>
+
+    <div class="scratchpad-toolbar">
+      <div class="scratchpad-tools-group">
+        <button class="btn btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" id="m-pen-btn" onclick="setMobileScratch('pen')">Pen</button>
+        <button class="btn btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" id="m-eraser-btn" onclick="setMobileScratch('eraser')">Eraser</button>
+        <button class="btn btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="clearMobileScratch()">Clear</button>
+      </div>
+      <div class="scratchpad-size-pills" id="m-scratch-size-pills">
+        <button class="scratchpad-size-pill active" data-height="compact" onclick="setMobileScratchHeight('compact')">Standard</button>
+        <button class="scratchpad-size-pill" data-height="tall" onclick="setMobileScratchHeight('tall')">Tall</button>
+        <button class="scratchpad-size-pill" data-height="max" onclick="setMobileScratchHeight('max')">Max</button>
+      </div>
+    </div>
+
     <div class="scratchpad-canvas-wrapper">
       <canvas id="mobile-scratch-canvas"></canvas>
     </div>
@@ -1159,6 +1343,7 @@ const APP_STATE = {
   smartScores: {},
   streak: 0,
   totalSolved: 0,
+  solvedProblemIds: [],
   soundEnabled: true,
   skillQueues: {},
   lastProblemIdBySkill: {},
@@ -1189,6 +1374,59 @@ const APP_STATE = {
     userAnswers: []
   }
 };
+
+/* Progress & Unique Question Tracking Helpers */
+function getSkillProblems(skillId) {
+  return EXPANDED_QUESTION_BANK.filter(q => q.skillId === skillId);
+}
+
+function getSolvedProblemsForSkill(skillId) {
+  const bank = getSkillProblems(skillId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  return bank.filter(q => solvedList.includes(q.id));
+}
+
+function getSkillProgress(skillId) {
+  const allProbs = getSkillProblems(skillId);
+  const solvedProbs = getSolvedProblemsForSkill(skillId);
+  const total = allProbs.length;
+  const solved = solvedProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total),
+    unsolvedIds: allProbs.filter(q => !(APP_STATE.solvedProblemIds || []).includes(q.id)).map(q => q.id)
+  };
+}
+
+function getUnitProgress(unitId) {
+  const allProbs = EXPANDED_QUESTION_BANK.filter(q => q.unitId === unitId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = allProbs.filter(q => solvedList.includes(q.id)).length;
+  const total = allProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
+
+function getOverallProgress() {
+  const total = EXPANDED_QUESTION_BANK.length;
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = EXPANDED_QUESTION_BANK.filter(q => solvedList.includes(q.id)).length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
 
 /* Format and Shuffling */
 function formatProblem(base) {
@@ -1222,22 +1460,37 @@ function formatProblem(base) {
 }
 
 function getProblemForSkill(skillId) {
+  const bankMatches = EXPANDED_QUESTION_BANK.filter(q => q.skillId === skillId);
+  if (bankMatches.length === 0) return formatProblem(EXPANDED_QUESTION_BANK[0]);
+  if (bankMatches.length === 1) return formatProblem(bankMatches[0]);
+
   if (!APP_STATE.skillQueues[skillId] || APP_STATE.skillQueues[skillId].length === 0) {
-    const matching = EXPANDED_QUESTION_BANK.filter(q => q.skillId === skillId);
-    if (matching.length === 0) return formatProblem(EXPANDED_QUESTION_BANK[0]);
-    const shuffled = [...matching];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
+    const solvedSet = new Set(APP_STATE.solvedProblemIds || []);
+    const unsolved = bankMatches.filter(q => !solvedSet.has(q.id)).map(q => q.id);
+    const solved = bankMatches.filter(q => solvedSet.has(q.id)).map(q => q.id);
+
+    const shuffle = (arr) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+      }
+    };
+    shuffle(unsolved);
+    shuffle(solved);
+
+    // Prioritize unseen questions so students go through all available questions first!
+    const ids = (unsolved.length > 0) ? [...unsolved, ...solved] : [...solved];
+
     const lastId = APP_STATE.lastProblemIdBySkill[skillId];
-    if (shuffled.length > 1 && shuffled[0].id === lastId) {
-      const temp = shuffled[0];
-      shuffled[0] = shuffled[shuffled.length - 1];
-      shuffled[shuffled.length - 1] = temp;
+    if (lastId && ids[0] === lastId && ids.length > 1) {
+      const swap = ids[0];
+      ids[0] = ids[ids.length - 1];
+      ids[ids.length - 1] = swap;
     }
-    APP_STATE.skillQueues[skillId] = shuffled;
+
+    APP_STATE.skillQueues[skillId] = ids.map(id => bankMatches.find(q => q.id === id)).filter(Boolean);
   }
+
   const base = APP_STATE.skillQueues[skillId].shift();
   APP_STATE.lastProblemIdBySkill[skillId] = base.id;
   return formatProblem(base);
@@ -1389,11 +1642,27 @@ function displayProblem(prob) {
   }
   updateMobileMixedStrip();
   document.getElementById("m-difficulty-badge").innerText = prob.difficulty || "Standard";
+
+  const isAlreadySolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(prob.id));
+  const statusBadge = document.getElementById("m-problem-status-badge");
+  if (statusBadge) {
+    if (isAlreadySolved) {
+      statusBadge.innerHTML = "✓ Solved";
+      statusBadge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 8px;";
+    } else {
+      statusBadge.innerHTML = "★ New";
+      statusBadge.style.cssText = "background: rgba(59, 130, 246, 0.12); color: var(--primary); font-weight: 700; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 8px;";
+    }
+  }
+
   document.getElementById("m-skill-title").innerText = prob.skillName || prob.title;
   document.getElementById("m-question-prompt").innerHTML = prob.prompt;
 
-  const score = APP_STATE.smartScores[APP_STATE.currentSkillId] || 0;
-  document.getElementById("m-smartscore").innerText = "⭐ " + score;
+  const skProg = getSkillProgress(prob.skillId || APP_STATE.currentSkillId);
+  const scoreEl = document.getElementById("m-smartscore");
+  if (scoreEl) {
+    scoreEl.innerHTML = "🎯 " + skProg.solved + " / " + skProg.total + " Solved";
+  }
 
   const container = document.getElementById("m-answers-container");
   container.innerHTML = "";
@@ -1428,6 +1697,7 @@ function displayProblem(prob) {
   stuckBtn.style.display = "inline-flex";
 
   renderMath(document.getElementById("view-practice"));
+  if (typeof updateMobileScratchPeek === 'function') updateMobileScratchPeek();
 }
 
 function selectOption(idx) {
@@ -1439,6 +1709,7 @@ function selectOption(idx) {
     if (i === idx) b.classList.add("selected");
     else b.classList.remove("selected");
   });
+  if (typeof updateMobileScratchPeek === 'function') updateMobileScratchPeek();
 }
 
 function submitAnswer() {
@@ -1466,12 +1737,36 @@ function submitAnswer() {
     let points = APP_STATE.isRetry ? 5 : 10;
     score = Math.min(100, score + points);
     APP_STATE.smartScores[APP_STATE.currentSkillId] = score;
-    document.getElementById("m-smartscore").innerText = "⭐ " + score;
+
+    // Track unique problem solved
+    if (!APP_STATE.solvedProblemIds) APP_STATE.solvedProblemIds = [];
+    if (!APP_STATE.solvedProblemIds.includes(prob.id)) {
+      APP_STATE.solvedProblemIds.push(prob.id);
+    }
+    const skProg = getSkillProgress(prob.skillId || APP_STATE.currentSkillId);
+    const wasJustCompleted = skProg.isComplete;
+
+    const scoreEl = document.getElementById("m-smartscore");
+    if (scoreEl) {
+      scoreEl.innerHTML = "🎯 " + skProg.solved + " / " + skProg.total + " Solved";
+    }
+
+    const statusBadge = document.getElementById("m-problem-status-badge");
+    if (statusBadge) {
+      statusBadge.innerHTML = "✓ Solved";
+      statusBadge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 8px;";
+    }
 
     banner.className = "feedback-banner correct";
     banner.style.display = "block";
-    title.innerHTML = "🎉 Correct! Outstanding!";
-    desc.innerHTML = (APP_STATE.isRetry ? "Solved on 2nd attempt (+5 pts). " : "Solved correctly (+10 pts). ") + "Time: " + elapsed + "s.";
+
+    if (wasJustCompleted) {
+      title.innerHTML = "🏆 Topic Mastered! (" + skProg.solved + "/" + skProg.total + " Solved)";
+      desc.innerHTML = "Outstanding! You have solved all " + skProg.total + " problems in this topic! Time: " + elapsed + "s.";
+    } else {
+      title.innerHTML = "🎉 Correct! (" + skProg.solved + " of " + skProg.total + " Solved)";
+      desc.innerHTML = (APP_STATE.isRetry ? "Solved on 2nd attempt. " : "Solved correctly! ") + (skProg.total - skProg.solved) + " more question(s) left in this topic. Time: " + elapsed + "s.";
+    }
 
     actions.innerHTML = 
       '<button class="btn btn-outline" style="font-size: 0.85rem;" onclick="viewSolutionRequested()">📖 Review Proof</button>' +
@@ -1491,7 +1786,12 @@ function submitAnswer() {
     APP_STATE.streak = 0;
     score = Math.max(0, score - 5);
     APP_STATE.smartScores[APP_STATE.currentSkillId] = score;
-    document.getElementById("m-smartscore").innerText = "⭐ " + score;
+
+    const skProg = getSkillProgress(prob.skillId || APP_STATE.currentSkillId);
+    const scoreEl = document.getElementById("m-smartscore");
+    if (scoreEl) {
+      scoreEl.innerHTML = "🎯 " + skProg.solved + " / " + skProg.total + " Solved";
+    }
 
     const wrongIdx = APP_STATE.selectedOptionIndex;
     APP_STATE.eliminatedIndices.push(wrongIdx);
@@ -1584,7 +1884,7 @@ function viewSolutionRequested() {
 }
 
 function showWalkthroughRequested() {
-  if (confirm("Viewing the full walkthrough before submitting will not earn SmartScore points. Continue?")) {
+  if (confirm("Viewing the full walkthrough before submitting will not mark this question as solved. Continue?")) {
     stopProblemTimer();
     APP_STATE.answered = true;
     renderWalkthrough();
@@ -1640,23 +1940,62 @@ function renderMobileSkills() {
   updateMobileMixedStrip();
   const container = document.getElementById("m-skills-container");
   container.innerHTML = "";
+
+  const overall = getOverallProgress();
+  const heroCard = document.createElement("div");
+  heroCard.className = "card";
+  heroCard.style.cssText = "background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(16,185,129,0.08)); border: 1.5px solid var(--primary-light); margin-bottom: 1rem; padding: 1rem;";
+  heroCard.innerHTML = 
+    '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">' +
+      '<div>' +
+        '<div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--primary); letter-spacing: 0.5px;">Overall Course Progress</div>' +
+        '<div style="font-size: 1.25rem; font-weight: 800;">' + overall.solved + ' <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/ ' + overall.total + ' Problems Solved</span></div>' +
+      '</div>' +
+      '<div style="font-size: 1.3rem; font-weight: 800; color: ' + (overall.isComplete ? '#059669' : 'var(--primary)') + ';">' + overall.pct + '%</div>' +
+    '</div>' +
+    '<div style="width: 100%; height: 8px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; margin-bottom: 0.5rem;">' +
+      '<div style="width: ' + overall.pct + '%; height: 100%; background: linear-gradient(90deg, var(--primary), #10b981); border-radius: 999px; transition: width 0.3s ease;"></div>' +
+    '</div>' +
+    '<div style="font-size: 0.75rem; color: var(--text-muted);">' +
+      (overall.isComplete ? '🏆 All 140 Exam 1 questions solved! Ready for exam day!' : (overall.total - overall.solved) + ' unique problems remaining across 8 units.') +
+    '</div>';
+  container.appendChild(heroCard);
+
   CURRICULUM.forEach(u => {
+    const unitProg = getUnitProgress(u.id);
     const card = document.createElement("div");
     card.className = "card";
     let skillsHtml = "";
     u.skills.forEach(sk => {
-      const score = APP_STATE.smartScores[sk.id] || 0;
+      const skProg = getSkillProgress(sk.id);
+      const isDone = skProg.isComplete;
+      const badgeHtml = isDone
+        ? '<span style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.25rem;">✓ Done (' + skProg.solved + '/' + skProg.total + ')</span>'
+        : '<span style="background: var(--bg-subtle); color: var(--text-muted); font-weight: 600; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 12px;">' + skProg.solved + ' / ' + skProg.total + ' Solved</span>';
+
       skillsHtml += 
-        '<div class="skill-item">' +
-          '<div>' +
-            '<div style="font-size: 0.9rem; font-weight: 700;">' + sk.name + '</div>' +
-            '<div style="font-size: 0.72rem; color: var(--text-muted);">' + sk.ref + ' • SmartScore: <strong>' + score + '/100</strong></div>' +
+        '<div class="skill-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid var(--border);">' +
+          '<div style="flex: 1; padding-right: 0.5rem;">' +
+            '<div style="font-size: 0.88rem; font-weight: 700;">' + sk.name + '</div>' +
+            '<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">' +
+              '<span style="font-size: 0.72rem; color: var(--text-muted);">' + sk.ref + '</span>' +
+              badgeHtml +
+            '</div>' +
+            '<div style="width: 100%; height: 3px; background: rgba(0,0,0,0.06); border-radius: 2px; overflow: hidden; margin-top: 0.35rem;">' +
+              '<div style="width: ' + skProg.pct + '%; height: 100%; background: ' + (isDone ? '#10b981' : 'var(--primary)') + ';"></div>' +
+            '</div>' +
           '</div>' +
-          '<button class="btn btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem;" onclick="startSkillPractice(\\'' + sk.id + '\\')">Practice</button>' +
+          '<button class="btn btn-primary" style="padding: 0.35rem 0.7rem; font-size: 0.78rem; white-space: nowrap;" onclick="startSkillPractice(\\'' + sk.id + '\\')">' + (isDone ? 'Review' : 'Practice') + '</button>' +
         '</div>';
     });
     card.innerHTML = 
-      '<div style="font-size: 0.95rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">' + u.title + '</div>' +
+      '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem;">' +
+        '<div style="font-size: 0.95rem; font-weight: 800; color: var(--primary);">' + u.title + '</div>' +
+        '<div style="font-size: 0.75rem; font-weight: 700; color: ' + (unitProg.isComplete ? '#059669' : 'var(--text-muted)') + ';">' + unitProg.solved + ' / ' + unitProg.total + ' Solved (' + unitProg.pct + '%)</div>' +
+      '</div>' +
+      '<div style="width: 100%; height: 4px; background: rgba(0,0,0,0.06); border-radius: 2px; overflow: hidden; margin-bottom: 0.6rem;">' +
+        '<div style="width: ' + unitProg.pct + '%; height: 100%; background: ' + (unitProg.isComplete ? '#10b981' : 'var(--primary)') + ';"></div>' +
+      '</div>' +
       '<div style="border-radius: var(--radius-sm); border: 1px solid var(--border); overflow: hidden;">' +
         skillsHtml +
       '</div>';
@@ -1920,6 +2259,7 @@ function renderMobileExamQuestion() {
   document.getElementById("m-exam-next-btn").disabled = (idx === total - 1);
 
   renderMath(document.getElementById("m-exam-question-card"));
+  if (typeof updateMobileScratchPeek === 'function') updateMobileScratchPeek();
 }
 
 function prevMobileExamQ() {
@@ -2007,18 +2347,24 @@ function finishMobileExam() {
   renderMath(resultsCard);
 }
 
-/* Problem Bank Filtering & Display */
+//* Problem Bank Filtering & Display */
 function filterMobileBank() {
   const query = (document.getElementById("m-bank-search")?.value || "").toLowerCase().trim();
   const unitFilter = document.getElementById("m-bank-unit-filter")?.value || "ALL";
   const container = document.getElementById("m-bank-container");
   container.innerHTML = "";
 
+  const subEl = document.getElementById("m-bank-subtitle");
+  const overall = getOverallProgress();
+  if (subEl) {
+    subEl.innerText = overall.total + " problems with step-by-step proofs • " + overall.solved + " / " + overall.total + " Solved (" + overall.pct + "%)";
+  }
+
   const filtered = EXPANDED_QUESTION_BANK.filter(q => {
     const matchesUnit = (unitFilter === "ALL" || q.unitId === unitFilter);
     const matchesQuery = !query || 
       q.title.toLowerCase().includes(query) || 
-      q.prompt.toLowerCase().includes(query) ||
+      q.prompt.toLowerCase().includes(query) || 
       q.unitId.toLowerCase().includes(query);
     return matchesUnit && matchesQuery;
   });
@@ -2033,13 +2379,18 @@ function filterMobileBank() {
   if (unitFilter === "ALL" && !query && filtered.length > displayList.length) {
     const note = document.createElement("div");
     note.style.cssText = "font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 0.75rem;";
-    note.innerText = "Showing 50 of 118 problems. Select a unit above or search to filter.";
+    note.innerText = "Showing " + displayList.length + " of " + filtered.length + " problems. Select a unit above or search to filter.";
     container.appendChild(note);
   }
 
   displayList.forEach(q => {
     const card = document.createElement("div");
     card.className = "card";
+
+    const isSolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(q.id));
+    const solvedBadge = isSolved
+      ? '<span style="background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.15rem 0.45rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">✓ Solved</span>'
+      : '<span style="background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); padding: 0.15rem 0.45rem; border-radius: 6px; font-size: 0.72rem;">○ Unsolved</span>';
 
     let stepsHtml = "";
     q.walkthrough.forEach(s => {
@@ -2052,7 +2403,10 @@ function filterMobileBank() {
 
     card.innerHTML = 
       '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">' +
-        '<span class="badge badge-primary">' + q.unitId.toUpperCase() + '</span>' +
+        '<div style="display: flex; align-items: center; gap: 0.4rem;">' +
+          '<span class="badge badge-primary">' + q.unitId.toUpperCase() + '</span>' +
+          solvedBadge +
+        '</div>' +
         '<button class="btn btn-primary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="loadSpecificProblem(\\'' + q.id + '\\')">Practice in Arena →</button>' +
       '</div>' +
       '<div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.4rem;">' + q.title + '</div>' +
@@ -2119,21 +2473,33 @@ function switchMobileView(viewName) {
   renderMath(viewEl || document.body);
 }
 
-/* Touch Scratchpad */
+/* Touch Scratchpad Engine */
 let scratchCanvas, scratchCtx, scratchDrawing = false, scratchMode = 'pen';
+let mobileScratchExpanded = false;
+let mobileScratchHeight = 'compact';
+let mobilePeekCollapsed = false;
+
 function initMobileScratch() {
   scratchCanvas = document.getElementById("mobile-scratch-canvas");
   if (!scratchCanvas) return;
   const rect = scratchCanvas.getBoundingClientRect();
-  scratchCanvas.width = rect.width * (window.devicePixelRatio || 1);
-  scratchCanvas.height = rect.height * (window.devicePixelRatio || 1);
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const initialW = rect.width > 0 ? Math.round(rect.width * dpr) : 340 * dpr;
+  const initialH = rect.height > 0 ? Math.round(rect.height * dpr) : 260 * dpr;
+
+  scratchCanvas.width = initialW;
+  scratchCanvas.height = initialH;
   scratchCtx = scratchCanvas.getContext("2d");
-  scratchCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
 
   const getPos = (e) => {
     const r = scratchCanvas.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return { x: t.clientX - r.left, y: t.clientY - r.top };
+    const t = (e.touches && e.touches[0]) ? e.touches[0] : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : e);
+    const scaleX = r.width > 0 ? (scratchCanvas.width / r.width) : 1;
+    const scaleY = r.height > 0 ? (scratchCanvas.height / r.height) : 1;
+    return {
+      x: ((t.clientX !== undefined ? t.clientX : 0) - r.left) * scaleX,
+      y: ((t.clientY !== undefined ? t.clientY : 0) - r.top) * scaleY
+    };
   };
 
   const start = (e) => {
@@ -2148,21 +2514,27 @@ function initMobileScratch() {
     if (!scratchDrawing) return;
     e.preventDefault();
     const pos = getPos(e);
-    scratchCtx.lineWidth = scratchMode === 'eraser' ? 22 : 2.5;
+    const curDpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+    scratchCtx.lineWidth = (scratchMode === 'eraser') ? 22 * curDpr : 2.5 * curDpr;
     scratchCtx.lineCap = 'round';
     scratchCtx.lineJoin = 'round';
     if (scratchMode === 'eraser') {
       scratchCtx.globalCompositeOperation = 'destination-out';
     } else {
       scratchCtx.globalCompositeOperation = 'source-over';
-      const isDark = document.body.getAttribute("data-theme") === "dark";
+      const isDark = (typeof document !== "undefined" && document.body.getAttribute("data-theme") === "dark");
       scratchCtx.strokeStyle = isDark ? '#93c5fd' : '#2563eb';
     }
     scratchCtx.lineTo(pos.x, pos.y);
     scratchCtx.stroke();
+    scratchCtx.beginPath();
+    scratchCtx.moveTo(pos.x, pos.y);
   };
 
-  const stop = () => { scratchDrawing = false; };
+  const stop = () => {
+    scratchDrawing = false;
+    if (scratchCtx) scratchCtx.beginPath();
+  };
 
   scratchCanvas.addEventListener('touchstart', start, { passive: false });
   scratchCanvas.addEventListener('touchmove', move, { passive: false });
@@ -2171,22 +2543,200 @@ function initMobileScratch() {
   scratchCanvas.addEventListener('mousedown', start);
   scratchCanvas.addEventListener('mousemove', move);
   scratchCanvas.addEventListener('mouseup', stop);
+  scratchCanvas.addEventListener('mouseleave', stop);
+
+  if (typeof window !== "undefined") {
+    window.removeEventListener('resize', handleMobileScratchResize);
+    window.addEventListener('resize', handleMobileScratchResize);
+  }
+}
+
+let mobileScratchResizeTimer = null;
+function handleMobileScratchResize() {
+  if (mobileScratchResizeTimer) clearTimeout(mobileScratchResizeTimer);
+  mobileScratchResizeTimer = setTimeout(resizeMobileScratch, 120);
+}
+
+function resizeMobileScratch() {
+  const canvas = document.getElementById("mobile-scratch-canvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect || rect.width === 0 || rect.height === 0) return;
+
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const targetW = Math.round(rect.width * dpr);
+  const targetH = Math.round(rect.height * dpr);
+
+  if (canvas.width === targetW && canvas.height === targetH) return;
+
+  let tempCanvas = null;
+  if (canvas.width > 0 && canvas.height > 0 && typeof document !== "undefined" && document.createElement) {
+    try {
+      tempCanvas = document.createElement("canvas");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext("2d");
+      if (tempCtx && typeof tempCtx.drawImage === "function") {
+        tempCtx.drawImage(canvas, 0, 0);
+      }
+    } catch (err) {
+      tempCanvas = null;
+    }
+  }
+
+  canvas.width = targetW;
+  canvas.height = targetH;
+  scratchCtx = canvas.getContext("2d");
+  if (tempCanvas && scratchCtx && typeof scratchCtx.drawImage === "function") {
+    scratchCtx.drawImage(tempCanvas, 0, 0, targetW, targetH);
+  }
 }
 
 function toggleScratchpad() {
   const sheet = document.getElementById("m-scratchpad-sheet");
+  if (!sheet) return;
   const isActive = sheet.classList.toggle("active");
-  if (isActive && !scratchCtx) {
-    setTimeout(initMobileScratch, 50);
+  if (isActive) {
+    updateMobileScratchPeek();
+    if (!scratchCtx) {
+      setTimeout(initMobileScratch, 50);
+    } else {
+      setTimeout(resizeMobileScratch, 50);
+    }
+  }
+}
+
+function toggleMobileScratchExpand() {
+  mobileScratchExpanded = !mobileScratchExpanded;
+  setMobileScratchHeight(mobileScratchExpanded ? 'max' : 'compact');
+}
+
+function setMobileScratchHeight(heightMode) {
+  mobileScratchHeight = heightMode;
+  mobileScratchExpanded = (heightMode === 'max');
+  const sheet = document.getElementById("m-scratchpad-sheet");
+  const expandBtn = document.getElementById("m-scratch-expand-btn");
+
+  if (sheet) {
+    sheet.classList.remove("height-compact", "height-tall", "height-max", "expanded");
+    if (heightMode === 'max') {
+      sheet.classList.add("height-max", "expanded");
+    } else if (heightMode === 'tall') {
+      sheet.classList.add("height-tall");
+    } else {
+      sheet.classList.add("height-compact");
+    }
+  }
+
+  if (expandBtn) {
+    if (mobileScratchExpanded) {
+      expandBtn.innerHTML = "⤡ Compact";
+      expandBtn.classList.add("active");
+    } else {
+      expandBtn.innerHTML = "⤢ Expand";
+      expandBtn.classList.remove("active");
+    }
+  }
+
+  const pills = document.querySelectorAll("#m-scratch-size-pills .scratchpad-size-pill");
+  pills.forEach(pill => {
+    if (pill.getAttribute("data-height") === heightMode) {
+      pill.classList.add("active");
+    } else {
+      pill.classList.remove("active");
+    }
+  });
+
+  setTimeout(resizeMobileScratch, 60);
+}
+
+function toggleMobileQuestionPeek() {
+  mobilePeekCollapsed = !mobilePeekCollapsed;
+  const peekCard = document.getElementById("m-scratch-peek-card");
+  const chevron = document.getElementById("m-peek-chevron");
+  const peekBtn = document.getElementById("m-peek-toggle-btn");
+
+  if (peekCard) {
+    if (mobilePeekCollapsed) {
+      peekCard.classList.add("collapsed");
+      if (chevron) chevron.innerText = "▼ Show";
+      if (peekBtn) peekBtn.classList.remove("active");
+    } else {
+      peekCard.classList.remove("collapsed");
+      if (chevron) chevron.innerText = "▲ Hide";
+      if (peekBtn) peekBtn.classList.add("active");
+    }
+  }
+
+  setTimeout(resizeMobileScratch, 60);
+}
+
+function updateMobileScratchPeek() {
+  const promptEl = document.getElementById("m-scratch-peek-prompt");
+  const optionsEl = document.getElementById("m-scratch-peek-options");
+  if (!promptEl || !optionsEl) return;
+
+  let curQ = null;
+  const isExam = (APP_STATE.currentView === 'exam' && APP_STATE.examMode && APP_STATE.examMode.inProgress);
+  if (isExam && APP_STATE.examMode.questions) {
+    const idx = APP_STATE.examMode.currentIndex;
+    curQ = APP_STATE.examMode.questions[idx];
+  } else if (APP_STATE.currentProblem) {
+    curQ = APP_STATE.currentProblem;
+  }
+
+  if (!curQ) {
+    promptEl.innerHTML = "<em>Open a problem in Practice Arena or Mock Exam to view prompt and options here.</em>";
+    optionsEl.innerHTML = "";
+    return;
+  }
+
+  promptEl.innerHTML = curQ.prompt || "No prompt available";
+  optionsEl.innerHTML = "";
+
+  if (curQ.options && curQ.options.length > 0) {
+    curQ.options.forEach((opt, oIdx) => {
+      const optDiv = document.createElement("div");
+      optDiv.className = "scratchpad-peek-opt";
+      const isSelected = isExam ? (APP_STATE.examMode.userAnswers && APP_STATE.examMode.userAnswers[APP_STATE.examMode.currentIndex] === oIdx) : (APP_STATE.selectedOptionIndex === oIdx);
+      if (isSelected) optDiv.classList.add("selected");
+      optDiv.innerHTML = '<b>' + String.fromCharCode(65 + oIdx) + ':</b> <span>' + opt + '</span>';
+      optDiv.onclick = () => {
+        if (isExam) {
+          if (APP_STATE.examMode.userAnswers) APP_STATE.examMode.userAnswers[APP_STATE.examMode.currentIndex] = oIdx;
+          renderMobileExamQuestion();
+        } else {
+          selectOption(oIdx);
+        }
+        updateMobileScratchPeek();
+      };
+      optionsEl.appendChild(optDiv);
+    });
+  }
+
+  const peekCard = document.getElementById("m-scratch-peek-card");
+  if (peekCard && typeof renderMath === "function") {
+    renderMath(peekCard);
   }
 }
 
 function setMobileScratch(mode) {
   scratchMode = mode;
-  document.getElementById("m-pen-btn").style.background = mode === 'pen' ? 'var(--primary)' : 'var(--bg-card)';
-  document.getElementById("m-pen-btn").style.color = mode === 'pen' ? 'white' : 'var(--text-main)';
-  document.getElementById("m-eraser-btn").style.background = mode === 'eraser' ? 'var(--primary)' : 'var(--bg-card)';
-  document.getElementById("m-eraser-btn").style.color = mode === 'eraser' ? 'white' : 'var(--text-main)';
+  const penBtn = document.getElementById("m-pen-btn");
+  const eraserBtn = document.getElementById("m-eraser-btn");
+  if (penBtn && eraserBtn) {
+    if (mode === 'pen') {
+      penBtn.classList.add("btn-primary");
+      penBtn.classList.remove("btn-outline");
+      eraserBtn.classList.add("btn-outline");
+      eraserBtn.classList.remove("btn-primary");
+    } else {
+      eraserBtn.classList.add("btn-primary");
+      eraserBtn.classList.remove("btn-outline");
+      penBtn.classList.add("btn-outline");
+      penBtn.classList.remove("btn-primary");
+    }
+  }
 }
 
 function clearMobileScratch() {
@@ -2209,7 +2759,7 @@ function triggerNativeShare() {
   if (navigator.share) {
     navigator.share({
       title: 'ME-IXL: Exam 1 Mastery Mobile App',
-      text: 'Here is the ME-IXL Exam 1 study platform! Includes 118 problems across 8 units with step-by-step proofs & formula sheet.',
+      text: 'Here is the ME-IXL Exam 1 study platform! Includes 140 problems across 8 units with step-by-step proofs & formula sheet.',
       url: window.location.href
     }).catch(() => {});
   } else {
@@ -2236,6 +2786,7 @@ function saveMobileState() {
     localStorage.setItem("ME_IXL_MOBILE_STATE", JSON.stringify({
       smartScores: APP_STATE.smartScores,
       totalSolved: APP_STATE.totalSolved,
+      solvedProblemIds: APP_STATE.solvedProblemIds || [],
       streak: APP_STATE.streak
     }));
   } catch (e) {}
@@ -2255,6 +2806,7 @@ function loadMobileState() {
       const parsed = JSON.parse(saved);
       APP_STATE.smartScores = parsed.smartScores || {};
       APP_STATE.totalSolved = parsed.totalSolved || 0;
+      APP_STATE.solvedProblemIds = Array.isArray(parsed.solvedProblemIds) ? parsed.solvedProblemIds : [];
       APP_STATE.streak = parsed.streak || 0;
     }
 

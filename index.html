@@ -327,10 +327,65 @@
       grid-template-columns: 1fr 340px;
       gap: 1.5rem;
       align-items: start;
+      transition: grid-template-columns 0.25s ease;
+    }
+
+    /* Side-by-Side Expanded Workspace: Left = Question & Answers (100% visible), Right = Huge Scratchpad */
+    .arena-container.scratchpad-expanded {
+      grid-template-columns: minmax(440px, 1fr) minmax(500px, 1.25fr);
+      gap: 1.75rem;
+    }
+
+    .arena-container.scratchpad-expanded .practice-main {
+      min-width: 0;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card {
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card .smartscore-meter {
+      width: 60px;
+      height: 60px;
+      margin: 0;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card .smartscore-meter::after {
+      width: 46px;
+      height: 46px;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card .smartscore-number {
+      font-size: 1.25rem;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card .level-label {
+      font-size: 0.75rem;
+    }
+
+    .arena-container.scratchpad-expanded .smartscore-card #sidebar-mastery-text {
+      display: none;
+    }
+
+    .arena-container.scratchpad-expanded .scratchpad-area {
+      height: 520px;
+    }
+
+    .arena-container.scratchpad-expanded .scratchpad-area.height-tall {
+      height: 680px;
+    }
+
+    .arena-container.scratchpad-expanded .scratchpad-area.height-max {
+      height: 840px;
     }
 
     @media (max-width: 1024px) {
       .arena-container { grid-template-columns: 1fr; }
+      .arena-container.scratchpad-expanded { grid-template-columns: 1fr; }
     }
 
     .practice-main {
@@ -673,12 +728,52 @@
       border: 2px dashed #d97706;
       border-radius: 8px;
       height: 260px;
+      width: 100%;
       cursor: crosshair;
+      touch-action: none;
+      transition: height 0.2s ease;
+    }
+
+    .scratchpad-area.height-tall {
+      height: 420px;
+    }
+
+    .scratchpad-area.height-max {
+      height: 580px;
     }
 
     [data-theme="dark"] .scratchpad-area {
       background-color: #1e1e24;
       border-color: #92400e;
+    }
+
+    .scratch-size-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .size-pill {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .size-pill:hover {
+      border-color: var(--primary-light);
+      color: var(--text-main);
+    }
+
+    .size-pill.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: white;
     }
 
     /* Filter Bar for Bank Explorer */
@@ -947,17 +1042,17 @@
       </div>
 
       <div class="header-stats">
-        <div class="stat-pill" title="Your IXL SmartScore on current skill (0-100)">
-          <span>SmartScore:</span>
-          <span class="smartscore-val" id="global-smartscore">0</span>
+        <div class="stat-pill" title="Unique questions solved for current topic">
+          <span>Topic:</span>
+          <span class="smartscore-val" id="global-smartscore">0 / 4</span>
         </div>
         <div class="stat-pill" title="Consecutive correct answers">
           <span>Streak:</span>
           <span class="streak-val" id="global-streak">🔥 0</span>
         </div>
-        <div class="stat-pill" title="Total problems solved in this session">
-          <span>Solved:</span>
-          <span id="global-solved">0</span>
+        <div class="stat-pill" title="Total unique problems solved across all 8 units">
+          <span>Course:</span>
+          <span id="global-solved">0 / 140</span>
         </div>
       </div>
 
@@ -1060,7 +1155,7 @@
 
     <!-- VIEW 2: IXL-Style Practice Arena -->
     <div id="practice-view" class="view-panel">
-      <div class="arena-container">
+      <div class="arena-container" id="arena-container">
         <div class="practice-main">
           <div class="problem-box">
             <div class="problem-meta">
@@ -1069,6 +1164,7 @@
                 <h3 id="current-skill-title" style="font-size: 1.2rem; margin-top: 0.2rem;">Rational Curve Extrema & Asymptotes</h3>
               </div>
               <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="badge" id="problem-status-badge" style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.12); color: var(--primary); font-weight: 700; border: 1px solid rgba(59, 130, 246, 0.3); padding: 0.2rem 0.5rem; border-radius: 12px;">★ New Question</span>
                 <span class="difficulty-badge" id="current-difficulty">Level: Standard</span>
                 <div class="live-problem-timer" id="problem-timer-badge" onclick="toggleProblemTimer()" title="Click to pause or resume timer">
                   ⏱️ <span id="problem-timer-display">00:00</span>
@@ -1117,25 +1213,41 @@
         <!-- Sidebar: SmartScore & Scratchpad -->
         <div class="arena-sidebar">
           <div class="smartscore-card">
-            <div class="level-label">SmartScore</div>
-            <div class="smartscore-meter" id="sidebar-meter">
-              <div class="smartscore-number" id="sidebar-score">0</div>
+            <div class="level-label" id="sidebar-progress-label">Topic Progress</div>
+            <div style="margin: 0.6rem 0 0.35rem;">
+              <div class="smartscore-number" id="sidebar-score" style="font-size: 2.2rem; line-height: 1;">0 / 4</div>
+              <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 0.25rem;">Unique Problems Solved</div>
             </div>
-            <p class="text-sm" id="sidebar-mastery-text" style="color: var(--text-muted); font-weight: 600;">Reach 100 to Master this skill!</p>
+            <div style="width: 100%; height: 8px; background: var(--border-color); border-radius: 999px; overflow: hidden; margin: 0.6rem 0 0.4rem;">
+              <div id="sidebar-meter-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #10b981); border-radius: 999px; transition: width 0.3s ease;"></div>
+            </div>
+            <div class="smartscore-meter" id="sidebar-meter" style="display: none;"></div>
+            <p class="text-sm" id="sidebar-mastery-text" style="color: var(--text-muted); font-weight: 600;">Solve all questions to complete this topic!</p>
           </div>
 
-          <div class="tool-widget">
+          <div class="tool-widget" id="scratchpad-widget">
             <div class="tool-widget-header">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-              Quick Scratchpad
-              <div style="margin-left: auto; display: flex; gap: 4px;">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                <span id="scratchpad-title" style="font-weight: 700;">Scratchpad</span>
+              </div>
+              <div style="margin-left: auto; display: flex; gap: 4px; align-items: center;">
                 <button class="btn btn-outline text-xs active" id="scratch-pen-btn" style="padding: 2px 6px;" onclick="setScratchMode('pen')">Pen</button>
                 <button class="btn btn-outline text-xs" id="scratch-eraser-btn" style="padding: 2px 6px;" onclick="setScratchMode('eraser')">Eraser</button>
                 <button class="icon-btn text-xs" style="padding: 2px 6px;" onclick="clearScratchpad()" title="Clear entire scratchpad">Clear</button>
+                <button class="btn btn-outline text-xs" id="scratch-expand-btn" style="padding: 2px 8px; font-weight: 700; border-color: var(--primary); color: var(--primary);" onclick="toggleScratchpadExpand()" title="Expand scratchpad side-by-side with question">⤢ Expand</button>
               </div>
             </div>
-            <canvas id="scratchpad-canvas" class="scratchpad-area" width="290" height="220"></canvas>
-            <p class="text-xs mt-1" style="color: var(--text-muted);">Scribble notes, derivatives, or algebra directly here.</p>
+            <canvas id="scratchpad-canvas" class="scratchpad-area"></canvas>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.45rem; flex-wrap: wrap; gap: 0.35rem;">
+              <p class="text-xs" style="color: var(--text-muted); margin: 0;">Scribble notes, derivations & algebra.</p>
+              <div class="scratch-size-pills" id="scratch-size-pills">
+                <span style="font-size: 0.68rem; color: var(--text-muted); margin-right: 2px;">Height:</span>
+                <button type="button" class="size-pill active" data-height="default" onclick="setScratchpadHeight('default')">Standard</button>
+                <button type="button" class="size-pill" data-height="tall" onclick="setScratchpadHeight('tall')">Tall</button>
+                <button type="button" class="size-pill" data-height="max" onclick="setScratchpadHeight('max')">Max</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1144,7 +1256,7 @@
     <!-- VIEW 3: Expanded Problem Bank Explorer (40+ Problems) -->
     <div id="bank-view" class="view-panel">
       <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 800;">Expanded Problem Bank (118 Curated Problems)</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 800;">Expanded Problem Bank (140 Curated Problems)</h2>
         <p style="color: var(--text-muted);">Browse, search, and practice complete exam-level problems across all course topics with full step-by-step solutions.</p>
       </div>
 
@@ -5007,6 +5119,366 @@ const EXPANDED_QUESTION_BANK = [
       }
     ],
     "examTip": "Whenever both constraints are symmetric in $x$ and $y$, the Lagrange system immediately forces $x = y$, which eliminates two variables and leaves a single quadratic equation for $z$!"
+  },
+  {
+    "id": "q5_parseval_quartic",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Parseval's Identity on x² & Exact Sum of 1/n⁴ = π⁴/90",
+    "prompt": "The Fourier cosine series of $f(x) = x^2$ on $[-\\pi, \\pi]$ is $x^2 = \\frac{\\pi^2}{3} + 4\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2}\\cos(nx)$. Use Parseval's identity $\\frac{1}{2\\pi}\\int_{-\\pi}^\\pi [f(x)]^2\\,dx = \\frac{a_0^2}{4} + \\frac{1}{2}\\sum_{n=1}^\\infty a_n^2$ to evaluate the exact sum of the reciprocal fourth powers $\\sum_{n=1}^\\infty \\frac{1}{n^4}$.",
+    "options": [
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{45}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{120}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{90}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{96}$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Evaluate the Integral (LHS of Parseval's Identity)",
+        "body": "Since $f(x) = x^2$, $[f(x)]^2 = x^4$. Evaluating the integral over $[-\\pi, \\pi]$:\n\\[ \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi x^4\\,dx = \\frac{1}{\\pi}\\int_0^\\pi x^4\\,dx = \\frac{1}{\\pi}\\left[\\frac{x^5}{5}\\right]_0^\\pi = \\frac{\\pi^4}{5} \\]"
+      },
+      {
+        "title": "Step 2: Express Parseval's RHS in Terms of Coefficients",
+        "body": "From the given series, $a_0 = \\frac{2\\pi^2}{3}$ and $a_n = \\frac{4(-1)^n}{n^2}$ (with $b_n = 0$):\n\\[ \\frac{a_0^2}{4} = \\frac{1}{4}\\left(\\frac{2\\pi^2}{3}\\right)^2 = \\frac{1}{4}\\left(\\frac{4\\pi^4}{9}\\right) = \\frac{\\pi^4}{9} \\]\n\\[ \\frac{1}{2}\\sum_{n=1}^\\infty a_n^2 = \\frac{1}{2}\\sum_{n=1}^\\infty \\left(\\frac{4(-1)^n}{n^2}\\right)^2 = \\frac{1}{2}\\sum_{n=1}^\\infty \\frac{16}{n^4} = 8\\sum_{n=1}^\\infty \\frac{1}{n^4} \\]"
+      },
+      {
+        "title": "Step 3: Equate and Solve for the Infinite Sum",
+        "body": "Setting LHS = RHS:\n\\[ \\frac{\\pi^4}{5} = \\frac{\\pi^4}{9} + 8\\sum_{n=1}^\\infty \\frac{1}{n^4} \\]\nSubtract $\\frac{\\pi^4}{9}$ from both sides:\n\\[ \\frac{\\pi^4}{5} - \\frac{\\pi^4}{9} = \\frac{9\\pi^4 - 5\\pi^4}{45} = \\frac{4\\pi^4}{45} \\]\nNow divide by 8:\n\\[ \\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{4\\pi^4}{45 \\times 8} = \\frac{\\pi^4}{90} \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Parseval's identity is the primary method to evaluate sums of 4th powers $\\sum 1/n^4$ from second-degree polynomial Fourier series! Remember that $a_0^2/4$ uses $a_0$, not $a_0/2$."
+  },
+  {
+    "id": "q5_halfrange_ramp_decay",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Half-Range Sine vs Cosine Series of Ramp f(x) = x on [0, L] & Decay Rates",
+    "prompt": "For the linear ramp $f(x) = x$ on the half-interval $[0, L]$, compare its half-range Fourier cosine series against its half-range Fourier sine series. Determine the non-zero coefficients and the asymptotic harmonic decay rate for each.",
+    "options": [
+      "Cosine: $a_n = -\\frac{4L}{\\pi^2 n^2}$ for odd $n$ ($\\mathcal{O}(1/n^2)$ decay); Sine: $b_n = \\frac{2L}{\\pi}\\frac{(-1)^{n+1}}{n}$ for all $n$ ($\\mathcal{O}(1/n)$ decay)",
+      "Cosine: $a_n = \\frac{2L}{\\pi n}$ for all $n$ ($\\mathcal{O}(1/n)$ decay); Sine: $b_n = -\\frac{4L}{\\pi^2 n^2}$ for odd $n$ ($\\mathcal{O}(1/n^2)$ decay)",
+      "Cosine: $a_n = -\\frac{2L}{\\pi^2 n^2}$ for all $n$ ($\\mathcal{O}(1/n^3)$ decay); Sine: $b_n = \\frac{L}{\\pi n}$ for odd $n$ ($\\mathcal{O}(1/n)$ decay)",
+      "Cosine: $a_n = 0$ for all $n$; Sine: $b_n = \\frac{4L}{\\pi n}$ for all $n$ ($\\mathcal{O}(1/n^2)$ decay)"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Half-Range Cosine Coefficients (Even Extension)",
+        "body": "The even extension creates a symmetric triangular wave of period $2L$.\n\\[ a_0 = \\frac{2}{L}\\int_0^L x\\,dx = L \\]\n\\[ a_n = \\frac{2}{L}\\int_0^L x\\cos\\left(\\frac{n\\pi x}{L}\\right)\\,dx = \\frac{2L}{\\pi^2 n^2}[(-1)^n - 1] \\]\nFor even $n$, $a_n = 0$. For odd $n$, $a_n = -\\frac{4L}{\\pi^2 n^2}$.\nSince the even extension is continuous everywhere, the coefficients decay as $\\mathcal{O}(1/n^2)$."
+      },
+      {
+        "title": "Step 2: Compute Half-Range Sine Coefficients (Odd Extension)",
+        "body": "The odd extension creates a sawtooth wave with jump discontinuities at $x = \\pm L$.\n\\[ b_n = \\frac{2}{L}\\int_0^L x\\sin\\left(\\frac{n\\pi x}{L}\\right)\\,dx = \\frac{2}{L}\\left[ -\\frac{Lx}{n\\pi}\\cos\\left(\\frac{n\\pi x}{L}\\right) + \\frac{L^2}{n^2\\pi^2}\\sin\\left(\\frac{n\\pi x}{L}\\right) \\right]_0^L \\]\n\\[ b_n = \\frac{2L}{\\pi}\\frac{(-1)^{n+1}}{n} \\quad \\text{for all } n \\ge 1 \\]\nBecause of the jump discontinuities at $\\pm L$, the coefficients decay slowly as $\\mathcal{O}(1/n)$."
+      },
+      {
+        "title": "Step 3: Physical & Convergence Interpretation",
+        "body": "The cosine series converges uniformly without Gibbs phenomenon because the even extension is continuous. The sine series exhibits Gibbs phenomenon overshoot at $x = L$ because the odd extension jumps from $+L$ to $-L$."
+      }
+    ],
+    "examTip": "Fourier coefficient decay directly reflects boundary continuity: Continuous functions decay as at least $\\mathcal{O}(1/n^2)$, whereas jump discontinuities force slow $\\mathcal{O}(1/n)$ decay."
+  },
+  {
+    "id": "q5_gibbs_overshoot",
+    "unitId": "unit-5",
+    "skillId": "s5_1",
+    "difficulty": "Standard",
+    "title": "Dirichlet Theorem at Jump Discontinuities & Gibbs Phenomenon Overshoot",
+    "prompt": "A periodic signal $f(x)$ has an isolated jump discontinuity of magnitude $J = f(x_0^+) - f(x_0^-)$ at $x = x_0$. According to Dirichlet's Theorem, what value does the Fourier series converge to at $x = x_0$, and what is the limiting percentage overshoot near the discontinuity as the number of harmonics $N \\to \\infty$ (Gibbs Phenomenon)?",
+    "options": [
+      "Converges to $f(x_0^+)$; overshoot vanishes completely as $N \\to \\infty$ (0% overshoot)",
+      "Converges to $\\frac{f(x_0^+) + f(x_0^-)}{2}$; overshoot does NOT vanish and approaches $\\approx 8.95\\% \\approx 9\\%$ of the jump height $J$",
+      "Converges to $\\frac{f(x_0^+) + f(x_0^-)}{2}$; overshoot approaches $\\approx 18.0\\%$ of the jump height $J$",
+      "Converges to 0; overshoot diverges logarithmically as $N \\to \\infty$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Dirichlet Convergence at Jumps",
+        "body": "Dirichlet's Theorem states that for any piecewise smooth function, the Fourier series converges to the arithmetic mean of the left- and right-hand limits at any point of discontinuity:\n\\[ S(x_0) = \\frac{f(x_0^+) + f(x_0^-)}{2} \\]"
+      },
+      {
+        "title": "Step 2: Wilbraham-Gibbs Overshoot Integral",
+        "body": "Near the jump, partial sums $S_N(x)$ oscillate. The peak overshoot near the jump is given by the sine integral:\n\\[ \\lim_{N\\to\\infty} S_N(x_{\\text{peak}}) - f(x_0^+) = J\\left( \\frac{1}{\\pi}\\int_0^\\pi \\frac{\\sin(t)}{t}\\,dt - \\frac{1}{2} \\right) = J\\left( \\frac{\\text{Si}(\\pi)}{\\pi} - \\frac{1}{2} \\right) \\]\nSince $\\text{Si}(\\pi) \\approx 1.85194$:\n\\[ \\frac{1.85194}{\\pi} - 0.5 \\approx 0.58949 - 0.5 = 0.08949 \\approx 8.95\\% \\approx 9\\% \\]"
+      },
+      {
+        "title": "Step 3: Engineering Consequence",
+        "body": "Adding more harmonics narrows the width of the overshoot spike towards zero, but the overshoot amplitude never decreases below $\\approx 8.95\\%$ of the jump height."
+      }
+    ],
+    "examTip": "Always remember the Wilbraham-Gibbs overshoot is approximately 9% (or ~18% peak-to-peak) of the jump height, and the series at the jump itself is exactly the midpoint average!"
+  },
+  {
+    "id": "q5_halfrange_parabolic_beam",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Pinned Beam Deflection f(x) = x(L - x) Sine Series & Sum of Odd Cubes",
+    "prompt": "A simply supported beam under distributed load has initial parabolic displacement $f(x) = x(L - x)$ on $[0, L]$.\n1. Find its Fourier sine series coefficients $b_n$.\n2. Evaluate the series at the midpoint $x = L/2$ to find the exact sum of the alternating reciprocal cubes: $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = 1 - \\frac{1}{3^3} + \\frac{1}{5^3} - \\frac{1}{7^3} + \\dots$",
+    "options": [
+      "$b_n = \\frac{4L^2}{\\pi^2 n^2}$ for all $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{16}$",
+      "$b_n = \\frac{2L^2}{\\pi^3 n^3}$ for odd $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{24}$",
+      "$b_n = \\frac{8L^2}{\\pi^2 n^2}$ for even $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{48}$",
+      "$b_n = \\frac{8L^2}{\\pi^3 n^3}$ for odd $n$ ($0$ for even $n$); $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{32}$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Fourier Sine Coefficients",
+        "body": "\\[ b_n = \\frac{2}{L}\\int_0^L (Lx - x^2)\\sin\\left(\\frac{n\\pi x}{L}\\right)\\,dx \\]\nIntegrating by parts three times:\n\\[ b_n = \\frac{4L^2}{\\pi^3 n^3}[1 - (-1)^n] \\]\nFor even $n$, $b_n = 0$. For odd $n = 2k-1$:\n\\[ b_{2k-1} = \\frac{8L^2}{\\pi^3 (2k-1)^3} \\]\nNotice the cubic decay rate $\\mathcal{O}(1/n^3)$ because $f(0)=f(L)=0$ matches the pinned boundary conditions, making the odd periodic extension continuous with continuous first derivative!"
+      },
+      {
+        "title": "Step 2: Evaluate at Midpoint x = L/2",
+        "body": "At $x = L/2$, $f(L/2) = (L/2)(L - L/2) = \\frac{L^2}{4}$.\nThe Fourier sine series is:\n\\[ f(L/2) = \\sum_{k=1}^\\infty \\frac{8L^2}{\\pi^3 (2k-1)^3} \\sin\\left(\\frac{(2k-1)\\pi}{2}\\right) \\]\nSince $\\sin((2k-1)\\pi/2) = (-1)^{k-1}$:\n\\[ \\frac{L^2}{4} = \\frac{8L^2}{\\pi^3} \\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} \\]"
+      },
+      {
+        "title": "Step 3: Solve for the Infinite Alternating Cubic Sum",
+        "body": "Divide both sides by $\\frac{8L^2}{\\pi^3}$:\n\\[ \\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{L^2 / 4}{8L^2 / \\pi^3} = \\frac{\\pi^3}{32} \\approx 0.96895 \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Because the function and its derivative are continuous across the periodic boundary, the Fourier coefficients decay rapidly as $\\mathcal{O}(1/n^3)$, enabling fast series convergence in beam deflection problems!"
+  },
+  {
+    "id": "q5_pulse_train_sinc",
+    "unitId": "unit-5",
+    "skillId": "s5_3",
+    "difficulty": "Exam Challenge",
+    "title": "Complex Fourier Spectrum of Pulse Train & Vanishing Harmonics",
+    "prompt": "A periodic square pulse train $f(t)$ has period $T$, amplitude $A$, and pulse duration $\\tau = T/4$ (duty cycle $d = 0.25$) centered at $t = 0$. Determine the complex Fourier coefficients $c_n$ and identify which harmonic frequencies vanish identically.",
+    "options": [
+      "$c_0 = A/4$, $c_n = \\frac{A}{n\\pi}\\sin\\left(\\frac{n\\pi}{4}\\right)$; harmonics vanish identically for all multiples of 4 ($n = \\pm 4, \\pm 8, \\pm 12, \\dots$)",
+      "$c_0 = A/2$, $c_n = \\frac{A}{n\\pi}\\cos\\left(\\frac{n\\pi}{4}\\right)$; harmonics vanish for all odd multiples ($n = 1, 3, 5, \\dots$)",
+      "$c_0 = A/4$, $c_n = \\frac{2A}{n^2\\pi^2}$; harmonics vanish for all multiples of 2 ($n = \\pm 2, \\pm 4, \\pm 6, \\dots$)",
+      "$c_0 = 0$, $c_n = \\frac{A}{2\\pi(n+1)}$; no harmonics vanish"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Complex Fourier Integral",
+        "body": "With $\\omega_0 = 2\\pi/T$, the signal is non-zero only for $t \\in [-\\tau/2, \\tau/2] = [-T/8, T/8]$:\n\\[ c_n = \\frac{1}{T}\\int_{-T/8}^{T/8} A e^{-i n \\omega_0 t}\\,dt \\]\nFor $n = 0$ (DC component):\n\\[ c_0 = \\frac{1}{T}\\int_{-T/8}^{T/8} A\\,dt = \\frac{A (T/4)}{T} = \\frac{A}{4} \\]"
+      },
+      {
+        "title": "Step 2: Compute Coefficients for n ≠ 0",
+        "body": "\\[ c_n = \\frac{A}{T} \\left[ \\frac{e^{-i n \\omega_0 t}}{-i n \\omega_0} \\right]_{-T/8}^{T/8} = \\frac{A}{T} \\frac{e^{i n \\omega_0 T/8} - e^{-i n \\omega_0 T/8}}{i n \\omega_0} \\]\nUsing $\\omega_0 T = 2\\pi$, $\\omega_0 T / 8 = \\pi/4$:\n\\[ c_n = \\frac{A}{T} \\frac{2i\\sin(n\\pi/4)}{i n (2\\pi/T)} = \\frac{A}{n\\pi}\\sin\\left(\\frac{n\\pi}{4}\\right) \\]"
+      },
+      {
+        "title": "Step 3: Identify Null Harmonics",
+        "body": "$c_n = 0$ whenever $\\sin(n\\pi/4) = 0$, which occurs when $\\frac{n\\pi}{4} = m\\pi \\implies n = 4m$ for integers $m \\neq 0$.\nTherefore, all harmonics that are multiples of 4 ($n = \\pm 4, \\pm 8, \\pm 12, \\dots$) have zero amplitude."
+      }
+    ],
+    "examTip": "In pulse width modulation (PWM) and pulse trains with duty cycle $d = 1/k$, every $k$-th harmonic vanishes identically because $\\sin(n\\pi d) = 0$!"
+  },
+  {
+    "id": "q5_forced_vibration_resonance",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Forced Vibration of SDOF Oscillator Driven by Fourier Square Wave",
+    "prompt": "An undamped mechanical system $m\\ddot{x} + kx = F(t)$ has natural frequency $\\omega_n = \\sqrt{k/m} = 10\\text{ rad/s}$. The periodic driving force is a square wave of fundamental frequency $\\omega_0 = 1\\text{ rad/s}$ ($T = 2\\pi$): $F(t) = \\sum_{k=1}^\\infty \\frac{4F_0}{\\pi(2k-1)}\\sin((2k-1)t)$. Which harmonic component dominates the steady-state vibration displacement response, and why?",
+    "options": [
+      "The 1st harmonic ($n = 1$), because it has the largest force amplitude in the Fourier series ($F_1 = 4F_0/\\pi$)",
+      "The 10th harmonic ($n = 10$), because $\\omega = \\omega_n = 10\\text{ rad/s}$ causes exact resonance",
+      "The 9th harmonic ($n = 9, \\omega = 9\\text{ rad/s}$), because $|\\omega_n^2 - n^2| = |100 - 81| = 19$ minimizes the dynamic impedance denominator among present odd harmonics",
+      "The 11th harmonic ($n = 11$), because the mass inertia dominates over stiffness at high frequencies"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Modal Response for Each Fourier Harmonic",
+        "body": "For each harmonic force component $F_n \\sin(nt)$, the steady-state displacement is $x_n(t) = X_n \\sin(nt)$:\n\\[ X_n = \\frac{F_n}{k - m n^2} = \\frac{F_n/m}{\\omega_n^2 - n^2} = \\frac{\\frac{4F_0}{\\pi n m}}{100 - n^2} \\]"
+      },
+      {
+        "title": "Step 2: Check Available Harmonics in Square Wave",
+        "body": "The square wave contains ONLY odd harmonics: $n = 1, 3, 5, 7, 9, 11, 13, \\dots$.\nThe 10th harmonic does NOT exist in the driving force ($F_{10} = 0$), so exact resonance cannot occur at $n = 10$."
+      },
+      {
+        "title": "Step 3: Compare Magnification Factor Near Resonance",
+        "body": "Examine the dynamic denominator $|100 - n^2|$ for odd harmonics near 10:\n- For $n = 7$: $|100 - 49| = 51$\n- For $n = 9$: $|100 - 81| = 19 \\implies X_9 = \\frac{4F_0/m}{9\\pi \\times 19} = \\frac{4F_0/m}{171\\pi} \\approx 0.00745 (F_0/m)$\n- For $n = 11$: $|100 - 121| = 21 \\implies |X_{11}| = \\frac{4F_0/m}{11\\pi \\times 21} = \\frac{4F_0/m}{231\\pi} \\approx 0.00551 (F_0/m)$\n- For $n = 1$: $|100 - 1| = 99 \\implies X_1 = \\frac{4F_0/m}{1\\pi \\times 99} = \\frac{4F_0/m}{99\\pi} \\approx 0.0128 (F_0/m)$\nAmong the near-resonant harmonics ($n \\ge 3$), $n = 9$ experiences severe resonant amplification ($19 < 21$ and $19 \\ll 51$)."
+      }
+    ],
+    "examTip": "Even though a square wave force does not contain the even harmonic $n = 10$, the odd harmonic closest to resonance ($n = 9$) experiences severe dynamic amplification because $\\omega_n^2 - n^2 = 19$ is small!"
+  },
+  {
+    "id": "q5_diff_integ_validity",
+    "unitId": "unit-5",
+    "skillId": "s5_1",
+    "difficulty": "Standard",
+    "title": "Term-by-Term Differentiation & Integration of Fourier Series",
+    "prompt": "Under what mathematical conditions can a Fourier series of a periodic function $f(x)$ on $[-L, L]$ be differentiated term-by-term to yield the Fourier series of $f'(x)$? How does this compare with term-by-term integration?",
+    "options": [
+      "Differentiation is always valid for any periodic function; integration is only valid if $f(x)$ has zero mean ($a_0 = 0$)",
+      "Differentiation requires $f(x)$ to be continuous on $[-L, L]$ with $f(-L) = f(L)$; Integration is always valid for any piecewise continuous $f(x)$, but introduces a linear drift term $\\frac{a_0}{2}x$ unless $a_0 = 0$",
+      "Differentiation requires $f(x)$ to be infinitely differentiable ($C^\\infty$); integration can never be performed on Fourier series",
+      "Both differentiation and integration are valid if and only if all cosine coefficients $a_n$ vanish identically"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Conditions for Term-by-Term Differentiation",
+        "body": "Term-by-term differentiation of $\\sum (a_n\\cos + b_n\\sin)$ multiplies terms by $n$, which amplifies high frequencies. It is valid IF AND ONLY IF:\n1. $f(x)$ is continuous everywhere on $[-L, L]$.\n2. The periodic boundary condition holds: $f(-L) = f(L)$.\n3. $f'(x)$ is piecewise continuous.\nIf $f(x)$ has a jump, term-by-term differentiation misses the Dirac delta impulses $\\Delta f \\cdot \\delta(x - x_0)$ at the jumps."
+      },
+      {
+        "title": "Step 2: Conditions for Term-by-Term Integration",
+        "body": "Integration divides terms by $n$, improving harmonic convergence. Therefore, term-by-term integration is ALWAYS valid for any piecewise continuous function.\nHowever, integrating the constant term $\\frac{a_0}{2}$ yields a linear term $\\frac{a_0}{2}x$, which is not periodic unless $a_0 = 0$."
+      },
+      {
+        "title": "Step 3: Engineering Contrast",
+        "body": "Differentiating a continuous triangular wave yields a valid square wave. Differentiating a discontinuous square wave term-by-term yields a divergent cosine series that fails to converge."
+      }
+    ],
+    "examTip": "Remember: Integration always smoothens and improves convergence (dividing by $n$), while differentiation magnifies oscillations (multiplying by $n$) and fails at jump discontinuities without delta functions."
+  },
+  {
+    "id": "q5_complex_exp_ax_sum",
+    "unitId": "unit-5",
+    "skillId": "s5_3",
+    "difficulty": "Exam Challenge",
+    "title": "Complex Fourier Series of e^(ax) on [-π, π] & Alternating Sum Formula",
+    "prompt": "Find the complex Fourier coefficients $c_n$ for $f(x) = e^{ax}$ on $[-\\pi, \\pi]$ ($a \\neq 0$, period $2\\pi$). Evaluate the series at $x = 0$ to deduce the exact formula for the infinite sum $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2}$.",
+    "options": [
+      "$c_n = \\frac{(-1)^n}{\\pi(a + in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{\\pi}{\\sinh(a\\pi)}$",
+      "$c_n = \\frac{\\cosh(a\\pi)}{\\pi(a - in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{a^2}\\left(\\frac{a\\pi}{\\cosh(a\\pi)} - 1\\right)$",
+      "$c_n = \\frac{(-1)^n\\sinh(a\\pi)}{\\pi(n^2 - a^2)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{\\pi^2}{6a^2}$",
+      "$c_n = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi(a - in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{2a^2}\\left( \\frac{a\\pi}{\\sinh(a\\pi)} - 1 \\right)$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Complex Fourier Coefficients",
+        "body": "\\[ c_n = \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi e^{ax}e^{-inx}\\,dx = \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi e^{(a-in)x}\\,dx = \\frac{1}{2\\pi}\\left[ \\frac{e^{(a-in)x}}{a - in} \\right]_{-\\pi}^\\pi \\]\nUsing $e^{\\pm in\\pi} = (-1)^n$:\n\\[ c_n = \\frac{1}{2\\pi(a - in)}[e^{a\\pi}(-1)^n - e^{-a\\pi}(-1)^n] = \\frac{(-1)^n}{\\pi(a - in)} \\left(\\frac{e^{a\\pi} - e^{-a\\pi}}{2}\\right) = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi(a - in)} \\]"
+      },
+      {
+        "title": "Step 2: Combine Positive and Negative Harmonics",
+        "body": "Multiplying numerator and denominator by $(a + in)$:\n\\[ c_n = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi}\\frac{a + in}{a^2 + n^2} \\]\nPairing symmetric terms $c_n + c_{-n}$:\n\\[ c_n + c_{-n} = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi} \\left( \\frac{a + in}{a^2 + n^2} + \\frac{a - in}{a^2 + n^2} \\right) = \\frac{2a(-1)^n \\sinh(a\\pi)}{\\pi(n^2 + a^2)} \\]"
+      },
+      {
+        "title": "Step 3: Evaluate at x = 0 to Deduce the Sum",
+        "body": "Since $f(x)$ is continuous at $x = 0$, $f(0) = e^0 = 1$:\n\\[ 1 = \\sum_{n=-\\infty}^\\infty c_n = c_0 + \\sum_{n=1}^\\infty (c_n + c_{-n}) = \\frac{\\sinh(a\\pi)}{a\\pi} + \\frac{2a\\sinh(a\\pi)}{\\pi} \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} \\]\n\\[ 1 - \\frac{\\sinh(a\\pi)}{a\\pi} = \\frac{2a\\sinh(a\\pi)}{\\pi} \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} \\]\nMultiply both sides by $\\frac{\\pi}{2a\\sinh(a\\pi)}$:\n\\[ \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{2a^2}\\left( \\frac{a\\pi}{\\sinh(a\\pi)} - 1 \\right) \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "This identity is a classic exam question because it links complex Fourier coefficients, hyperbolic functions, and alternating series summation in one elegant derivation!"
+  },
+  {
+    "id": "q5_halfwave_quarterwave_sym",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Standard",
+    "title": "Half-Wave Symmetry & Complete Annihilation of Even Harmonics",
+    "prompt": "An AC waveform or periodic mechanical disturbance $f(t)$ satisfies Half-Wave Symmetry: $f(t + T/2) = -f(t)$ for all $t$. What property does this enforce on its Fourier series representation?",
+    "options": [
+      "All even harmonics vanish identically ($c_{2k} = a_{2k} = b_{2k} = 0$), so the series contains strictly odd harmonics ($n = 1, 3, 5, \\dots$)",
+      "All odd harmonics vanish identically ($a_{2k-1} = b_{2k-1} = 0$), so the series contains only DC and even harmonics",
+      "All sine coefficients vanish identically ($b_n = 0$), producing a pure cosine series",
+      "The fundamental frequency doubles to $2\\omega_0$ with no change in harmonic content"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Definition of Half-Wave Symmetry",
+        "body": "Half-wave symmetry means the second half of the period is the exact inverted replica of the first half: $f(t + T/2) = -f(t)$.\nIn terms of complex Fourier coefficients:\n\\[ c_n = \\frac{1}{T}\\int_0^T f(t)e^{-in\\omega_0 t}\\,dt = \\frac{1}{T}\\left[ \\int_0^{T/2} f(t)e^{-in\\omega_0 t}\\,dt + \\int_{T/2}^T f(t)e^{-in\\omega_0 t}\\,dt \\right] \\]"
+      },
+      {
+        "title": "Step 2: Change of Variable in Second Integral",
+        "body": "Let $u = t - T/2$. Then $t = u + T/2$, and $f(u + T/2) = -f(u)$:\n\\[ \\int_{T/2}^T f(t)e^{-in\\omega_0 t}\\,dt = \\int_0^{T/2} [-f(u)] e^{-in\\omega_0 (u + T/2)}\\,du = -e^{-in\\pi} \\int_0^{T/2} f(u)e^{-in\\omega_0 u}\\,du \\]\nSince $e^{-in\\pi} = (-1)^n$:\n\\[ c_n = \\frac{1 - (-1)^n}{T}\\int_0^{T/2} f(u)e^{-in\\omega_0 u}\\,du \\]"
+      },
+      {
+        "title": "Step 3: Analyze Even vs Odd Harmonics",
+        "body": "When $n$ is even ($n = 2k$):\n\\[ 1 - (-1)^{2k} = 1 - 1 = 0 \\implies c_{2k} = 0, \\quad a_{2k} = 0, \\quad b_{2k} = 0 \\]\nTherefore, all even harmonics vanish identically! The waveform contains ONLY odd harmonics: $n = 1, 3, 5, \\dots$."
+      }
+    ],
+    "examTip": "Whenever you spot half-wave symmetry $f(t + T/2) = -f(t)$, immediately cross off all even harmonic choices: $a_{2n} = b_{2n} = c_{2n} = 0$!"
+  },
+  {
+    "id": "q5_thd_harmonic_power",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Total Harmonic Distortion (THD) & Fundamental Power Ratio",
+    "prompt": "A triangular cyclic actuator torque signal is expressed by its Fourier series $f(t) = \\frac{8A}{\\pi^2}\\left[ \\sin(\\omega t) - \\frac{1}{9}\\sin(3\\omega t) + \\frac{1}{25}\\sin(5\\omega t) - \\dots \\right]$ with peak amplitude $A$. Compute the percentage of total signal power contained within the fundamental harmonic, and determine the Total Harmonic Distortion (THD).",
+    "options": [
+      "Fundamental power: $85.3\\%$; $\\text{THD} = 24.5\\%$",
+      "Fundamental power: $91.2\\%$; $\\text{THD} = 18.4\\%$",
+      "Fundamental power: $\\frac{96}{\\pi^4} \\approx 98.55\\%$; $\\text{THD} = \\sqrt{\\frac{\\pi^4}{96} - 1} \\approx 12.1\\%$",
+      "Fundamental power: $99.9\\%$; $\\text{THD} = 2.1\\%$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Total Signal Power via Direct Integration",
+        "body": "For a symmetric triangular wave oscillating linearly between $-A$ and $+A$ with slope $\\pm 4A/T$:\n\\[ P_{\\text{tot}} = \\frac{1}{T}\\int_0^T [f(t)]^2\\,dt = \\frac{A^2}{3} \\]"
+      },
+      {
+        "title": "Step 2: Compute Fundamental Harmonic Power",
+        "body": "The fundamental component is $f_1(t) = \\frac{8A}{\\pi^2}\\sin(\\omega t)$.\nThe power in a sinusoid of amplitude $B$ is $B^2/2$:\n\\[ P_1 = \\frac{1}{2}\\left(\\frac{8A}{\\pi^2}\\right)^2 = \\frac{1}{2}\\frac{64A^2}{\\pi^4} = \\frac{32A^2}{\\pi^4} \\]"
+      },
+      {
+        "title": "Step 3: Ratio of Fundamental to Total Power & THD",
+        "body": "The ratio is:\n\\[ \\frac{P_1}{P_{\\text{tot}}} = \\frac{32A^2 / \\pi^4}{A^2 / 3} = \\frac{96}{\\pi^4} \\approx \\frac{96}{97.409} \\approx 0.98553 = 98.55\\% \\]\nTotal Harmonic Distortion is defined as:\n\\[ \\text{THD} = \\sqrt{\\frac{P_{\\text{tot}} - P_1}{P_1}} = \\sqrt{\\frac{P_{\\text{tot}}}{P_1} - 1} = \\sqrt{\\frac{\\pi^4}{96} - 1} \\approx \\sqrt{1.01468 - 1} = \\sqrt{0.01468} \\approx 0.1212 = 12.1\\% \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Because triangular waves decay as $1/n^2$, over 98.5% of their total power resides in the fundamental harmonic alone, giving a modest 12.1% THD."
+  },
+  {
+    "id": "q5_fullwave_rectifier",
+    "unitId": "unit-5",
+    "skillId": "s5_2",
+    "difficulty": "Standard",
+    "title": "Full-Wave Rectified Sinusoid & Sum of 1/(4n² - 1) = 1/2",
+    "prompt": "A full-wave rectified AC signal $f(t) = |\\sin(t)|$ has period $\\pi$. Its Fourier cosine series is given by $f(t) = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{\\cos(2nt)}{4n^2 - 1}$. Evaluate the series at $t = 0$ to find the exact sum of the infinite series $\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1}$.",
+    "options": [
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{1}{4}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{1}{2}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = 1$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{\\pi}{4}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Verify the Function Value at t = 0",
+        "body": "Since $f(t) = |\\sin(t)|$, evaluating at $t = 0$ gives:\n\\[ f(0) = |\\sin(0)| = 0 \\]"
+      },
+      {
+        "title": "Step 2: Substitute t = 0 into the Fourier Series",
+        "body": "Since $f(t)$ is continuous everywhere on $\\mathbb{R}$, the Fourier series converges exactly to $f(0) = 0$:\n\\[ 0 = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{\\cos(2n \\cdot 0)}{4n^2 - 1} = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} \\]"
+      },
+      {
+        "title": "Step 3: Solve for the Infinite Telescoping Sum",
+        "body": "Rearranging terms:\n\\[ \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{2}{\\pi} \\]\nMultiply both sides by $\\frac{\\pi}{4}$:\n\\[ \\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{2}{\\pi} \\times \\frac{\\pi}{4} = \\frac{1}{2} \\quad \\blacksquare \\]\n(Note: This also matches the telescoping partial fraction $\\frac{1}{2}\\left(\\frac{1}{2n-1} - \\frac{1}{2n+1}\\right)$)."
+      }
+    ],
+    "examTip": "Full-wave rectifiers double the ripple frequency to $2\\omega$ and yield a constant DC offset of $2/\\pi \\approx 0.637$ of the peak AC voltage!"
+  },
+  {
+    "id": "q5_asymptotic_decay_classes",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Asymptotic Harmonic Decay Rates Across Smoothness Classes",
+    "prompt": "In mechanical vibration and acoustic signal analysis, the smoothness of a periodic waveform determines how rapidly its higher harmonics decay. Consider the following four $2\\pi$-periodic signals:\n(I) Sawtooth wave $f_1(x) = x$ on $(-\\pi, \\pi)$\n(II) Triangular wave $f_2(x) = |x|$ on $[-\\pi, \\pi]$\n(III) Pinned beam deflection $f_3(x) = x(\\pi - x)$ on $[0, \\pi]$ (odd extension)\n(IV) Periodic temperature profile $f_4(x) = \\frac{1}{2 + \\cos(x)}$\nRank the asymptotic coefficient decay rates as $n \\to \\infty$ from SLOWEST to FASTEST.",
+    "options": [
+      "(IV) $\\mathcal{O}(e^{-\\alpha n})$ < (III) $\\mathcal{O}(1/n^3)$ < (II) $\\mathcal{O}(1/n^2)$ < (I) $\\mathcal{O}(1/n)$",
+      "(II) $\\mathcal{O}(1/n^2)$ < (I) $\\mathcal{O}(1/n)$ < (III) $\\mathcal{O}(1/n^3)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$",
+      "(I) $\\mathcal{O}(1/n)$ < (III) $\\mathcal{O}(1/n^3)$ < (II) $\\mathcal{O}(1/n^2)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$",
+      "(I) $\\mathcal{O}(1/n)$ < (II) $\\mathcal{O}(1/n^2)$ < (III) $\\mathcal{O}(1/n^3)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Relate Differentiability Class to Decay Rate",
+        "body": "If a $2L$-periodic function has $k-1$ continuous derivatives and its $k$-th derivative has jump discontinuities, its Fourier coefficients decay as $\\mathcal{O}(1/n^k)$. If $f$ is analytic ($C^\\infty$), its coefficients decay exponentially as $\\mathcal{O}(e^{-\\alpha n})$."
+      },
+      {
+        "title": "Step 2: Classify Each Given Waveform",
+        "body": "- **(I) Sawtooth Wave**: Has jump discontinuities at boundaries ($k = 1$). Decay: $\\mathcal{O}(1/n)$ (slowest).\n- **(II) Triangular Wave**: Continuous everywhere, but 1st derivative has jump discontinuities ($k = 2$). Decay: $\\mathcal{O}(1/n^2)$.\n- **(III) Pinned Parabola**: Continuous and 1st derivative is continuous; 2nd derivative has jump discontinuities ($k = 3$). Decay: $\\mathcal{O}(1/n^3)$.\n- **(IV) Analytic Function $1/(2+\\cos x)$**: Infinitely differentiable on $\\mathbb{R}$, no real singularities. Decay: $\\mathcal{O}(e^{-\\alpha n})$ (geometric/exponential, fastest)."
+      },
+      {
+        "title": "Step 3: Establish the Ordered Hierarchy",
+        "body": "Ranking from slowest decay to fastest decay:\n\\[ (\\text{I})\\; \\mathcal{O}(1/n) \\quad < \\quad (\\text{II})\\; \\mathcal{O}(1/n^2) \\quad < \\quad (\\text{III})\\; \\mathcal{O}(1/n^3) \\quad < \\quad (\\text{IV})\\; \\mathcal{O}(e^{-\\alpha n}) \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Every additional continuous derivative in the periodic extension adds one power of $1/n$ to the decay rate of the Fourier coefficients!"
   }
 ];
 
@@ -5154,6 +5626,16 @@ const CURRICULUM = [
         "id": "s5_3",
         "name": "Complex Fourier Series & Harmonic Spectra",
         "ref": "Assgn 2, Q5"
+      },
+      {
+        "id": "s5_4",
+        "name": "Half-Range Expansions, Symmetry & Decay Rates",
+        "ref": "Exam Challenge"
+      },
+      {
+        "id": "s5_5",
+        "name": "Parseval's Power, THD & Advanced Vibrations",
+        "ref": "Exam Challenge"
       }
     ]
   },
@@ -5268,6 +5750,7 @@ const APP_STATE = {
   smartScores: {},
   streak: 0,
   totalSolved: 0,
+  solvedProblemIds: [],
   soundEnabled: true,
   skillQueues: {},
   lastProblemIdBySkill: {},
@@ -5298,6 +5781,59 @@ const APP_STATE = {
     userAnswers: []
   }
 };
+
+/* Progress & Unique Question Tracking Helpers */
+function getSkillProblems(skillId) {
+  return EXPANDED_QUESTION_BANK.filter(q => q.skillId === skillId);
+}
+
+function getSolvedProblemsForSkill(skillId) {
+  const bank = getSkillProblems(skillId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  return bank.filter(q => solvedList.includes(q.id));
+}
+
+function getSkillProgress(skillId) {
+  const allProbs = getSkillProblems(skillId);
+  const solvedProbs = getSolvedProblemsForSkill(skillId);
+  const total = allProbs.length;
+  const solved = solvedProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total),
+    unsolvedIds: allProbs.filter(q => !(APP_STATE.solvedProblemIds || []).includes(q.id)).map(q => q.id)
+  };
+}
+
+function getUnitProgress(unitId) {
+  const allProbs = EXPANDED_QUESTION_BANK.filter(q => q.unitId === unitId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = allProbs.filter(q => solvedList.includes(q.id)).length;
+  const total = allProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
+
+function getOverallProgress() {
+  const total = EXPANDED_QUESTION_BANK.length;
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = EXPANDED_QUESTION_BANK.filter(q => solvedList.includes(q.id)).length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
 
 function formatProblem(base) {
   const indices = [0, 1, 2, 3];
@@ -5333,13 +5869,21 @@ function getProblemForSkill(skillId) {
   if (bankMatches.length === 1) return formatProblem(bankMatches[0]);
 
   if (!APP_STATE.skillQueues[skillId] || APP_STATE.skillQueues[skillId].length === 0) {
-    const ids = bankMatches.map(q => q.id);
-    for (let i = ids.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = ids[i];
-      ids[i] = ids[j];
-      ids[j] = temp;
-    }
+    const solvedSet = new Set(APP_STATE.solvedProblemIds || []);
+    const unsolved = bankMatches.filter(q => !solvedSet.has(q.id)).map(q => q.id);
+    const solved = bankMatches.filter(q => solvedSet.has(q.id)).map(q => q.id);
+
+    const shuffle = (arr) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+      }
+    };
+    shuffle(unsolved);
+    shuffle(solved);
+
+    // Prioritize unseen questions so students go through all available questions first!
+    const ids = (unsolved.length > 0) ? [...unsolved, ...solved] : [...solved];
 
     const lastId = APP_STATE.lastProblemIdBySkill[skillId];
     if (lastId && ids[0] === lastId && ids.length > 1) {
@@ -5398,6 +5942,17 @@ function loadSavedState() {
       APP_STATE.streak = parsed.streak || 0;
       APP_STATE.problemTimes = parsed.problemTimes || {};
       APP_STATE.totalPracticeSeconds = parsed.totalPracticeSeconds || 0;
+      APP_STATE.solvedProblemIds = Array.isArray(parsed.solvedProblemIds) ? parsed.solvedProblemIds : [];
+      
+      // Auto-migrate from any previous problemTimes if solvedProblemIds was empty
+      if (APP_STATE.solvedProblemIds.length === 0 && parsed.problemTimes) {
+        Object.keys(parsed.problemTimes).forEach(pid => {
+          if (parsed.problemTimes[pid].solved && !APP_STATE.solvedProblemIds.includes(pid)) {
+            APP_STATE.solvedProblemIds.push(pid);
+          }
+        });
+      }
+
       if (parsed.examDurationMinutes !== undefined) {
         APP_STATE.examMode.durationMinutes = parsed.examDurationMinutes;
         APP_STATE.examMode.isUntimed = (parsed.examDurationMinutes === 0);
@@ -5431,6 +5986,7 @@ function saveState() {
     localStorage.setItem("ME_IXL_STATE", JSON.stringify({
       smartScores: APP_STATE.smartScores,
       totalSolved: APP_STATE.totalSolved,
+      solvedProblemIds: APP_STATE.solvedProblemIds || [],
       streak: APP_STATE.streak,
       problemTimes: APP_STATE.problemTimes,
       totalPracticeSeconds: APP_STATE.totalPracticeSeconds,
@@ -5442,25 +5998,48 @@ function saveState() {
 }
 
 function updateGlobalUI() {
-  const curScore = APP_STATE.smartScores[APP_STATE.currentSkillId] || 0;
+  const skillId = APP_STATE.currentSkillId || "s1_2";
+  const skillProg = getSkillProgress(skillId);
+  const overallProg = getOverallProgress();
+
   const scoreElem = document.getElementById("global-smartscore");
-  if (scoreElem) scoreElem.innerText = curScore;
+  if (scoreElem) {
+    scoreElem.innerText = skillProg.solved + " / " + skillProg.total;
+    if (scoreElem.parentElement) {
+      scoreElem.parentElement.title = skillProg.solved + " of " + skillProg.total + " unique questions solved for this topic (" + skillProg.pct + "%)";
+    }
+  }
+
   const streakElem = document.getElementById("global-streak");
   if (streakElem) streakElem.innerText = "🔥 " + APP_STATE.streak;
+
   const solvedElem = document.getElementById("global-solved");
-  if (solvedElem) solvedElem.innerText = APP_STATE.totalSolved;
+  if (solvedElem) {
+    solvedElem.innerText = overallProg.solved + " / " + overallProg.total;
+    if (solvedElem.parentElement) {
+      solvedElem.parentElement.title = overallProg.solved + " of " + overallProg.total + " total unique course problems solved (" + overallProg.pct + "%)";
+    }
+  }
   
   const sidebarScore = document.getElementById("sidebar-score");
-  if (sidebarScore) sidebarScore.innerText = curScore;
+  if (sidebarScore) sidebarScore.innerText = skillProg.solved + " / " + skillProg.total;
+
   const sidebarMeter = document.getElementById("sidebar-meter");
-  if (sidebarMeter) sidebarMeter.style.setProperty("--score-pct", curScore);
+  if (sidebarMeter) sidebarMeter.style.setProperty("--score-pct", skillProg.pct);
+
+  const sidebarMeterBar = document.getElementById("sidebar-meter-bar");
+  if (sidebarMeterBar) sidebarMeterBar.style.width = skillProg.pct + "%";
 
   const masteryText = document.getElementById("sidebar-mastery-text");
   if (masteryText) {
-    if (curScore >= 100) masteryText.innerText = "🏆 Mastered! Outstanding Work!";
-    else if (curScore >= 90) masteryText.innerText = "⭐ Challenge Zone: Almost at 100!";
-    else if (curScore >= 70) masteryText.innerText = "👍 Proficient: Keep pushing!";
-    else masteryText.innerText = "Reach 100 to Master this skill!";
+    if (skillProg.isComplete) {
+      masteryText.innerHTML = "🏆 <span style='color: #10b981; font-weight: 700;'>Topic Mastered!</span> All " + skillProg.total + " questions solved!";
+    } else if (skillProg.solved === 0) {
+      masteryText.innerText = "Solve all " + skillProg.total + " questions to complete this topic!";
+    } else {
+      const remaining = skillProg.total - skillProg.solved;
+      masteryText.innerText = remaining + " " + (remaining === 1 ? "question" : "questions") + " remaining to complete this topic (" + skillProg.pct + "%).";
+    }
   }
 }
 
@@ -5670,6 +6249,19 @@ function displayProblem(prob) {
   if (skillTitle) skillTitle.innerText = prob.skillName;
   const diffElem = document.getElementById("current-difficulty");
   if (diffElem) diffElem.innerText = "Level: " + (prob.difficulty || 'Standard');
+  
+  const isAlreadySolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(prob.id));
+  const statusBadge = document.getElementById("problem-status-badge");
+  if (statusBadge) {
+    if (isAlreadySolved) {
+      statusBadge.innerHTML = "✓ Solved";
+      statusBadge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 12px;";
+    } else {
+      statusBadge.innerHTML = "★ New Question";
+      statusBadge.style.cssText = "background: rgba(59, 130, 246, 0.12); color: var(--primary); font-weight: 700; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 12px;";
+    }
+  }
+
   const qText = document.getElementById("question-text");
   if (qText) qText.innerHTML = prob.prompt;
 
@@ -6004,20 +6596,35 @@ function submitAnswer() {
     score = Math.min(100, score + points);
     APP_STATE.smartScores[skillId] = score;
 
+    // Track unique problem solved
+    if (!APP_STATE.solvedProblemIds.includes(prob.id)) {
+      APP_STATE.solvedProblemIds.push(prob.id);
+    }
+    const skProg = getSkillProgress(skillId);
+    const wasJustCompleted = skProg.isComplete;
+
     if (feedbackBanner) {
       feedbackBanner.className = "feedback-banner correct";
       feedbackBanner.style.display = "block";
     }
     if (feedbackHeader) {
-      feedbackHeader.innerHTML = APP_STATE.isRetry
-        ? "🎉 Correct on retry! Great perseverance! (+" + points + " SmartScore)"
-        : "🎉 Correct! Outstanding Job! (+" + points + " SmartScore)";
+      if (wasJustCompleted) {
+        feedbackHeader.innerHTML = "🏆 Topic Complete! You've solved all " + skProg.total + " available questions for this topic!";
+      } else {
+        feedbackHeader.innerHTML = APP_STATE.isRetry
+          ? "🎉 Correct on retry! (" + skProg.solved + " of " + skProg.total + " solved in this topic)"
+          : "🎉 Correct! Outstanding Job! (" + skProg.solved + " of " + skProg.total + " solved in this topic)";
+      }
     }
     if (feedbackDetail) {
       const bestText = APP_STATE.problemTimes[prob.id]?.bestSeconds 
         ? "<span class='text-xs' style='color: var(--text-muted);'>Personal Best: " + formatTimeSpoken(APP_STATE.problemTimes[prob.id].bestSeconds) + "</span>" 
         : "";
-      feedbackDetail.innerHTML = "<div style='margin-bottom: 0.5rem;'>You've solved this problem correctly. Ready for the next challenge?</div>" +
+      const remainingCount = skProg.total - skProg.solved;
+      const progressSubtitle = wasJustCompleted
+        ? "<div style='margin-bottom: 0.5rem; color: #059669; font-weight: 700;'>🌟 You have completed every problem in this topic! Ready for another topic or review?</div>"
+        : "<div style='margin-bottom: 0.5rem;'>You've solved this problem correctly. <strong>" + remainingCount + " " + (remainingCount === 1 ? "question" : "questions") + "</strong> remaining to master this topic!</div>";
+      feedbackDetail.innerHTML = progressSubtitle +
         "<div style='display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;'>" +
         paceHtml + bestText + "</div>";
     }
@@ -6025,7 +6632,7 @@ function submitAnswer() {
     if (feedbackActions) {
       feedbackActions.innerHTML = 
         '<button class="btn btn-outline text-sm" onclick="viewSolutionRequested()" style="background: var(--bg-card);">📖 Review Full Derivation</button>' +
-        '<button class="btn btn-primary text-sm" onclick="loadNextProblem()">Next Problem →</button>';
+        '<button class="btn btn-primary text-sm" onclick="loadNextProblem()">' + (wasJustCompleted ? 'Continue Practicing →' : 'Next Problem →') + '</button>';
     }
 
     const correctBtn = document.getElementById("option-btn-" + prob.correctIndex);
@@ -6033,7 +6640,7 @@ function submitAnswer() {
 
     playSuccessChime();
 
-    if (score === 100 && typeof confetti === "function") {
+    if ((wasJustCompleted || score === 100) && typeof confetti === "function") {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       playCelebrationSound();
     }
@@ -6283,30 +6890,82 @@ function renderSkillsGrid() {
   if (!container) return;
   container.innerHTML = "";
 
+  // 1. Overall Course Completion Hero Card
+  const overall = getOverallProgress();
+  const overallCard = document.createElement("div");
+  overallCard.className = "card course-overview-card";
+  overallCard.style.cssText = "grid-column: 1 / -1; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--bg-card), var(--bg-subtle)); border: 1.5px solid var(--border-color); border-radius: var(--radius); padding: 1.25rem 1.5rem;";
+  overallCard.innerHTML = 
+    '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">' +
+      '<div>' +
+        '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
+          '<h4 style="font-size: 1.2rem; font-weight: 800; margin: 0;">📊 Overall Course Completion</h4>' +
+          (overall.isComplete ? '<span style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 800; font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(16, 185, 129, 0.3);">100% COMPLETE! 🏆</span>' : '') +
+        '</div>' +
+        '<p class="text-xs" style="color: var(--text-muted); margin-top: 3px;">Track your mastery across all 140 curated problems across all 8 Exam 1 units</p>' +
+      '</div>' +
+      '<div style="text-align: right;">' +
+        '<div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); line-height: 1;">' + overall.solved + ' / ' + overall.total + '</div>' +
+        '<div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Unique Questions Solved (' + overall.pct + '%)</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="width: 100%; height: 10px; background: var(--border-color); border-radius: 999px; overflow: hidden;">' +
+      '<div style="height: 100%; width: ' + overall.pct + '%; background: linear-gradient(90deg, var(--primary), #10b981); border-radius: 999px; transition: width 0.35s ease;"></div>' +
+    '</div>';
+  container.appendChild(overallCard);
+
+  // 2. Render each Unit with its skills and progress meters
   CURRICULUM.forEach(unit => {
     const card = document.createElement("div");
     card.className = "unit-card";
 
+    const unitProg = getUnitProgress(unit.id);
+
     let skillsHtml = "";
     unit.skills.forEach(skill => {
-      const score = APP_STATE.smartScores[skill.id] || 0;
+      const skProg = getSkillProgress(skill.id);
+      const isComplete = skProg.isComplete;
+      const badgeStyle = isComplete
+        ? "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);"
+        : (skProg.solved > 0 ? "background: rgba(59, 130, 246, 0.1); color: var(--primary); font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.25);" : "background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color);");
+      const badgeLabel = isComplete
+        ? "✓ " + skProg.solved + "/" + skProg.total + " Done"
+        : skProg.solved + " / " + skProg.total + " Solved";
+
       skillsHtml += 
         '<div class="skill-item" onclick="loadSkillProblem(\'' + skill.id + '\')">' +
-          '<div style="flex: 1;">' +
-            '<div style="font-weight: 600; font-size: 0.95rem;">' + skill.name + '</div>' +
+          '<div style="flex: 1; min-width: 0;">' +
+            '<div style="font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.35rem;">' +
+              '<span>' + skill.name + '</span>' +
+              (isComplete ? '<span style="color: #10b981; font-weight: 800;" title="Topic Completed!">✓</span>' : '') +
+            '</div>' +
             '<div class="text-xs" style="color: var(--text-muted); margin-top: 2px;">Ref: ' + skill.ref + '</div>' +
+            '<div style="width: 120px; height: 3px; background: var(--border-color); border-radius: 2px; overflow: hidden; margin-top: 5px;">' +
+              '<div style="height: 100%; width: ' + skProg.pct + '%; background: ' + (isComplete ? '#10b981' : 'var(--primary)') + '; transition: width 0.3s ease;"></div>' +
+            '</div>' +
           '</div>' +
-          '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
-            '<span class="badge">' + score + '/100</span>' +
-            '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;">Practice</button>' +
+          '<div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">' +
+            '<span class="badge" style="' + badgeStyle + '">' + badgeLabel + '</span>' +
+            '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;">' + (isComplete ? 'Review' : 'Practice') + '</button>' +
           '</div>' +
         '</div>';
     });
 
     card.innerHTML = 
       '<div class="unit-header">' +
-        '<h3 style="font-size: 1.15rem; font-weight: 700;">' + unit.title + '</h3>' +
-        '<p class="text-xs" style="color: var(--text-muted); margin-top: 0.2rem;">' + unit.assignment + ' &bull; ' + unit.description + '</p>' +
+        '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">' +
+          '<div style="flex: 1;">' +
+            '<h3 style="font-size: 1.15rem; font-weight: 700;">' + unit.title + '</h3>' +
+            '<p class="text-xs" style="color: var(--text-muted); margin-top: 0.2rem;">' + unit.assignment + ' &bull; ' + unit.description + '</p>' +
+          '</div>' +
+          '<div style="text-align: right; flex-shrink: 0; white-space: nowrap;">' +
+            '<div style="font-weight: 800; font-size: 0.9rem; color: var(--primary);">' + unitProg.solved + ' / ' + unitProg.total + ' (' + unitProg.pct + '%)</div>' +
+            '<div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">' + (unitProg.isComplete ? '✓ Mastered' : 'In Progress') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; margin-top: 0.5rem;">' +
+          '<div style="height: 100%; width: ' + unitProg.pct + '%; background: ' + (unitProg.isComplete ? '#10b981' : 'var(--primary)') + '; transition: width 0.3s ease;"></div>' +
+        '</div>' +
       '</div>' +
       '<div class="unit-body">' +
         skillsHtml +
@@ -6318,8 +6977,9 @@ function renderSkillsGrid() {
 }
 
 function resetAllProgress() {
-  if (confirm("Are you sure you want to reset all SmartScores, timing stats, and streak progress?")) {
+  if (confirm("Are you sure you want to reset all solved problem progress, timing stats, and streak records?")) {
     APP_STATE.smartScores = {};
+    APP_STATE.solvedProblemIds = [];
     APP_STATE.streak = 0;
     APP_STATE.totalSolved = 0;
     APP_STATE.problemTimes = {};
@@ -6439,9 +7099,9 @@ function filterBankQuestions() {
   });
 
   const countInd = document.getElementById("bank-count-indicator");
-  const solvedWithTimerCount = Object.values(APP_STATE.problemTimes).filter(p => p.solved).length;
+  const overall = getOverallProgress();
   if (countInd) {
-    countInd.innerHTML = "Showing " + filtered.length + " of " + EXPANDED_QUESTION_BANK.length + " problems &bull; ⏱️ Practice Time: <strong>" + formatTimeSpoken(APP_STATE.totalPracticeSeconds) + "</strong> &bull; Mastered: <strong>" + solvedWithTimerCount + "</strong>";
+    countInd.innerHTML = "Showing " + filtered.length + " of " + EXPANDED_QUESTION_BANK.length + " problems &bull; Course Progress: <strong>" + overall.solved + " / " + overall.total + " Solved (" + overall.pct + "%)</strong> &bull; ⏱️ Practice Time: <strong>" + formatTimeSpoken(APP_STATE.totalPracticeSeconds) + "</strong>";
   }
 
   container.innerHTML = "";
@@ -6468,6 +7128,11 @@ function filterBankQuestions() {
         '</div>';
     });
 
+    const isSolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(q.id));
+    const solvedBadge = isSolved
+      ? "<span style='background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;'>✓ Solved</span>"
+      : "<span style='background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;'>○ Unsolved</span>";
+
     const targetSec = getDifficultyTargetSec(q.difficulty);
     const rec = APP_STATE.problemTimes[q.id];
     let timingBadge = "";
@@ -6486,6 +7151,7 @@ function filterBankQuestions() {
           '<h4 style="font-size: 1.1rem; margin-top: 0.2rem;">' + q.title + '</h4>' +
         '</div>' +
         '<div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">' +
+          solvedBadge +
           timingBadge +
           '<span class="difficulty-badge">' + q.difficulty + '</span>' +
           '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;" onclick="loadSpecificProblem(\'' + q.id + '\')">Practice with Timer →</button>' +
@@ -7213,13 +7879,24 @@ function plotFourier(waveType) {
 
 let isDrawing = false;
 let scratchMode = 'pen';
+let scratchpadExpanded = false;
+let currentScratchHeight = 'default';
 
 function initScratchpad() {
   const canvas = document.getElementById("scratchpad-canvas");
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const rect = canvas.getBoundingClientRect();
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const initialW = rect.width > 0 ? Math.round(rect.width * dpr) : 290 * dpr;
+  const initialH = rect.height > 0 ? Math.round(rect.height * dpr) : 260 * dpr;
+  canvas.width = initialW;
+  canvas.height = initialH;
+
+  const ctx = canvas.getContext("2d");
+  if (ctx && typeof ctx.clearRect === "function") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
   const startDraw = (e) => {
     isDrawing = true;
@@ -7227,17 +7904,26 @@ function initScratchpad() {
   };
   const stopDraw = () => {
     isDrawing = false;
-    ctx.beginPath();
+    if (ctx && typeof ctx.beginPath === "function") {
+      ctx.beginPath();
+    }
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const r = canvas.getBoundingClientRect();
+    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 
-    ctx.lineWidth = (scratchMode === 'eraser') ? 20 : 2.5;
+    const scaleX = r.width > 0 ? (canvas.width / r.width) : 1;
+    const scaleY = r.height > 0 ? (canvas.height / r.height) : 1;
+    const x = (clientX - r.left) * scaleX;
+    const y = (clientY - r.top) * scaleY;
+
+    const currentDpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+    ctx.lineWidth = (scratchMode === 'eraser') ? 22 * currentDpr : 2.5 * currentDpr;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     if (scratchMode === 'eraser') {
       ctx.globalCompositeOperation = 'destination-out';
     } else {
@@ -7257,9 +7943,110 @@ function initScratchpad() {
   canvas.addEventListener('mouseup', stopDraw);
   canvas.addEventListener('mouseleave', stopDraw);
 
-  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
   canvas.addEventListener('touchend', stopDraw);
+
+  if (typeof window !== "undefined") {
+    window.removeEventListener('resize', handleScratchpadWindowResize);
+    window.addEventListener('resize', handleScratchpadWindowResize);
+  }
+}
+
+let resizeTimer = null;
+function handleScratchpadWindowResize() {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeScratchpadCanvas, 120);
+}
+
+function resizeScratchpadCanvas() {
+  const canvas = document.getElementById("scratchpad-canvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect || rect.width === 0 || rect.height === 0) return;
+
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const targetWidth = Math.round(rect.width * dpr);
+  const targetHeight = Math.round(rect.height * dpr);
+
+  if (canvas.width === targetWidth && canvas.height === targetHeight) return;
+
+  // Preserve existing drawing contents before resizing
+  let tempCanvas = null;
+  if (canvas.width > 0 && canvas.height > 0 && typeof document !== "undefined" && document.createElement) {
+    try {
+      tempCanvas = document.createElement("canvas");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext("2d");
+      if (tempCtx && typeof tempCtx.drawImage === "function") {
+        tempCtx.drawImage(canvas, 0, 0);
+      }
+    } catch (e) {
+      tempCanvas = null;
+    }
+  }
+
+  // Update canvas internal buffer dimensions
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+
+  const ctx = canvas.getContext("2d");
+  if (tempCanvas && ctx && typeof ctx.drawImage === "function") {
+    ctx.drawImage(tempCanvas, 0, 0, targetWidth, targetHeight);
+  }
+}
+
+function toggleScratchpadExpand() {
+  scratchpadExpanded = !scratchpadExpanded;
+  const arena = document.getElementById("arena-container");
+  const expandBtn = document.getElementById("scratch-expand-btn");
+
+  if (arena) {
+    if (scratchpadExpanded) {
+      arena.classList.add("scratchpad-expanded");
+      if (expandBtn) {
+        expandBtn.innerHTML = "⤡ Compact";
+        expandBtn.classList.add("active");
+        expandBtn.title = "Return scratchpad to compact sidebar";
+      }
+    } else {
+      arena.classList.remove("scratchpad-expanded");
+      if (expandBtn) {
+        expandBtn.innerHTML = "⤢ Expand";
+        expandBtn.classList.remove("active");
+        expandBtn.title = "Expand scratchpad side-by-side with question";
+      }
+    }
+  }
+
+  setTimeout(resizeScratchpadCanvas, 60);
+}
+
+function setScratchpadHeight(heightMode) {
+  currentScratchHeight = heightMode;
+  const canvas = document.getElementById("scratchpad-canvas");
+  if (!canvas) return;
+
+  canvas.classList.remove("height-default", "height-tall", "height-max");
+  if (heightMode === 'tall') {
+    canvas.classList.add("height-tall");
+  } else if (heightMode === 'max') {
+    canvas.classList.add("height-max");
+  } else {
+    canvas.classList.add("height-default");
+  }
+
+  const pills = document.querySelectorAll("#scratch-size-pills .size-pill");
+  pills.forEach(pill => {
+    if (pill.getAttribute("data-height") === heightMode) {
+      pill.classList.add("active");
+    } else {
+      pill.classList.remove("active");
+    }
+  });
+
+  setTimeout(resizeScratchpadCanvas, 60);
 }
 
 function setScratchMode(mode) {
@@ -7281,7 +8068,9 @@ function clearScratchpad() {
   const canvas = document.getElementById("scratchpad-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (ctx && typeof ctx.clearRect === "function") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 const FORMULA_SECTIONS = [
@@ -7557,6 +8346,16 @@ const FORMULA_SECTIONS = [
         "name": "Exponential-Trigonometric Integration Shortcut",
         "formula": "$$ \\int e^{ax}\\cos(bx)\\,dx = \\frac{e^{ax}}{a^2+b^2}[a\\cos(bx) + b\\sin(bx)], \\quad \\int e^{ax}\\sin(bx)\\,dx = \\frac{e^{ax}}{a^2+b^2}[a\\sin(bx) - b\\cos(bx)] $$",
         "note": "Essential for Assignment 2 Q1 and Q5: avoids tedious double integration by parts."
+      },
+      {
+        "name": "Gibbs Phenomenon & Overshoot Constant",
+        "formula": "$$ \\lim_{N\\to\\infty} S_N(x_{\\text{peak}}) - f(x_0^+) = J\\left(\\frac{\\text{Si}(\\pi)}{\\pi} - \\frac{1}{2}\\right) \\approx 0.0895 J \\quad (\\approx 8.95\\% \\text{ of Jump } J) $$",
+        "note": "Peak overshoot at isolated jump discontinuities approaches ~9% and does not vanish as N -> infinity."
+      },
+      {
+        "name": "Total Harmonic Distortion (THD) & Forced Dynamic Response",
+        "formula": "$$ \\text{THD} = \\sqrt{\\frac{P_{\\text{tot}} - P_1}{P_1}} = \\frac{\\sqrt{\\sum_{n=2}^\\infty X_n^2}}{X_1}, \\quad X_n = \\frac{F_n/m}{\\omega_n^2 - n^2\\omega_0^2} $$",
+        "note": "Dynamic amplification of harmonic force components in periodic vibration of SDOF mechanical systems."
       }
     ]
   },

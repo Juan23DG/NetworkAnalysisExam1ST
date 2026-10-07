@@ -3726,5 +3726,365 @@ const EXPANDED_QUESTION_BANK = [
       }
     ],
     "examTip": "Whenever both constraints are symmetric in $x$ and $y$, the Lagrange system immediately forces $x = y$, which eliminates two variables and leaves a single quadratic equation for $z$!"
+  },
+  {
+    "id": "q5_parseval_quartic",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Parseval's Identity on x² & Exact Sum of 1/n⁴ = π⁴/90",
+    "prompt": "The Fourier cosine series of $f(x) = x^2$ on $[-\\pi, \\pi]$ is $x^2 = \\frac{\\pi^2}{3} + 4\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2}\\cos(nx)$. Use Parseval's identity $\\frac{1}{2\\pi}\\int_{-\\pi}^\\pi [f(x)]^2\\,dx = \\frac{a_0^2}{4} + \\frac{1}{2}\\sum_{n=1}^\\infty a_n^2$ to evaluate the exact sum of the reciprocal fourth powers $\\sum_{n=1}^\\infty \\frac{1}{n^4}$.",
+    "options": [
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{45}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{120}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{90}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{\\pi^4}{96}$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Evaluate the Integral (LHS of Parseval's Identity)",
+        "body": "Since $f(x) = x^2$, $[f(x)]^2 = x^4$. Evaluating the integral over $[-\\pi, \\pi]$:\n\\[ \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi x^4\\,dx = \\frac{1}{\\pi}\\int_0^\\pi x^4\\,dx = \\frac{1}{\\pi}\\left[\\frac{x^5}{5}\\right]_0^\\pi = \\frac{\\pi^4}{5} \\]"
+      },
+      {
+        "title": "Step 2: Express Parseval's RHS in Terms of Coefficients",
+        "body": "From the given series, $a_0 = \\frac{2\\pi^2}{3}$ and $a_n = \\frac{4(-1)^n}{n^2}$ (with $b_n = 0$):\n\\[ \\frac{a_0^2}{4} = \\frac{1}{4}\\left(\\frac{2\\pi^2}{3}\\right)^2 = \\frac{1}{4}\\left(\\frac{4\\pi^4}{9}\\right) = \\frac{\\pi^4}{9} \\]\n\\[ \\frac{1}{2}\\sum_{n=1}^\\infty a_n^2 = \\frac{1}{2}\\sum_{n=1}^\\infty \\left(\\frac{4(-1)^n}{n^2}\\right)^2 = \\frac{1}{2}\\sum_{n=1}^\\infty \\frac{16}{n^4} = 8\\sum_{n=1}^\\infty \\frac{1}{n^4} \\]"
+      },
+      {
+        "title": "Step 3: Equate and Solve for the Infinite Sum",
+        "body": "Setting LHS = RHS:\n\\[ \\frac{\\pi^4}{5} = \\frac{\\pi^4}{9} + 8\\sum_{n=1}^\\infty \\frac{1}{n^4} \\]\nSubtract $\\frac{\\pi^4}{9}$ from both sides:\n\\[ \\frac{\\pi^4}{5} - \\frac{\\pi^4}{9} = \\frac{9\\pi^4 - 5\\pi^4}{45} = \\frac{4\\pi^4}{45} \\]\nNow divide by 8:\n\\[ \\sum_{n=1}^\\infty \\frac{1}{n^4} = \\frac{4\\pi^4}{45 \\times 8} = \\frac{\\pi^4}{90} \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Parseval's identity is the primary method to evaluate sums of 4th powers $\\sum 1/n^4$ from second-degree polynomial Fourier series! Remember that $a_0^2/4$ uses $a_0$, not $a_0/2$."
+  },
+  {
+    "id": "q5_halfrange_ramp_decay",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Half-Range Sine vs Cosine Series of Ramp f(x) = x on [0, L] & Decay Rates",
+    "prompt": "For the linear ramp $f(x) = x$ on the half-interval $[0, L]$, compare its half-range Fourier cosine series against its half-range Fourier sine series. Determine the non-zero coefficients and the asymptotic harmonic decay rate for each.",
+    "options": [
+      "Cosine: $a_n = -\\frac{4L}{\\pi^2 n^2}$ for odd $n$ ($\\mathcal{O}(1/n^2)$ decay); Sine: $b_n = \\frac{2L}{\\pi}\\frac{(-1)^{n+1}}{n}$ for all $n$ ($\\mathcal{O}(1/n)$ decay)",
+      "Cosine: $a_n = \\frac{2L}{\\pi n}$ for all $n$ ($\\mathcal{O}(1/n)$ decay); Sine: $b_n = -\\frac{4L}{\\pi^2 n^2}$ for odd $n$ ($\\mathcal{O}(1/n^2)$ decay)",
+      "Cosine: $a_n = -\\frac{2L}{\\pi^2 n^2}$ for all $n$ ($\\mathcal{O}(1/n^3)$ decay); Sine: $b_n = \\frac{L}{\\pi n}$ for odd $n$ ($\\mathcal{O}(1/n)$ decay)",
+      "Cosine: $a_n = 0$ for all $n$; Sine: $b_n = \\frac{4L}{\\pi n}$ for all $n$ ($\\mathcal{O}(1/n^2)$ decay)"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Half-Range Cosine Coefficients (Even Extension)",
+        "body": "The even extension creates a symmetric triangular wave of period $2L$.\n\\[ a_0 = \\frac{2}{L}\\int_0^L x\\,dx = L \\]\n\\[ a_n = \\frac{2}{L}\\int_0^L x\\cos\\left(\\frac{n\\pi x}{L}\\right)\\,dx = \\frac{2L}{\\pi^2 n^2}[(-1)^n - 1] \\]\nFor even $n$, $a_n = 0$. For odd $n$, $a_n = -\\frac{4L}{\\pi^2 n^2}$.\nSince the even extension is continuous everywhere, the coefficients decay as $\\mathcal{O}(1/n^2)$."
+      },
+      {
+        "title": "Step 2: Compute Half-Range Sine Coefficients (Odd Extension)",
+        "body": "The odd extension creates a sawtooth wave with jump discontinuities at $x = \\pm L$.\n\\[ b_n = \\frac{2}{L}\\int_0^L x\\sin\\left(\\frac{n\\pi x}{L}\\right)\\,dx = \\frac{2}{L}\\left[ -\\frac{Lx}{n\\pi}\\cos\\left(\\frac{n\\pi x}{L}\\right) + \\frac{L^2}{n^2\\pi^2}\\sin\\left(\\frac{n\\pi x}{L}\\right) \\right]_0^L \\]\n\\[ b_n = \\frac{2L}{\\pi}\\frac{(-1)^{n+1}}{n} \\quad \\text{for all } n \\ge 1 \\]\nBecause of the jump discontinuities at $\\pm L$, the coefficients decay slowly as $\\mathcal{O}(1/n)$."
+      },
+      {
+        "title": "Step 3: Physical & Convergence Interpretation",
+        "body": "The cosine series converges uniformly without Gibbs phenomenon because the even extension is continuous. The sine series exhibits Gibbs phenomenon overshoot at $x = L$ because the odd extension jumps from $+L$ to $-L$."
+      }
+    ],
+    "examTip": "Fourier coefficient decay directly reflects boundary continuity: Continuous functions decay as at least $\\mathcal{O}(1/n^2)$, whereas jump discontinuities force slow $\\mathcal{O}(1/n)$ decay."
+  },
+  {
+    "id": "q5_gibbs_overshoot",
+    "unitId": "unit-5",
+    "skillId": "s5_1",
+    "difficulty": "Standard",
+    "title": "Dirichlet Theorem at Jump Discontinuities & Gibbs Phenomenon Overshoot",
+    "prompt": "A periodic signal $f(x)$ has an isolated jump discontinuity of magnitude $J = f(x_0^+) - f(x_0^-)$ at $x = x_0$. According to Dirichlet's Theorem, what value does the Fourier series converge to at $x = x_0$, and what is the limiting percentage overshoot near the discontinuity as the number of harmonics $N \\to \\infty$ (Gibbs Phenomenon)?",
+    "options": [
+      "Converges to $f(x_0^+)$; overshoot vanishes completely as $N \\to \\infty$ (0% overshoot)",
+      "Converges to $\\frac{f(x_0^+) + f(x_0^-)}{2}$; overshoot does NOT vanish and approaches $\\approx 8.95\\% \\approx 9\\%$ of the jump height $J$",
+      "Converges to $\\frac{f(x_0^+) + f(x_0^-)}{2}$; overshoot approaches $\\approx 18.0\\%$ of the jump height $J$",
+      "Converges to 0; overshoot diverges logarithmically as $N \\to \\infty$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Dirichlet Convergence at Jumps",
+        "body": "Dirichlet's Theorem states that for any piecewise smooth function, the Fourier series converges to the arithmetic mean of the left- and right-hand limits at any point of discontinuity:\n\\[ S(x_0) = \\frac{f(x_0^+) + f(x_0^-)}{2} \\]"
+      },
+      {
+        "title": "Step 2: Wilbraham-Gibbs Overshoot Integral",
+        "body": "Near the jump, partial sums $S_N(x)$ oscillate. The peak overshoot near the jump is given by the sine integral:\n\\[ \\lim_{N\\to\\infty} S_N(x_{\\text{peak}}) - f(x_0^+) = J\\left( \\frac{1}{\\pi}\\int_0^\\pi \\frac{\\sin(t)}{t}\\,dt - \\frac{1}{2} \\right) = J\\left( \\frac{\\text{Si}(\\pi)}{\\pi} - \\frac{1}{2} \\right) \\]\nSince $\\text{Si}(\\pi) \\approx 1.85194$:\n\\[ \\frac{1.85194}{\\pi} - 0.5 \\approx 0.58949 - 0.5 = 0.08949 \\approx 8.95\\% \\approx 9\\% \\]"
+      },
+      {
+        "title": "Step 3: Engineering Consequence",
+        "body": "Adding more harmonics narrows the width of the overshoot spike towards zero, but the overshoot amplitude never decreases below $\\approx 8.95\\%$ of the jump height."
+      }
+    ],
+    "examTip": "Always remember the Wilbraham-Gibbs overshoot is approximately 9% (or ~18% peak-to-peak) of the jump height, and the series at the jump itself is exactly the midpoint average!"
+  },
+  {
+    "id": "q5_halfrange_parabolic_beam",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Pinned Beam Deflection f(x) = x(L - x) Sine Series & Sum of Odd Cubes",
+    "prompt": "A simply supported beam under distributed load has initial parabolic displacement $f(x) = x(L - x)$ on $[0, L]$.\n1. Find its Fourier sine series coefficients $b_n$.\n2. Evaluate the series at the midpoint $x = L/2$ to find the exact sum of the alternating reciprocal cubes: $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = 1 - \\frac{1}{3^3} + \\frac{1}{5^3} - \\frac{1}{7^3} + \\dots$",
+    "options": [
+      "$b_n = \\frac{4L^2}{\\pi^2 n^2}$ for all $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{16}$",
+      "$b_n = \\frac{2L^2}{\\pi^3 n^3}$ for odd $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{24}$",
+      "$b_n = \\frac{8L^2}{\\pi^2 n^2}$ for even $n$; $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{48}$",
+      "$b_n = \\frac{8L^2}{\\pi^3 n^3}$ for odd $n$ ($0$ for even $n$); $\\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{\\pi^3}{32}$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Fourier Sine Coefficients",
+        "body": "\\[ b_n = \\frac{2}{L}\\int_0^L (Lx - x^2)\\sin\\left(\\frac{n\\pi x}{L}\\right)\\,dx \\]\nIntegrating by parts three times:\n\\[ b_n = \\frac{4L^2}{\\pi^3 n^3}[1 - (-1)^n] \\]\nFor even $n$, $b_n = 0$. For odd $n = 2k-1$:\n\\[ b_{2k-1} = \\frac{8L^2}{\\pi^3 (2k-1)^3} \\]\nNotice the cubic decay rate $\\mathcal{O}(1/n^3)$ because $f(0)=f(L)=0$ matches the pinned boundary conditions, making the odd periodic extension continuous with continuous first derivative!"
+      },
+      {
+        "title": "Step 2: Evaluate at Midpoint x = L/2",
+        "body": "At $x = L/2$, $f(L/2) = (L/2)(L - L/2) = \\frac{L^2}{4}$.\nThe Fourier sine series is:\n\\[ f(L/2) = \\sum_{k=1}^\\infty \\frac{8L^2}{\\pi^3 (2k-1)^3} \\sin\\left(\\frac{(2k-1)\\pi}{2}\\right) \\]\nSince $\\sin((2k-1)\\pi/2) = (-1)^{k-1}$:\n\\[ \\frac{L^2}{4} = \\frac{8L^2}{\\pi^3} \\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} \\]"
+      },
+      {
+        "title": "Step 3: Solve for the Infinite Alternating Cubic Sum",
+        "body": "Divide both sides by $\\frac{8L^2}{\\pi^3}$:\n\\[ \\sum_{k=1}^\\infty \\frac{(-1)^{k-1}}{(2k-1)^3} = \\frac{L^2 / 4}{8L^2 / \\pi^3} = \\frac{\\pi^3}{32} \\approx 0.96895 \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Because the function and its derivative are continuous across the periodic boundary, the Fourier coefficients decay rapidly as $\\mathcal{O}(1/n^3)$, enabling fast series convergence in beam deflection problems!"
+  },
+  {
+    "id": "q5_pulse_train_sinc",
+    "unitId": "unit-5",
+    "skillId": "s5_3",
+    "difficulty": "Exam Challenge",
+    "title": "Complex Fourier Spectrum of Pulse Train & Vanishing Harmonics",
+    "prompt": "A periodic square pulse train $f(t)$ has period $T$, amplitude $A$, and pulse duration $\\tau = T/4$ (duty cycle $d = 0.25$) centered at $t = 0$. Determine the complex Fourier coefficients $c_n$ and identify which harmonic frequencies vanish identically.",
+    "options": [
+      "$c_0 = A/4$, $c_n = \\frac{A}{n\\pi}\\sin\\left(\\frac{n\\pi}{4}\\right)$; harmonics vanish identically for all multiples of 4 ($n = \\pm 4, \\pm 8, \\pm 12, \\dots$)",
+      "$c_0 = A/2$, $c_n = \\frac{A}{n\\pi}\\cos\\left(\\frac{n\\pi}{4}\\right)$; harmonics vanish for all odd multiples ($n = 1, 3, 5, \\dots$)",
+      "$c_0 = A/4$, $c_n = \\frac{2A}{n^2\\pi^2}$; harmonics vanish for all multiples of 2 ($n = \\pm 2, \\pm 4, \\pm 6, \\dots$)",
+      "$c_0 = 0$, $c_n = \\frac{A}{2\\pi(n+1)}$; no harmonics vanish"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Set Up Complex Fourier Integral",
+        "body": "With $\\omega_0 = 2\\pi/T$, the signal is non-zero only for $t \\in [-\\tau/2, \\tau/2] = [-T/8, T/8]$:\n\\[ c_n = \\frac{1}{T}\\int_{-T/8}^{T/8} A e^{-i n \\omega_0 t}\\,dt \\]\nFor $n = 0$ (DC component):\n\\[ c_0 = \\frac{1}{T}\\int_{-T/8}^{T/8} A\\,dt = \\frac{A (T/4)}{T} = \\frac{A}{4} \\]"
+      },
+      {
+        "title": "Step 2: Compute Coefficients for n ≠ 0",
+        "body": "\\[ c_n = \\frac{A}{T} \\left[ \\frac{e^{-i n \\omega_0 t}}{-i n \\omega_0} \\right]_{-T/8}^{T/8} = \\frac{A}{T} \\frac{e^{i n \\omega_0 T/8} - e^{-i n \\omega_0 T/8}}{i n \\omega_0} \\]\nUsing $\\omega_0 T = 2\\pi$, $\\omega_0 T / 8 = \\pi/4$:\n\\[ c_n = \\frac{A}{T} \\frac{2i\\sin(n\\pi/4)}{i n (2\\pi/T)} = \\frac{A}{n\\pi}\\sin\\left(\\frac{n\\pi}{4}\\right) \\]"
+      },
+      {
+        "title": "Step 3: Identify Null Harmonics",
+        "body": "$c_n = 0$ whenever $\\sin(n\\pi/4) = 0$, which occurs when $\\frac{n\\pi}{4} = m\\pi \\implies n = 4m$ for integers $m \\neq 0$.\nTherefore, all harmonics that are multiples of 4 ($n = \\pm 4, \\pm 8, \\pm 12, \\dots$) have zero amplitude."
+      }
+    ],
+    "examTip": "In pulse width modulation (PWM) and pulse trains with duty cycle $d = 1/k$, every $k$-th harmonic vanishes identically because $\\sin(n\\pi d) = 0$!"
+  },
+  {
+    "id": "q5_forced_vibration_resonance",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Forced Vibration of SDOF Oscillator Driven by Fourier Square Wave",
+    "prompt": "An undamped mechanical system $m\\ddot{x} + kx = F(t)$ has natural frequency $\\omega_n = \\sqrt{k/m} = 10\\text{ rad/s}$. The periodic driving force is a square wave of fundamental frequency $\\omega_0 = 1\\text{ rad/s}$ ($T = 2\\pi$): $F(t) = \\sum_{k=1}^\\infty \\frac{4F_0}{\\pi(2k-1)}\\sin((2k-1)t)$. Which harmonic component dominates the steady-state vibration displacement response, and why?",
+    "options": [
+      "The 1st harmonic ($n = 1$), because it has the largest force amplitude in the Fourier series ($F_1 = 4F_0/\\pi$)",
+      "The 10th harmonic ($n = 10$), because $\\omega = \\omega_n = 10\\text{ rad/s}$ causes exact resonance",
+      "The 9th harmonic ($n = 9, \\omega = 9\\text{ rad/s}$), because $|\\omega_n^2 - n^2| = |100 - 81| = 19$ minimizes the dynamic impedance denominator among present odd harmonics",
+      "The 11th harmonic ($n = 11$), because the mass inertia dominates over stiffness at high frequencies"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Modal Response for Each Fourier Harmonic",
+        "body": "For each harmonic force component $F_n \\sin(nt)$, the steady-state displacement is $x_n(t) = X_n \\sin(nt)$:\n\\[ X_n = \\frac{F_n}{k - m n^2} = \\frac{F_n/m}{\\omega_n^2 - n^2} = \\frac{\\frac{4F_0}{\\pi n m}}{100 - n^2} \\]"
+      },
+      {
+        "title": "Step 2: Check Available Harmonics in Square Wave",
+        "body": "The square wave contains ONLY odd harmonics: $n = 1, 3, 5, 7, 9, 11, 13, \\dots$.\nThe 10th harmonic does NOT exist in the driving force ($F_{10} = 0$), so exact resonance cannot occur at $n = 10$."
+      },
+      {
+        "title": "Step 3: Compare Magnification Factor Near Resonance",
+        "body": "Examine the dynamic denominator $|100 - n^2|$ for odd harmonics near 10:\n- For $n = 7$: $|100 - 49| = 51$\n- For $n = 9$: $|100 - 81| = 19 \\implies X_9 = \\frac{4F_0/m}{9\\pi \\times 19} = \\frac{4F_0/m}{171\\pi} \\approx 0.00745 (F_0/m)$\n- For $n = 11$: $|100 - 121| = 21 \\implies |X_{11}| = \\frac{4F_0/m}{11\\pi \\times 21} = \\frac{4F_0/m}{231\\pi} \\approx 0.00551 (F_0/m)$\n- For $n = 1$: $|100 - 1| = 99 \\implies X_1 = \\frac{4F_0/m}{1\\pi \\times 99} = \\frac{4F_0/m}{99\\pi} \\approx 0.0128 (F_0/m)$\nAmong the near-resonant harmonics ($n \\ge 3$), $n = 9$ experiences severe resonant amplification ($19 < 21$ and $19 \\ll 51$)."
+      }
+    ],
+    "examTip": "Even though a square wave force does not contain the even harmonic $n = 10$, the odd harmonic closest to resonance ($n = 9$) experiences severe dynamic amplification because $\\omega_n^2 - n^2 = 19$ is small!"
+  },
+  {
+    "id": "q5_diff_integ_validity",
+    "unitId": "unit-5",
+    "skillId": "s5_1",
+    "difficulty": "Standard",
+    "title": "Term-by-Term Differentiation & Integration of Fourier Series",
+    "prompt": "Under what mathematical conditions can a Fourier series of a periodic function $f(x)$ on $[-L, L]$ be differentiated term-by-term to yield the Fourier series of $f'(x)$? How does this compare with term-by-term integration?",
+    "options": [
+      "Differentiation is always valid for any periodic function; integration is only valid if $f(x)$ has zero mean ($a_0 = 0$)",
+      "Differentiation requires $f(x)$ to be continuous on $[-L, L]$ with $f(-L) = f(L)$; Integration is always valid for any piecewise continuous $f(x)$, but introduces a linear drift term $\\frac{a_0}{2}x$ unless $a_0 = 0$",
+      "Differentiation requires $f(x)$ to be infinitely differentiable ($C^\\infty$); integration can never be performed on Fourier series",
+      "Both differentiation and integration are valid if and only if all cosine coefficients $a_n$ vanish identically"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Conditions for Term-by-Term Differentiation",
+        "body": "Term-by-term differentiation of $\\sum (a_n\\cos + b_n\\sin)$ multiplies terms by $n$, which amplifies high frequencies. It is valid IF AND ONLY IF:\n1. $f(x)$ is continuous everywhere on $[-L, L]$.\n2. The periodic boundary condition holds: $f(-L) = f(L)$.\n3. $f'(x)$ is piecewise continuous.\nIf $f(x)$ has a jump, term-by-term differentiation misses the Dirac delta impulses $\\Delta f \\cdot \\delta(x - x_0)$ at the jumps."
+      },
+      {
+        "title": "Step 2: Conditions for Term-by-Term Integration",
+        "body": "Integration divides terms by $n$, improving harmonic convergence. Therefore, term-by-term integration is ALWAYS valid for any piecewise continuous function.\nHowever, integrating the constant term $\\frac{a_0}{2}$ yields a linear term $\\frac{a_0}{2}x$, which is not periodic unless $a_0 = 0$."
+      },
+      {
+        "title": "Step 3: Engineering Contrast",
+        "body": "Differentiating a continuous triangular wave yields a valid square wave. Differentiating a discontinuous square wave term-by-term yields a divergent cosine series that fails to converge."
+      }
+    ],
+    "examTip": "Remember: Integration always smoothens and improves convergence (dividing by $n$), while differentiation magnifies oscillations (multiplying by $n$) and fails at jump discontinuities without delta functions."
+  },
+  {
+    "id": "q5_complex_exp_ax_sum",
+    "unitId": "unit-5",
+    "skillId": "s5_3",
+    "difficulty": "Exam Challenge",
+    "title": "Complex Fourier Series of e^(ax) on [-π, π] & Alternating Sum Formula",
+    "prompt": "Find the complex Fourier coefficients $c_n$ for $f(x) = e^{ax}$ on $[-\\pi, \\pi]$ ($a \\neq 0$, period $2\\pi$). Evaluate the series at $x = 0$ to deduce the exact formula for the infinite sum $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2}$.",
+    "options": [
+      "$c_n = \\frac{(-1)^n}{\\pi(a + in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{\\pi}{\\sinh(a\\pi)}$",
+      "$c_n = \\frac{\\cosh(a\\pi)}{\\pi(a - in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{a^2}\\left(\\frac{a\\pi}{\\cosh(a\\pi)} - 1\\right)$",
+      "$c_n = \\frac{(-1)^n\\sinh(a\\pi)}{\\pi(n^2 - a^2)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{\\pi^2}{6a^2}$",
+      "$c_n = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi(a - in)}$; $\\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{2a^2}\\left( \\frac{a\\pi}{\\sinh(a\\pi)} - 1 \\right)$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Complex Fourier Coefficients",
+        "body": "\\[ c_n = \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi e^{ax}e^{-inx}\\,dx = \\frac{1}{2\\pi}\\int_{-\\pi}^\\pi e^{(a-in)x}\\,dx = \\frac{1}{2\\pi}\\left[ \\frac{e^{(a-in)x}}{a - in} \\right]_{-\\pi}^\\pi \\]\nUsing $e^{\\pm in\\pi} = (-1)^n$:\n\\[ c_n = \\frac{1}{2\\pi(a - in)}[e^{a\\pi}(-1)^n - e^{-a\\pi}(-1)^n] = \\frac{(-1)^n}{\\pi(a - in)} \\left(\\frac{e^{a\\pi} - e^{-a\\pi}}{2}\\right) = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi(a - in)} \\]"
+      },
+      {
+        "title": "Step 2: Combine Positive and Negative Harmonics",
+        "body": "Multiplying numerator and denominator by $(a + in)$:\n\\[ c_n = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi}\\frac{a + in}{a^2 + n^2} \\]\nPairing symmetric terms $c_n + c_{-n}$:\n\\[ c_n + c_{-n} = \\frac{(-1)^n \\sinh(a\\pi)}{\\pi} \\left( \\frac{a + in}{a^2 + n^2} + \\frac{a - in}{a^2 + n^2} \\right) = \\frac{2a(-1)^n \\sinh(a\\pi)}{\\pi(n^2 + a^2)} \\]"
+      },
+      {
+        "title": "Step 3: Evaluate at x = 0 to Deduce the Sum",
+        "body": "Since $f(x)$ is continuous at $x = 0$, $f(0) = e^0 = 1$:\n\\[ 1 = \\sum_{n=-\\infty}^\\infty c_n = c_0 + \\sum_{n=1}^\\infty (c_n + c_{-n}) = \\frac{\\sinh(a\\pi)}{a\\pi} + \\frac{2a\\sinh(a\\pi)}{\\pi} \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} \\]\n\\[ 1 - \\frac{\\sinh(a\\pi)}{a\\pi} = \\frac{2a\\sinh(a\\pi)}{\\pi} \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} \\]\nMultiply both sides by $\\frac{\\pi}{2a\\sinh(a\\pi)}$:\n\\[ \\sum_{n=1}^\\infty \\frac{(-1)^n}{n^2 + a^2} = \\frac{1}{2a^2}\\left( \\frac{a\\pi}{\\sinh(a\\pi)} - 1 \\right) \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "This identity is a classic exam question because it links complex Fourier coefficients, hyperbolic functions, and alternating series summation in one elegant derivation!"
+  },
+  {
+    "id": "q5_halfwave_quarterwave_sym",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Standard",
+    "title": "Half-Wave Symmetry & Complete Annihilation of Even Harmonics",
+    "prompt": "An AC waveform or periodic mechanical disturbance $f(t)$ satisfies Half-Wave Symmetry: $f(t + T/2) = -f(t)$ for all $t$. What property does this enforce on its Fourier series representation?",
+    "options": [
+      "All even harmonics vanish identically ($c_{2k} = a_{2k} = b_{2k} = 0$), so the series contains strictly odd harmonics ($n = 1, 3, 5, \\dots$)",
+      "All odd harmonics vanish identically ($a_{2k-1} = b_{2k-1} = 0$), so the series contains only DC and even harmonics",
+      "All sine coefficients vanish identically ($b_n = 0$), producing a pure cosine series",
+      "The fundamental frequency doubles to $2\\omega_0$ with no change in harmonic content"
+    ],
+    "correctIndex": 0,
+    "walkthrough": [
+      {
+        "title": "Step 1: Definition of Half-Wave Symmetry",
+        "body": "Half-wave symmetry means the second half of the period is the exact inverted replica of the first half: $f(t + T/2) = -f(t)$.\nIn terms of complex Fourier coefficients:\n\\[ c_n = \\frac{1}{T}\\int_0^T f(t)e^{-in\\omega_0 t}\\,dt = \\frac{1}{T}\\left[ \\int_0^{T/2} f(t)e^{-in\\omega_0 t}\\,dt + \\int_{T/2}^T f(t)e^{-in\\omega_0 t}\\,dt \\right] \\]"
+      },
+      {
+        "title": "Step 2: Change of Variable in Second Integral",
+        "body": "Let $u = t - T/2$. Then $t = u + T/2$, and $f(u + T/2) = -f(u)$:\n\\[ \\int_{T/2}^T f(t)e^{-in\\omega_0 t}\\,dt = \\int_0^{T/2} [-f(u)] e^{-in\\omega_0 (u + T/2)}\\,du = -e^{-in\\pi} \\int_0^{T/2} f(u)e^{-in\\omega_0 u}\\,du \\]\nSince $e^{-in\\pi} = (-1)^n$:\n\\[ c_n = \\frac{1 - (-1)^n}{T}\\int_0^{T/2} f(u)e^{-in\\omega_0 u}\\,du \\]"
+      },
+      {
+        "title": "Step 3: Analyze Even vs Odd Harmonics",
+        "body": "When $n$ is even ($n = 2k$):\n\\[ 1 - (-1)^{2k} = 1 - 1 = 0 \\implies c_{2k} = 0, \\quad a_{2k} = 0, \\quad b_{2k} = 0 \\]\nTherefore, all even harmonics vanish identically! The waveform contains ONLY odd harmonics: $n = 1, 3, 5, \\dots$."
+      }
+    ],
+    "examTip": "Whenever you spot half-wave symmetry $f(t + T/2) = -f(t)$, immediately cross off all even harmonic choices: $a_{2n} = b_{2n} = c_{2n} = 0$!"
+  },
+  {
+    "id": "q5_thd_harmonic_power",
+    "unitId": "unit-5",
+    "skillId": "s5_5",
+    "difficulty": "Exam Challenge",
+    "title": "Total Harmonic Distortion (THD) & Fundamental Power Ratio",
+    "prompt": "A triangular cyclic actuator torque signal is expressed by its Fourier series $f(t) = \\frac{8A}{\\pi^2}\\left[ \\sin(\\omega t) - \\frac{1}{9}\\sin(3\\omega t) + \\frac{1}{25}\\sin(5\\omega t) - \\dots \\right]$ with peak amplitude $A$. Compute the percentage of total signal power contained within the fundamental harmonic, and determine the Total Harmonic Distortion (THD).",
+    "options": [
+      "Fundamental power: $85.3\\%$; $\\text{THD} = 24.5\\%$",
+      "Fundamental power: $91.2\\%$; $\\text{THD} = 18.4\\%$",
+      "Fundamental power: $\\frac{96}{\\pi^4} \\approx 98.55\\%$; $\\text{THD} = \\sqrt{\\frac{\\pi^4}{96} - 1} \\approx 12.1\\%$",
+      "Fundamental power: $99.9\\%$; $\\text{THD} = 2.1\\%$"
+    ],
+    "correctIndex": 2,
+    "walkthrough": [
+      {
+        "title": "Step 1: Compute Total Signal Power via Direct Integration",
+        "body": "For a symmetric triangular wave oscillating linearly between $-A$ and $+A$ with slope $\\pm 4A/T$:\n\\[ P_{\\text{tot}} = \\frac{1}{T}\\int_0^T [f(t)]^2\\,dt = \\frac{A^2}{3} \\]"
+      },
+      {
+        "title": "Step 2: Compute Fundamental Harmonic Power",
+        "body": "The fundamental component is $f_1(t) = \\frac{8A}{\\pi^2}\\sin(\\omega t)$.\nThe power in a sinusoid of amplitude $B$ is $B^2/2$:\n\\[ P_1 = \\frac{1}{2}\\left(\\frac{8A}{\\pi^2}\\right)^2 = \\frac{1}{2}\\frac{64A^2}{\\pi^4} = \\frac{32A^2}{\\pi^4} \\]"
+      },
+      {
+        "title": "Step 3: Ratio of Fundamental to Total Power & THD",
+        "body": "The ratio is:\n\\[ \\frac{P_1}{P_{\\text{tot}}} = \\frac{32A^2 / \\pi^4}{A^2 / 3} = \\frac{96}{\\pi^4} \\approx \\frac{96}{97.409} \\approx 0.98553 = 98.55\\% \\]\nTotal Harmonic Distortion is defined as:\n\\[ \\text{THD} = \\sqrt{\\frac{P_{\\text{tot}} - P_1}{P_1}} = \\sqrt{\\frac{P_{\\text{tot}}}{P_1} - 1} = \\sqrt{\\frac{\\pi^4}{96} - 1} \\approx \\sqrt{1.01468 - 1} = \\sqrt{0.01468} \\approx 0.1212 = 12.1\\% \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Because triangular waves decay as $1/n^2$, over 98.5% of their total power resides in the fundamental harmonic alone, giving a modest 12.1% THD."
+  },
+  {
+    "id": "q5_fullwave_rectifier",
+    "unitId": "unit-5",
+    "skillId": "s5_2",
+    "difficulty": "Standard",
+    "title": "Full-Wave Rectified Sinusoid & Sum of 1/(4n² - 1) = 1/2",
+    "prompt": "A full-wave rectified AC signal $f(t) = |\\sin(t)|$ has period $\\pi$. Its Fourier cosine series is given by $f(t) = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{\\cos(2nt)}{4n^2 - 1}$. Evaluate the series at $t = 0$ to find the exact sum of the infinite series $\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1}$.",
+    "options": [
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{1}{4}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{1}{2}$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = 1$",
+      "$\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{\\pi}{4}$"
+    ],
+    "correctIndex": 1,
+    "walkthrough": [
+      {
+        "title": "Step 1: Verify the Function Value at t = 0",
+        "body": "Since $f(t) = |\\sin(t)|$, evaluating at $t = 0$ gives:\n\\[ f(0) = |\\sin(0)| = 0 \\]"
+      },
+      {
+        "title": "Step 2: Substitute t = 0 into the Fourier Series",
+        "body": "Since $f(t)$ is continuous everywhere on $\\mathbb{R}$, the Fourier series converges exactly to $f(0) = 0$:\n\\[ 0 = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{\\cos(2n \\cdot 0)}{4n^2 - 1} = \\frac{2}{\\pi} - \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} \\]"
+      },
+      {
+        "title": "Step 3: Solve for the Infinite Telescoping Sum",
+        "body": "Rearranging terms:\n\\[ \\frac{4}{\\pi}\\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{2}{\\pi} \\]\nMultiply both sides by $\\frac{\\pi}{4}$:\n\\[ \\sum_{n=1}^\\infty \\frac{1}{4n^2 - 1} = \\frac{2}{\\pi} \\times \\frac{\\pi}{4} = \\frac{1}{2} \\quad \\blacksquare \\]\n(Note: This also matches the telescoping partial fraction $\\frac{1}{2}\\left(\\frac{1}{2n-1} - \\frac{1}{2n+1}\\right)$)."
+      }
+    ],
+    "examTip": "Full-wave rectifiers double the ripple frequency to $2\\omega$ and yield a constant DC offset of $2/\\pi \\approx 0.637$ of the peak AC voltage!"
+  },
+  {
+    "id": "q5_asymptotic_decay_classes",
+    "unitId": "unit-5",
+    "skillId": "s5_4",
+    "difficulty": "Exam Challenge",
+    "title": "Asymptotic Harmonic Decay Rates Across Smoothness Classes",
+    "prompt": "In mechanical vibration and acoustic signal analysis, the smoothness of a periodic waveform determines how rapidly its higher harmonics decay. Consider the following four $2\\pi$-periodic signals:\n(I) Sawtooth wave $f_1(x) = x$ on $(-\\pi, \\pi)$\n(II) Triangular wave $f_2(x) = |x|$ on $[-\\pi, \\pi]$\n(III) Pinned beam deflection $f_3(x) = x(\\pi - x)$ on $[0, \\pi]$ (odd extension)\n(IV) Periodic temperature profile $f_4(x) = \\frac{1}{2 + \\cos(x)}$\nRank the asymptotic coefficient decay rates as $n \\to \\infty$ from SLOWEST to FASTEST.",
+    "options": [
+      "(IV) $\\mathcal{O}(e^{-\\alpha n})$ < (III) $\\mathcal{O}(1/n^3)$ < (II) $\\mathcal{O}(1/n^2)$ < (I) $\\mathcal{O}(1/n)$",
+      "(II) $\\mathcal{O}(1/n^2)$ < (I) $\\mathcal{O}(1/n)$ < (III) $\\mathcal{O}(1/n^3)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$",
+      "(I) $\\mathcal{O}(1/n)$ < (III) $\\mathcal{O}(1/n^3)$ < (II) $\\mathcal{O}(1/n^2)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$",
+      "(I) $\\mathcal{O}(1/n)$ < (II) $\\mathcal{O}(1/n^2)$ < (III) $\\mathcal{O}(1/n^3)$ < (IV) $\\mathcal{O}(e^{-\\alpha n})$"
+    ],
+    "correctIndex": 3,
+    "walkthrough": [
+      {
+        "title": "Step 1: Relate Differentiability Class to Decay Rate",
+        "body": "If a $2L$-periodic function has $k-1$ continuous derivatives and its $k$-th derivative has jump discontinuities, its Fourier coefficients decay as $\\mathcal{O}(1/n^k)$. If $f$ is analytic ($C^\\infty$), its coefficients decay exponentially as $\\mathcal{O}(e^{-\\alpha n})$."
+      },
+      {
+        "title": "Step 2: Classify Each Given Waveform",
+        "body": "- **(I) Sawtooth Wave**: Has jump discontinuities at boundaries ($k = 1$). Decay: $\\mathcal{O}(1/n)$ (slowest).\n- **(II) Triangular Wave**: Continuous everywhere, but 1st derivative has jump discontinuities ($k = 2$). Decay: $\\mathcal{O}(1/n^2)$.\n- **(III) Pinned Parabola**: Continuous and 1st derivative is continuous; 2nd derivative has jump discontinuities ($k = 3$). Decay: $\\mathcal{O}(1/n^3)$.\n- **(IV) Analytic Function $1/(2+\\cos x)$**: Infinitely differentiable on $\\mathbb{R}$, no real singularities. Decay: $\\mathcal{O}(e^{-\\alpha n})$ (geometric/exponential, fastest)."
+      },
+      {
+        "title": "Step 3: Establish the Ordered Hierarchy",
+        "body": "Ranking from slowest decay to fastest decay:\n\\[ (\\text{I})\\; \\mathcal{O}(1/n) \\quad < \\quad (\\text{II})\\; \\mathcal{O}(1/n^2) \\quad < \\quad (\\text{III})\\; \\mathcal{O}(1/n^3) \\quad < \\quad (\\text{IV})\\; \\mathcal{O}(e^{-\\alpha n}) \\quad \\blacksquare \\]"
+      }
+    ],
+    "examTip": "Every additional continuous derivative in the periodic extension adds one power of $1/n$ to the decay rate of the Fourier coefficients!"
   }
 ];

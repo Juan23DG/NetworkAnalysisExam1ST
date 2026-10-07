@@ -29,8 +29,8 @@ function getOrCreateEl(id) {
       removeAttribute: () => {},
       classList: {
         _set: new Set(),
-        add(c) { this._set.add(c); },
-        remove(c) { this._set.delete(c); },
+        add(...classes) { classes.forEach(c => this._set.add(c)); },
+        remove(...classes) { classes.forEach(c => this._set.delete(c)); },
         contains(c) { return this._set.has(c); },
         toggle(c) { if (this._set.has(c)) { this._set.delete(c); return false; } else { this._set.add(c); return true; } }
       },
@@ -40,6 +40,8 @@ function getOrCreateEl(id) {
         this.innerHTML += child.innerHTML || '';
       },
       querySelectorAll: () => [],
+      addEventListener: () => {},
+      removeEventListener: () => {},
       getContext: () => ({
         clearRect: () => {},
         beginPath: () => {},
@@ -47,7 +49,8 @@ function getOrCreateEl(id) {
         lineTo: () => {},
         stroke: () => {},
         fill: () => {},
-        scale: () => {}
+        scale: () => {},
+        drawImage: () => {}
       }),
       getBoundingClientRect: () => ({ width: 360, height: 280, left: 0, top: 0 }),
       scrollIntoView: () => {}
@@ -66,6 +69,7 @@ const sandbox = {
   },
   window: {
     addEventListener: () => {},
+    removeEventListener: () => {},
     scrollTo: () => {},
     localStorage: {
       _data: {},
@@ -106,14 +110,14 @@ console.log("✓ Script compiled and executed in sandbox successfully.");
 // Check question bank
 const bank = sandbox.EXPANDED_QUESTION_BANK;
 console.log("Total problems in mobile bank:", bank.length);
-if (bank.length !== 128) throw new Error(`Expected 128 problems, got ${bank.length}`);
+if (bank.length !== 140) throw new Error(`Expected 140 problems, got ${bank.length}`);
 
 // Check formulas
 const formulas = sandbox.FORMULA_SECTIONS;
 let totalFormulas = 0;
 formulas.forEach(sec => totalFormulas += sec.formulas.length);
 console.log("Total formulas in mobile sheet:", totalFormulas);
-if (totalFormulas !== 76) throw new Error(`Expected 76 formulas, got ${totalFormulas}`);
+if (totalFormulas !== 78) throw new Error(`Expected 78 formulas, got ${totalFormulas}`);
 
 // Test mobile functions
 console.log("\n--- Testing Mobile Action Handlers ---");
@@ -192,7 +196,58 @@ sandbox.prevMobileExamQ();
 sandbox.toggleExamPause();
 sandbox.toggleExamPause();
 sandbox.finishMobileExam();
-console.log("✓ finishMobileExam executed.");
+// Test Mobile Expandable Scratchpad & Peek Card
+console.log("\n--- Testing Mobile Expandable Scratchpad & Peek Card ---");
+sandbox.toggleScratchpad();
+console.log("✓ toggleScratchpad() opened scratchpad sheet.");
+
+// Verify Question Reference Peek populated
+const peekPrompt = sandbox.document.getElementById("m-scratch-peek-prompt");
+if (!peekPrompt.innerHTML) {
+  throw new Error("Peek card prompt should be populated!");
+}
+console.log("✓ Peek card prompt successfully synchronized.");
+
+// Test toggle expandable modes
+const sheet = sandbox.document.getElementById("m-scratchpad-sheet");
+const expandBtn = sandbox.document.getElementById("m-scratch-expand-btn");
+const peekCard = sandbox.document.getElementById("m-scratch-peek-card");
+
+sandbox.toggleMobileScratchExpand();
+if (!sheet.classList.contains("expanded") || expandBtn.innerHTML !== "⤡ Compact") {
+  throw new Error("Scratchpad should be expanded with compact button text");
+}
+console.log("✓ toggleMobileScratchExpand() successfully expanded scratchpad to Max height.");
+
+sandbox.setMobileScratchHeight("tall");
+if (!sheet.classList.contains("height-tall")) throw new Error("Scratchpad height should be tall");
+console.log("✓ setMobileScratchHeight('tall') executed.");
+
+sandbox.setMobileScratchHeight("compact");
+if (!sheet.classList.contains("height-compact")) throw new Error("Scratchpad height should be compact");
+console.log("✓ setMobileScratchHeight('compact') executed.");
+
+// Test Question Peek collapse/expand
+sandbox.toggleMobileQuestionPeek();
+if (!peekCard.classList.contains("collapsed")) throw new Error("Peek card should be collapsed");
+console.log("✓ toggleMobileQuestionPeek() collapsed peek card for maximum canvas drawing area.");
+
+sandbox.toggleMobileQuestionPeek();
+if (peekCard.classList.contains("collapsed")) throw new Error("Peek card should be visible again");
+console.log("✓ toggleMobileQuestionPeek() restored peek card visibility.");
+
+// Test tools
+const penBtn = sandbox.document.getElementById("m-pen-btn");
+const eraserBtn = sandbox.document.getElementById("m-eraser-btn");
+sandbox.setMobileScratch("eraser");
+if (!eraserBtn.classList.contains("btn-primary")) throw new Error("Eraser button should be active");
+sandbox.setMobileScratch("pen");
+if (!penBtn.classList.contains("btn-primary")) throw new Error("Pen button should be active");
+sandbox.clearMobileScratch();
+console.log("✓ Pen, Eraser, and Clear tool switches verified.");
+
+sandbox.toggleScratchpad();
+console.log("✓ toggleScratchpad() closed scratchpad sheet.");
 
 console.log("\n========================================");
 console.log("ALL MOBILE TESTS PASSED WITH 100% SUCCESS!");

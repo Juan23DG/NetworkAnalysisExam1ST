@@ -141,6 +141,16 @@ const CURRICULUM = [
         "id": "s5_3",
         "name": "Complex Fourier Series & Harmonic Spectra",
         "ref": "Assgn 2, Q5"
+      },
+      {
+        "id": "s5_4",
+        "name": "Half-Range Expansions, Symmetry & Decay Rates",
+        "ref": "Exam Challenge"
+      },
+      {
+        "id": "s5_5",
+        "name": "Parseval's Power, THD & Advanced Vibrations",
+        "ref": "Exam Challenge"
       }
     ]
   },
@@ -255,6 +265,7 @@ const APP_STATE = {
   smartScores: {},
   streak: 0,
   totalSolved: 0,
+  solvedProblemIds: [],
   soundEnabled: true,
   skillQueues: {},
   lastProblemIdBySkill: {},
@@ -285,6 +296,59 @@ const APP_STATE = {
     userAnswers: []
   }
 };
+
+/* Progress & Unique Question Tracking Helpers */
+function getSkillProblems(skillId) {
+  return EXPANDED_QUESTION_BANK.filter(q => q.skillId === skillId);
+}
+
+function getSolvedProblemsForSkill(skillId) {
+  const bank = getSkillProblems(skillId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  return bank.filter(q => solvedList.includes(q.id));
+}
+
+function getSkillProgress(skillId) {
+  const allProbs = getSkillProblems(skillId);
+  const solvedProbs = getSolvedProblemsForSkill(skillId);
+  const total = allProbs.length;
+  const solved = solvedProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total),
+    unsolvedIds: allProbs.filter(q => !(APP_STATE.solvedProblemIds || []).includes(q.id)).map(q => q.id)
+  };
+}
+
+function getUnitProgress(unitId) {
+  const allProbs = EXPANDED_QUESTION_BANK.filter(q => q.unitId === unitId);
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = allProbs.filter(q => solvedList.includes(q.id)).length;
+  const total = allProbs.length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
+
+function getOverallProgress() {
+  const total = EXPANDED_QUESTION_BANK.length;
+  const solvedList = APP_STATE.solvedProblemIds || [];
+  const solved = EXPANDED_QUESTION_BANK.filter(q => solvedList.includes(q.id)).length;
+  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  return {
+    solved,
+    total,
+    pct,
+    isComplete: (total > 0 && solved >= total)
+  };
+}
 
 function formatProblem(base) {
   const indices = [0, 1, 2, 3];
@@ -320,13 +384,21 @@ function getProblemForSkill(skillId) {
   if (bankMatches.length === 1) return formatProblem(bankMatches[0]);
 
   if (!APP_STATE.skillQueues[skillId] || APP_STATE.skillQueues[skillId].length === 0) {
-    const ids = bankMatches.map(q => q.id);
-    for (let i = ids.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = ids[i];
-      ids[i] = ids[j];
-      ids[j] = temp;
-    }
+    const solvedSet = new Set(APP_STATE.solvedProblemIds || []);
+    const unsolved = bankMatches.filter(q => !solvedSet.has(q.id)).map(q => q.id);
+    const solved = bankMatches.filter(q => solvedSet.has(q.id)).map(q => q.id);
+
+    const shuffle = (arr) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+      }
+    };
+    shuffle(unsolved);
+    shuffle(solved);
+
+    // Prioritize unseen questions so students go through all available questions first!
+    const ids = (unsolved.length > 0) ? [...unsolved, ...solved] : [...solved];
 
     const lastId = APP_STATE.lastProblemIdBySkill[skillId];
     if (lastId && ids[0] === lastId && ids.length > 1) {
@@ -385,6 +457,17 @@ function loadSavedState() {
       APP_STATE.streak = parsed.streak || 0;
       APP_STATE.problemTimes = parsed.problemTimes || {};
       APP_STATE.totalPracticeSeconds = parsed.totalPracticeSeconds || 0;
+      APP_STATE.solvedProblemIds = Array.isArray(parsed.solvedProblemIds) ? parsed.solvedProblemIds : [];
+      
+      // Auto-migrate from any previous problemTimes if solvedProblemIds was empty
+      if (APP_STATE.solvedProblemIds.length === 0 && parsed.problemTimes) {
+        Object.keys(parsed.problemTimes).forEach(pid => {
+          if (parsed.problemTimes[pid].solved && !APP_STATE.solvedProblemIds.includes(pid)) {
+            APP_STATE.solvedProblemIds.push(pid);
+          }
+        });
+      }
+
       if (parsed.examDurationMinutes !== undefined) {
         APP_STATE.examMode.durationMinutes = parsed.examDurationMinutes;
         APP_STATE.examMode.isUntimed = (parsed.examDurationMinutes === 0);
@@ -418,6 +501,7 @@ function saveState() {
     localStorage.setItem("ME_IXL_STATE", JSON.stringify({
       smartScores: APP_STATE.smartScores,
       totalSolved: APP_STATE.totalSolved,
+      solvedProblemIds: APP_STATE.solvedProblemIds || [],
       streak: APP_STATE.streak,
       problemTimes: APP_STATE.problemTimes,
       totalPracticeSeconds: APP_STATE.totalPracticeSeconds,
@@ -429,25 +513,48 @@ function saveState() {
 }
 
 function updateGlobalUI() {
-  const curScore = APP_STATE.smartScores[APP_STATE.currentSkillId] || 0;
+  const skillId = APP_STATE.currentSkillId || "s1_2";
+  const skillProg = getSkillProgress(skillId);
+  const overallProg = getOverallProgress();
+
   const scoreElem = document.getElementById("global-smartscore");
-  if (scoreElem) scoreElem.innerText = curScore;
+  if (scoreElem) {
+    scoreElem.innerText = skillProg.solved + " / " + skillProg.total;
+    if (scoreElem.parentElement) {
+      scoreElem.parentElement.title = skillProg.solved + " of " + skillProg.total + " unique questions solved for this topic (" + skillProg.pct + "%)";
+    }
+  }
+
   const streakElem = document.getElementById("global-streak");
   if (streakElem) streakElem.innerText = "🔥 " + APP_STATE.streak;
+
   const solvedElem = document.getElementById("global-solved");
-  if (solvedElem) solvedElem.innerText = APP_STATE.totalSolved;
+  if (solvedElem) {
+    solvedElem.innerText = overallProg.solved + " / " + overallProg.total;
+    if (solvedElem.parentElement) {
+      solvedElem.parentElement.title = overallProg.solved + " of " + overallProg.total + " total unique course problems solved (" + overallProg.pct + "%)";
+    }
+  }
   
   const sidebarScore = document.getElementById("sidebar-score");
-  if (sidebarScore) sidebarScore.innerText = curScore;
+  if (sidebarScore) sidebarScore.innerText = skillProg.solved + " / " + skillProg.total;
+
   const sidebarMeter = document.getElementById("sidebar-meter");
-  if (sidebarMeter) sidebarMeter.style.setProperty("--score-pct", curScore);
+  if (sidebarMeter) sidebarMeter.style.setProperty("--score-pct", skillProg.pct);
+
+  const sidebarMeterBar = document.getElementById("sidebar-meter-bar");
+  if (sidebarMeterBar) sidebarMeterBar.style.width = skillProg.pct + "%";
 
   const masteryText = document.getElementById("sidebar-mastery-text");
   if (masteryText) {
-    if (curScore >= 100) masteryText.innerText = "🏆 Mastered! Outstanding Work!";
-    else if (curScore >= 90) masteryText.innerText = "⭐ Challenge Zone: Almost at 100!";
-    else if (curScore >= 70) masteryText.innerText = "👍 Proficient: Keep pushing!";
-    else masteryText.innerText = "Reach 100 to Master this skill!";
+    if (skillProg.isComplete) {
+      masteryText.innerHTML = "🏆 <span style='color: #10b981; font-weight: 700;'>Topic Mastered!</span> All " + skillProg.total + " questions solved!";
+    } else if (skillProg.solved === 0) {
+      masteryText.innerText = "Solve all " + skillProg.total + " questions to complete this topic!";
+    } else {
+      const remaining = skillProg.total - skillProg.solved;
+      masteryText.innerText = remaining + " " + (remaining === 1 ? "question" : "questions") + " remaining to complete this topic (" + skillProg.pct + "%).";
+    }
   }
 }
 
@@ -657,6 +764,19 @@ function displayProblem(prob) {
   if (skillTitle) skillTitle.innerText = prob.skillName;
   const diffElem = document.getElementById("current-difficulty");
   if (diffElem) diffElem.innerText = "Level: " + (prob.difficulty || 'Standard');
+  
+  const isAlreadySolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(prob.id));
+  const statusBadge = document.getElementById("problem-status-badge");
+  if (statusBadge) {
+    if (isAlreadySolved) {
+      statusBadge.innerHTML = "✓ Solved";
+      statusBadge.style.cssText = "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 12px;";
+    } else {
+      statusBadge.innerHTML = "★ New Question";
+      statusBadge.style.cssText = "background: rgba(59, 130, 246, 0.12); color: var(--primary); font-weight: 700; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 12px;";
+    }
+  }
+
   const qText = document.getElementById("question-text");
   if (qText) qText.innerHTML = prob.prompt;
 
@@ -991,20 +1111,35 @@ function submitAnswer() {
     score = Math.min(100, score + points);
     APP_STATE.smartScores[skillId] = score;
 
+    // Track unique problem solved
+    if (!APP_STATE.solvedProblemIds.includes(prob.id)) {
+      APP_STATE.solvedProblemIds.push(prob.id);
+    }
+    const skProg = getSkillProgress(skillId);
+    const wasJustCompleted = skProg.isComplete;
+
     if (feedbackBanner) {
       feedbackBanner.className = "feedback-banner correct";
       feedbackBanner.style.display = "block";
     }
     if (feedbackHeader) {
-      feedbackHeader.innerHTML = APP_STATE.isRetry
-        ? "🎉 Correct on retry! Great perseverance! (+" + points + " SmartScore)"
-        : "🎉 Correct! Outstanding Job! (+" + points + " SmartScore)";
+      if (wasJustCompleted) {
+        feedbackHeader.innerHTML = "🏆 Topic Complete! You've solved all " + skProg.total + " available questions for this topic!";
+      } else {
+        feedbackHeader.innerHTML = APP_STATE.isRetry
+          ? "🎉 Correct on retry! (" + skProg.solved + " of " + skProg.total + " solved in this topic)"
+          : "🎉 Correct! Outstanding Job! (" + skProg.solved + " of " + skProg.total + " solved in this topic)";
+      }
     }
     if (feedbackDetail) {
       const bestText = APP_STATE.problemTimes[prob.id]?.bestSeconds 
         ? "<span class='text-xs' style='color: var(--text-muted);'>Personal Best: " + formatTimeSpoken(APP_STATE.problemTimes[prob.id].bestSeconds) + "</span>" 
         : "";
-      feedbackDetail.innerHTML = "<div style='margin-bottom: 0.5rem;'>You've solved this problem correctly. Ready for the next challenge?</div>" +
+      const remainingCount = skProg.total - skProg.solved;
+      const progressSubtitle = wasJustCompleted
+        ? "<div style='margin-bottom: 0.5rem; color: #059669; font-weight: 700;'>🌟 You have completed every problem in this topic! Ready for another topic or review?</div>"
+        : "<div style='margin-bottom: 0.5rem;'>You've solved this problem correctly. <strong>" + remainingCount + " " + (remainingCount === 1 ? "question" : "questions") + "</strong> remaining to master this topic!</div>";
+      feedbackDetail.innerHTML = progressSubtitle +
         "<div style='display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;'>" +
         paceHtml + bestText + "</div>";
     }
@@ -1012,7 +1147,7 @@ function submitAnswer() {
     if (feedbackActions) {
       feedbackActions.innerHTML = 
         '<button class="btn btn-outline text-sm" onclick="viewSolutionRequested()" style="background: var(--bg-card);">📖 Review Full Derivation</button>' +
-        '<button class="btn btn-primary text-sm" onclick="loadNextProblem()">Next Problem →</button>';
+        '<button class="btn btn-primary text-sm" onclick="loadNextProblem()">' + (wasJustCompleted ? 'Continue Practicing →' : 'Next Problem →') + '</button>';
     }
 
     const correctBtn = document.getElementById("option-btn-" + prob.correctIndex);
@@ -1020,7 +1155,7 @@ function submitAnswer() {
 
     playSuccessChime();
 
-    if (score === 100 && typeof confetti === "function") {
+    if ((wasJustCompleted || score === 100) && typeof confetti === "function") {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       playCelebrationSound();
     }
@@ -1270,30 +1405,82 @@ function renderSkillsGrid() {
   if (!container) return;
   container.innerHTML = "";
 
+  // 1. Overall Course Completion Hero Card
+  const overall = getOverallProgress();
+  const overallCard = document.createElement("div");
+  overallCard.className = "card course-overview-card";
+  overallCard.style.cssText = "grid-column: 1 / -1; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--bg-card), var(--bg-subtle)); border: 1.5px solid var(--border-color); border-radius: var(--radius); padding: 1.25rem 1.5rem;";
+  overallCard.innerHTML = 
+    '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">' +
+      '<div>' +
+        '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
+          '<h4 style="font-size: 1.2rem; font-weight: 800; margin: 0;">📊 Overall Course Completion</h4>' +
+          (overall.isComplete ? '<span style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 800; font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(16, 185, 129, 0.3);">100% COMPLETE! 🏆</span>' : '') +
+        '</div>' +
+        '<p class="text-xs" style="color: var(--text-muted); margin-top: 3px;">Track your mastery across all 140 curated problems across all 8 Exam 1 units</p>' +
+      '</div>' +
+      '<div style="text-align: right;">' +
+        '<div style="font-size: 1.4rem; font-weight: 900; color: var(--primary); line-height: 1;">' + overall.solved + ' / ' + overall.total + '</div>' +
+        '<div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">Unique Questions Solved (' + overall.pct + '%)</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="width: 100%; height: 10px; background: var(--border-color); border-radius: 999px; overflow: hidden;">' +
+      '<div style="height: 100%; width: ' + overall.pct + '%; background: linear-gradient(90deg, var(--primary), #10b981); border-radius: 999px; transition: width 0.35s ease;"></div>' +
+    '</div>';
+  container.appendChild(overallCard);
+
+  // 2. Render each Unit with its skills and progress meters
   CURRICULUM.forEach(unit => {
     const card = document.createElement("div");
     card.className = "unit-card";
 
+    const unitProg = getUnitProgress(unit.id);
+
     let skillsHtml = "";
     unit.skills.forEach(skill => {
-      const score = APP_STATE.smartScores[skill.id] || 0;
+      const skProg = getSkillProgress(skill.id);
+      const isComplete = skProg.isComplete;
+      const badgeStyle = isComplete
+        ? "background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);"
+        : (skProg.solved > 0 ? "background: rgba(59, 130, 246, 0.1); color: var(--primary); font-weight: 600; border: 1px solid rgba(59, 130, 246, 0.25);" : "background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color);");
+      const badgeLabel = isComplete
+        ? "✓ " + skProg.solved + "/" + skProg.total + " Done"
+        : skProg.solved + " / " + skProg.total + " Solved";
+
       skillsHtml += 
         '<div class="skill-item" onclick="loadSkillProblem(\'' + skill.id + '\')">' +
-          '<div style="flex: 1;">' +
-            '<div style="font-weight: 600; font-size: 0.95rem;">' + skill.name + '</div>' +
+          '<div style="flex: 1; min-width: 0;">' +
+            '<div style="font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.35rem;">' +
+              '<span>' + skill.name + '</span>' +
+              (isComplete ? '<span style="color: #10b981; font-weight: 800;" title="Topic Completed!">✓</span>' : '') +
+            '</div>' +
             '<div class="text-xs" style="color: var(--text-muted); margin-top: 2px;">Ref: ' + skill.ref + '</div>' +
+            '<div style="width: 120px; height: 3px; background: var(--border-color); border-radius: 2px; overflow: hidden; margin-top: 5px;">' +
+              '<div style="height: 100%; width: ' + skProg.pct + '%; background: ' + (isComplete ? '#10b981' : 'var(--primary)') + '; transition: width 0.3s ease;"></div>' +
+            '</div>' +
           '</div>' +
-          '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
-            '<span class="badge">' + score + '/100</span>' +
-            '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;">Practice</button>' +
+          '<div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">' +
+            '<span class="badge" style="' + badgeStyle + '">' + badgeLabel + '</span>' +
+            '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;">' + (isComplete ? 'Review' : 'Practice') + '</button>' +
           '</div>' +
         '</div>';
     });
 
     card.innerHTML = 
       '<div class="unit-header">' +
-        '<h3 style="font-size: 1.15rem; font-weight: 700;">' + unit.title + '</h3>' +
-        '<p class="text-xs" style="color: var(--text-muted); margin-top: 0.2rem;">' + unit.assignment + ' &bull; ' + unit.description + '</p>' +
+        '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">' +
+          '<div style="flex: 1;">' +
+            '<h3 style="font-size: 1.15rem; font-weight: 700;">' + unit.title + '</h3>' +
+            '<p class="text-xs" style="color: var(--text-muted); margin-top: 0.2rem;">' + unit.assignment + ' &bull; ' + unit.description + '</p>' +
+          '</div>' +
+          '<div style="text-align: right; flex-shrink: 0; white-space: nowrap;">' +
+            '<div style="font-weight: 800; font-size: 0.9rem; color: var(--primary);">' + unitProg.solved + ' / ' + unitProg.total + ' (' + unitProg.pct + '%)</div>' +
+            '<div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">' + (unitProg.isComplete ? '✓ Mastered' : 'In Progress') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; margin-top: 0.5rem;">' +
+          '<div style="height: 100%; width: ' + unitProg.pct + '%; background: ' + (unitProg.isComplete ? '#10b981' : 'var(--primary)') + '; transition: width 0.3s ease;"></div>' +
+        '</div>' +
       '</div>' +
       '<div class="unit-body">' +
         skillsHtml +
@@ -1305,8 +1492,9 @@ function renderSkillsGrid() {
 }
 
 function resetAllProgress() {
-  if (confirm("Are you sure you want to reset all SmartScores, timing stats, and streak progress?")) {
+  if (confirm("Are you sure you want to reset all solved problem progress, timing stats, and streak records?")) {
     APP_STATE.smartScores = {};
+    APP_STATE.solvedProblemIds = [];
     APP_STATE.streak = 0;
     APP_STATE.totalSolved = 0;
     APP_STATE.problemTimes = {};
@@ -1426,9 +1614,9 @@ function filterBankQuestions() {
   });
 
   const countInd = document.getElementById("bank-count-indicator");
-  const solvedWithTimerCount = Object.values(APP_STATE.problemTimes).filter(p => p.solved).length;
+  const overall = getOverallProgress();
   if (countInd) {
-    countInd.innerHTML = "Showing " + filtered.length + " of " + EXPANDED_QUESTION_BANK.length + " problems &bull; ⏱️ Practice Time: <strong>" + formatTimeSpoken(APP_STATE.totalPracticeSeconds) + "</strong> &bull; Mastered: <strong>" + solvedWithTimerCount + "</strong>";
+    countInd.innerHTML = "Showing " + filtered.length + " of " + EXPANDED_QUESTION_BANK.length + " problems &bull; Course Progress: <strong>" + overall.solved + " / " + overall.total + " Solved (" + overall.pct + "%)</strong> &bull; ⏱️ Practice Time: <strong>" + formatTimeSpoken(APP_STATE.totalPracticeSeconds) + "</strong>";
   }
 
   container.innerHTML = "";
@@ -1455,6 +1643,11 @@ function filterBankQuestions() {
         '</div>';
     });
 
+    const isSolved = (APP_STATE.solvedProblemIds && APP_STATE.solvedProblemIds.includes(q.id));
+    const solvedBadge = isSolved
+      ? "<span style='background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;'>✓ Solved</span>"
+      : "<span style='background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;'>○ Unsolved</span>";
+
     const targetSec = getDifficultyTargetSec(q.difficulty);
     const rec = APP_STATE.problemTimes[q.id];
     let timingBadge = "";
@@ -1473,6 +1666,7 @@ function filterBankQuestions() {
           '<h4 style="font-size: 1.1rem; margin-top: 0.2rem;">' + q.title + '</h4>' +
         '</div>' +
         '<div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">' +
+          solvedBadge +
           timingBadge +
           '<span class="difficulty-badge">' + q.difficulty + '</span>' +
           '<button class="btn btn-outline text-xs" style="padding: 0.3rem 0.6rem;" onclick="loadSpecificProblem(\'' + q.id + '\')">Practice with Timer →</button>' +
@@ -2200,13 +2394,24 @@ function plotFourier(waveType) {
 
 let isDrawing = false;
 let scratchMode = 'pen';
+let scratchpadExpanded = false;
+let currentScratchHeight = 'default';
 
 function initScratchpad() {
   const canvas = document.getElementById("scratchpad-canvas");
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const rect = canvas.getBoundingClientRect();
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const initialW = rect.width > 0 ? Math.round(rect.width * dpr) : 290 * dpr;
+  const initialH = rect.height > 0 ? Math.round(rect.height * dpr) : 260 * dpr;
+  canvas.width = initialW;
+  canvas.height = initialH;
+
+  const ctx = canvas.getContext("2d");
+  if (ctx && typeof ctx.clearRect === "function") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 
   const startDraw = (e) => {
     isDrawing = true;
@@ -2214,17 +2419,26 @@ function initScratchpad() {
   };
   const stopDraw = () => {
     isDrawing = false;
-    ctx.beginPath();
+    if (ctx && typeof ctx.beginPath === "function") {
+      ctx.beginPath();
+    }
   };
 
   const draw = (e) => {
     if (!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const r = canvas.getBoundingClientRect();
+    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 
-    ctx.lineWidth = (scratchMode === 'eraser') ? 20 : 2.5;
+    const scaleX = r.width > 0 ? (canvas.width / r.width) : 1;
+    const scaleY = r.height > 0 ? (canvas.height / r.height) : 1;
+    const x = (clientX - r.left) * scaleX;
+    const y = (clientY - r.top) * scaleY;
+
+    const currentDpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+    ctx.lineWidth = (scratchMode === 'eraser') ? 22 * currentDpr : 2.5 * currentDpr;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     if (scratchMode === 'eraser') {
       ctx.globalCompositeOperation = 'destination-out';
     } else {
@@ -2244,9 +2458,110 @@ function initScratchpad() {
   canvas.addEventListener('mouseup', stopDraw);
   canvas.addEventListener('mouseleave', stopDraw);
 
-  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
   canvas.addEventListener('touchend', stopDraw);
+
+  if (typeof window !== "undefined") {
+    window.removeEventListener('resize', handleScratchpadWindowResize);
+    window.addEventListener('resize', handleScratchpadWindowResize);
+  }
+}
+
+let resizeTimer = null;
+function handleScratchpadWindowResize() {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeScratchpadCanvas, 120);
+}
+
+function resizeScratchpadCanvas() {
+  const canvas = document.getElementById("scratchpad-canvas");
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect || rect.width === 0 || rect.height === 0) return;
+
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const targetWidth = Math.round(rect.width * dpr);
+  const targetHeight = Math.round(rect.height * dpr);
+
+  if (canvas.width === targetWidth && canvas.height === targetHeight) return;
+
+  // Preserve existing drawing contents before resizing
+  let tempCanvas = null;
+  if (canvas.width > 0 && canvas.height > 0 && typeof document !== "undefined" && document.createElement) {
+    try {
+      tempCanvas = document.createElement("canvas");
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext("2d");
+      if (tempCtx && typeof tempCtx.drawImage === "function") {
+        tempCtx.drawImage(canvas, 0, 0);
+      }
+    } catch (e) {
+      tempCanvas = null;
+    }
+  }
+
+  // Update canvas internal buffer dimensions
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+
+  const ctx = canvas.getContext("2d");
+  if (tempCanvas && ctx && typeof ctx.drawImage === "function") {
+    ctx.drawImage(tempCanvas, 0, 0, targetWidth, targetHeight);
+  }
+}
+
+function toggleScratchpadExpand() {
+  scratchpadExpanded = !scratchpadExpanded;
+  const arena = document.getElementById("arena-container");
+  const expandBtn = document.getElementById("scratch-expand-btn");
+
+  if (arena) {
+    if (scratchpadExpanded) {
+      arena.classList.add("scratchpad-expanded");
+      if (expandBtn) {
+        expandBtn.innerHTML = "⤡ Compact";
+        expandBtn.classList.add("active");
+        expandBtn.title = "Return scratchpad to compact sidebar";
+      }
+    } else {
+      arena.classList.remove("scratchpad-expanded");
+      if (expandBtn) {
+        expandBtn.innerHTML = "⤢ Expand";
+        expandBtn.classList.remove("active");
+        expandBtn.title = "Expand scratchpad side-by-side with question";
+      }
+    }
+  }
+
+  setTimeout(resizeScratchpadCanvas, 60);
+}
+
+function setScratchpadHeight(heightMode) {
+  currentScratchHeight = heightMode;
+  const canvas = document.getElementById("scratchpad-canvas");
+  if (!canvas) return;
+
+  canvas.classList.remove("height-default", "height-tall", "height-max");
+  if (heightMode === 'tall') {
+    canvas.classList.add("height-tall");
+  } else if (heightMode === 'max') {
+    canvas.classList.add("height-max");
+  } else {
+    canvas.classList.add("height-default");
+  }
+
+  const pills = document.querySelectorAll("#scratch-size-pills .size-pill");
+  pills.forEach(pill => {
+    if (pill.getAttribute("data-height") === heightMode) {
+      pill.classList.add("active");
+    } else {
+      pill.classList.remove("active");
+    }
+  });
+
+  setTimeout(resizeScratchpadCanvas, 60);
 }
 
 function setScratchMode(mode) {
@@ -2268,7 +2583,9 @@ function clearScratchpad() {
   const canvas = document.getElementById("scratchpad-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (ctx && typeof ctx.clearRect === "function") {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 const FORMULA_SECTIONS = [
@@ -2544,6 +2861,16 @@ const FORMULA_SECTIONS = [
         "name": "Exponential-Trigonometric Integration Shortcut",
         "formula": "$$ \\int e^{ax}\\cos(bx)\\,dx = \\frac{e^{ax}}{a^2+b^2}[a\\cos(bx) + b\\sin(bx)], \\quad \\int e^{ax}\\sin(bx)\\,dx = \\frac{e^{ax}}{a^2+b^2}[a\\sin(bx) - b\\cos(bx)] $$",
         "note": "Essential for Assignment 2 Q1 and Q5: avoids tedious double integration by parts."
+      },
+      {
+        "name": "Gibbs Phenomenon & Overshoot Constant",
+        "formula": "$$ \\lim_{N\\to\\infty} S_N(x_{\\text{peak}}) - f(x_0^+) = J\\left(\\frac{\\text{Si}(\\pi)}{\\pi} - \\frac{1}{2}\\right) \\approx 0.0895 J \\quad (\\approx 8.95\\% \\text{ of Jump } J) $$",
+        "note": "Peak overshoot at isolated jump discontinuities approaches ~9% and does not vanish as N -> infinity."
+      },
+      {
+        "name": "Total Harmonic Distortion (THD) & Forced Dynamic Response",
+        "formula": "$$ \\text{THD} = \\sqrt{\\frac{P_{\\text{tot}} - P_1}{P_1}} = \\frac{\\sqrt{\\sum_{n=2}^\\infty X_n^2}}{X_1}, \\quad X_n = \\frac{F_n/m}{\\omega_n^2 - n^2\\omega_0^2} $$",
+        "note": "Dynamic amplification of harmonic force components in periodic vibration of SDOF mechanical systems."
       }
     ]
   },

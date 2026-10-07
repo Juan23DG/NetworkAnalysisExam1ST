@@ -68,7 +68,7 @@ vm.runInContext(appCode, context);
 console.log('--- TEST 1: Question Bank Integrity ---');
 const bank = context.EXPANDED_QUESTION_BANK;
 console.log(`Total questions in bank: ${bank.length}`);
-if (bank.length !== 128) throw new Error(`Expected 128 questions, got ${bank.length}`);
+if (bank.length !== 140) throw new Error(`Expected 140 questions, got ${bank.length}`);
 
 // Check that every question has required fields
 bank.forEach((q, i) => {
@@ -254,7 +254,7 @@ context.finishExam();
 if (context.APP_STATE.examMode.active) throw new Error('finishExam did not deactivate exam mode');
 console.log('✓ Exam Duration Controls (15m, 30m, 45m, 60m, 90m, untimed, custom) verified.');
 
-console.log('\n--- TEST 10: Formula Sheet Integrity (76 High-Yield Formulas) ---');
+console.log('\n--- TEST 10: Formula Sheet Integrity (78 High-Yield Formulas) ---');
 const formulaSections = context.FORMULA_SECTIONS;
 if (!formulaSections || formulaSections.length !== 7) {
   throw new Error(`Expected 7 formula sections, got ${formulaSections?.length}`);
@@ -279,8 +279,8 @@ formulaSections.forEach((sec, sIdx) => {
   });
 });
 console.log(`Total verified formulas in cheat sheet: ${formulaCount}`);
-if (formulaCount !== 76) throw new Error(`Expected 76 formulas, found ${formulaCount}`);
-console.log('✓ All 76 formulas verified with valid KaTeX math delimiters and zero escape errors.');
+if (formulaCount !== 78) throw new Error(`Expected 78 formulas, found ${formulaCount}`);
+console.log('✓ All 78 formulas verified with valid KaTeX math delimiters and zero escape errors.');
 
 console.log('\n--- TEST 11: Mixed Unit Practice Engine & Topic Variety ---');
 // Select subset of units: Unit 2, Unit 7, Unit 8
