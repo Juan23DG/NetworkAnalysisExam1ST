@@ -775,6 +775,30 @@ const mobileHtml = `<!DOCTYPE html>
       color: var(--success);
     }
 
+    /* Unit Toggle Pills for Mobile Mixed Practice */
+    .m-unit-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .m-unit-pill.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+    }
+
     /* Search & Filter Bar */
     .search-bar {
       width: 100%;
@@ -860,6 +884,12 @@ const mobileHtml = `<!DOCTYPE html>
 
   <!-- VIEW 1: Practice Arena -->
   <main id="view-practice" class="mobile-view active">
+
+    <!-- Mobile Mixed Mode Active Strip -->
+    <div id="m-practice-mode-strip" style="display: none; padding: 0.5rem 0.85rem; background: var(--bg-subtle); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); margin-bottom: 0.75rem; justify-content: space-between; align-items: center;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary);" id="m-practice-mode-title">🎯 Mixed: 8 Units Active</div>
+      <button class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;" onclick="switchMobileView('skills')">Change Units</button>
+    </div>
     <div class="arena-status">
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <span class="badge badge-primary" id="m-unit-tag">Unit 1</span>
@@ -916,9 +946,31 @@ const mobileHtml = `<!DOCTYPE html>
     <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h2 style="font-size: 1.3rem; font-weight: 800;">Course Skills</h2>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">23 skills across 7 exam units</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">33 skills across 8 exam units</p>
       </div>
       <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="startRandomPractice()">Quick Practice Any</button>
+    </div>
+
+    <!-- Mobile Mixed Units Practice Selector Banner -->
+    <div class="card" id="m-mixed-practice-banner" style="margin-bottom: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(59,130,246,0.12)); border: 1.5px solid var(--primary-light);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span style="font-size: 1.15rem;">🎯</span>
+            <strong style="font-size: 0.95rem; color: var(--primary);">Mixed Practice Mode</strong>
+            <span class="badge badge-primary" id="m-mixed-units-count-badge" style="font-size: 0.7rem;">8 Units</span>
+          </div>
+          <p style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.15rem;">
+            Varies questions interleaved across your selected units.
+          </p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.75rem;">
+        <button class="btn btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="selectAllMixedUnits(true)">All</button>
+        <button class="btn btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="selectAllMixedUnits(false)">Clear</button>
+        <button class="btn btn-primary" style="flex: 1; padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="launchMixedPractice()">⚡ Start Mixed Practice</button>
+      </div>
+      <div class="unit-pills-selector" id="m-unit-pills-selector" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
     </div>
 
     <div id="m-skills-container"></div>
@@ -980,10 +1032,22 @@ const mobileHtml = `<!DOCTYPE html>
   <main id="view-bank" class="mobile-view">
     <div style="margin-bottom: 1rem;">
       <h2 style="font-size: 1.3rem; font-weight: 800;">Problem Bank</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">85 problems with step-by-step proofs</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">118 problems with step-by-step proofs</p>
     </div>
 
     <input type="text" class="search-bar" id="m-bank-search" placeholder="🔍 Search problems (e.g. Taylor, Lagrange, Fourier)..." oninput="filterMobileBank()">
+
+    <select id="m-bank-unit-filter" class="search-bar" style="margin-top: -0.35rem; margin-bottom: 0.85rem;" onchange="filterMobileBank()">
+      <option value="ALL">All Units (118 Problems)</option>
+      <option value="unit-1">Unit 1: Curves, Extrema & Asymptotes (9)</option>
+      <option value="unit-2">Unit 2: Constrained Optimization & Lagrange (20)</option>
+      <option value="unit-3">Unit 3: Power & Taylor Series (17)</option>
+      <option value="unit-4">Unit 4: Orthogonal Functions & Inner Products (15)</option>
+      <option value="unit-5">Unit 5: Real & Complex Fourier Series (9)</option>
+      <option value="unit-6">Unit 6: Vector Algebra & Triple Products (19)</option>
+      <option value="unit-7">Unit 7: 3D Lines & Planes (21)</option>
+      <option value="unit-8">Unit 8: Vector Differential Calculus (8)</option>
+    </select>
 
     <div id="m-bank-container"></div>
   </main>
@@ -992,7 +1056,7 @@ const mobileHtml = `<!DOCTYPE html>
   <main id="view-formulas" class="mobile-view">
     <div style="margin-bottom: 1rem;">
       <h2 style="font-size: 1.3rem; font-weight: 800;">Formula Cheat Sheet</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">53 high-yield exam formulas</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">69 high-yield exam formulas</p>
     </div>
 
     <input type="text" class="search-bar" id="m-formula-search" placeholder="🔍 Search formulas (e.g. Euler, Vieta, Parseval)..." oninput="filterMobileFormulas()">
@@ -1105,6 +1169,13 @@ const APP_STATE = {
   },
   problemTimes: {},
   totalPracticeSeconds: 0,
+  mixedPractice: {
+    active: false,
+    selectedUnits: ["unit-1", "unit-2", "unit-3", "unit-4", "unit-5", "unit-6", "unit-7", "unit-8"],
+    deck: [],
+    lastProblemId: null,
+    lastUnitId: null
+  },
   examMode: {
     active: false,
     timer: null,
@@ -1308,7 +1379,15 @@ function displayProblem(prob) {
 
   startProblemTimer();
 
-  document.getElementById("m-unit-tag").innerText = prob.unitTag || "Unit 1";
+  const mTag = document.getElementById("m-unit-tag");
+  if (mTag) {
+    if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+      mTag.innerText = "🎯 " + (prob.unitTag || prob.unitId);
+    } else {
+      mTag.innerText = prob.unitTag || "Unit 1";
+    }
+  }
+  updateMobileMixedStrip();
   document.getElementById("m-difficulty-badge").innerText = prob.difficulty || "Standard";
   document.getElementById("m-skill-title").innerText = prob.skillName || prob.title;
   document.getElementById("m-question-prompt").innerHTML = prob.prompt;
@@ -1531,7 +1610,12 @@ function showWalkthroughRequested() {
 }
 
 function loadNextProblem() {
-  const prob = getProblemForSkill(APP_STATE.currentSkillId);
+  let prob;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    prob = getNextMixedProblem();
+  } else {
+    prob = getProblemForSkill(APP_STATE.currentSkillId);
+  }
   displayProblem(prob);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1543,13 +1627,17 @@ function skipProblem() {
 function loadSpecificProblem(probId) {
   const base = EXPANDED_QUESTION_BANK.find(q => q.id === probId);
   if (!base) return;
+  APP_STATE.mixedPractice.active = false;
   APP_STATE.currentSkillId = base.skillId;
+  updateMobileMixedStrip();
   switchMobileView('practice');
   displayProblem(formatProblem(base));
 }
 
 /* Skills View Rendering */
 function renderMobileSkills() {
+  renderMobileUnitPills();
+  updateMobileMixedStrip();
   const container = document.getElementById("m-skills-container");
   container.innerHTML = "";
   CURRICULUM.forEach(u => {
@@ -1577,9 +1665,118 @@ function renderMobileSkills() {
 }
 
 function startSkillPractice(skillId) {
+  APP_STATE.mixedPractice.active = false;
   APP_STATE.currentSkillId = skillId;
+  updateMobileMixedStrip();
   switchMobileView('practice');
   displayProblem(getProblemForSkill(skillId));
+}
+
+
+function renderMobileUnitPills() {
+  const container = document.getElementById("m-unit-pills-selector");
+  if (!container) return;
+  container.innerHTML = "";
+  const selected = new Set(APP_STATE.mixedPractice.selectedUnits || []);
+  const countBadge = document.getElementById("m-mixed-units-count-badge");
+  if (countBadge) countBadge.innerText = (APP_STATE.mixedPractice.selectedUnits ? APP_STATE.mixedPractice.selectedUnits.length : 0) + " Units";
+
+  CURRICULUM.forEach(u => {
+    const isSel = selected.has(u.id);
+    const unitNum = u.id.replace('unit-', '');
+    const count = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u.id).length;
+
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "m-unit-pill " + (isSel ? "active" : "");
+    pill.onclick = () => toggleMixedUnit(u.id);
+    pill.innerHTML = (isSel ? "✓" : "+") + " <strong>Unit " + unitNum + "</strong> (" + count + ")";
+    container.appendChild(pill);
+  });
+}
+
+function toggleMixedUnit(unitId) {
+  const list = APP_STATE.mixedPractice.selectedUnits;
+  const idx = list.indexOf(unitId);
+  if (idx === -1) list.push(unitId);
+  else list.splice(idx, 1);
+  list.sort();
+  APP_STATE.mixedPractice.deck = [];
+  try { localStorage.setItem("me_ixl_selected_units", JSON.stringify(list)); } catch (e) {}
+  renderMobileUnitPills();
+  updateMobileMixedStrip();
+}
+
+function selectAllMixedUnits(selectAll) {
+  if (selectAll) APP_STATE.mixedPractice.selectedUnits = CURRICULUM.map(u => u.id);
+  else APP_STATE.mixedPractice.selectedUnits = [];
+  APP_STATE.mixedPractice.deck = [];
+  try { localStorage.setItem("me_ixl_selected_units", JSON.stringify(APP_STATE.mixedPractice.selectedUnits)); } catch (e) {}
+  renderMobileUnitPills();
+  updateMobileMixedStrip();
+}
+
+function launchMixedPractice() {
+  if (!APP_STATE.mixedPractice.selectedUnits || APP_STATE.mixedPractice.selectedUnits.length === 0) {
+    alert("Please select at least one unit to practice!");
+    return;
+  }
+  APP_STATE.mixedPractice.active = true;
+  APP_STATE.mixedPractice.deck = [];
+  updateMobileMixedStrip();
+  switchMobileView('practice');
+  loadNextProblem();
+}
+
+function getNextMixedProblem() {
+  const units = APP_STATE.mixedPractice.selectedUnits;
+  if (!units || units.length === 0) return getProblemForSkill(APP_STATE.currentSkillId);
+
+  if (!APP_STATE.mixedPractice.deck || APP_STATE.mixedPractice.deck.length === 0) {
+    const byUnit = {};
+    units.forEach(u => {
+      byUnit[u] = EXPANDED_QUESTION_BANK.filter(q => q.unitId === u).sort(() => 0.5 - Math.random());
+    });
+    const interleaved = [];
+    let added = true;
+    const unitOrder = [...units].sort(() => 0.5 - Math.random());
+    while (added) {
+      added = false;
+      for (const u of unitOrder) {
+        if (byUnit[u] && byUnit[u].length > 0) {
+          interleaved.push(byUnit[u].pop().id);
+          added = true;
+        }
+      }
+    }
+    if (APP_STATE.mixedPractice.lastProblemId && interleaved[0] === APP_STATE.mixedPractice.lastProblemId && interleaved.length > 1) {
+      const swap = 1 + Math.floor(Math.random() * (interleaved.length - 1));
+      const temp = interleaved[0];
+      interleaved[0] = interleaved[swap];
+      interleaved[swap] = temp;
+    }
+    APP_STATE.mixedPractice.deck = interleaved;
+  }
+
+  const nextId = APP_STATE.mixedPractice.deck.shift();
+  APP_STATE.mixedPractice.lastProblemId = nextId;
+  const raw = EXPANDED_QUESTION_BANK.find(q => q.id === nextId) || EXPANDED_QUESTION_BANK[0];
+  APP_STATE.mixedPractice.lastUnitId = raw.unitId;
+  return formatProblem(raw);
+}
+
+function updateMobileMixedStrip() {
+  const strip = document.getElementById("m-practice-mode-strip");
+  if (!strip) return;
+  if (APP_STATE.mixedPractice && APP_STATE.mixedPractice.active) {
+    strip.style.display = "flex";
+    const uCount = APP_STATE.mixedPractice.selectedUnits.length;
+    const uNums = APP_STATE.mixedPractice.selectedUnits.map(u => u.replace('unit-', '')).join(', ');
+    const title = document.getElementById("m-practice-mode-title");
+    if (title) title.innerText = "🎯 Mixed: Units " + uNums + " (" + uCount + " Units Active)";
+  } else {
+    strip.style.display = "none";
+  }
 }
 
 function startRandomPractice() {
@@ -1616,9 +1813,9 @@ function startMobileExam() {
     selected.push(formatProblem(picked));
   });
 
-  // Pick 3 more distinct questions
+  // Pick remaining distinct questions to reach exactly 10 questions
   const remaining = EXPANDED_QUESTION_BANK.filter(q => !selected.some(s => s.id === q.id));
-  for (let i = 0; i < 3 && remaining.length > 0; i++) {
+  while (selected.length < 10 && remaining.length > 0) {
     const idx = Math.floor(Math.random() * remaining.length);
     selected.push(formatProblem(remaining.splice(idx, 1)[0]));
   }
@@ -1813,22 +2010,34 @@ function finishMobileExam() {
 /* Problem Bank Filtering & Display */
 function filterMobileBank() {
   const query = (document.getElementById("m-bank-search")?.value || "").toLowerCase().trim();
+  const unitFilter = document.getElementById("m-bank-unit-filter")?.value || "ALL";
   const container = document.getElementById("m-bank-container");
   container.innerHTML = "";
 
-  const filtered = EXPANDED_QUESTION_BANK.filter(q => 
-    !query || 
-    q.title.toLowerCase().includes(query) || 
-    q.prompt.toLowerCase().includes(query) ||
-    q.unitId.toLowerCase().includes(query)
-  );
+  const filtered = EXPANDED_QUESTION_BANK.filter(q => {
+    const matchesUnit = (unitFilter === "ALL" || q.unitId === unitFilter);
+    const matchesQuery = !query || 
+      q.title.toLowerCase().includes(query) || 
+      q.prompt.toLowerCase().includes(query) ||
+      q.unitId.toLowerCase().includes(query);
+    return matchesUnit && matchesQuery;
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = '<div class="card" style="text-align: center; color: var(--text-muted); padding: 2rem;">No matching problems found.</div>';
     return;
   }
 
-  filtered.slice(0, 35).forEach(q => {
+  const displayList = (unitFilter !== "ALL" || query) ? filtered : filtered.slice(0, 50);
+
+  if (unitFilter === "ALL" && !query && filtered.length > displayList.length) {
+    const note = document.createElement("div");
+    note.style.cssText = "font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 0.75rem;";
+    note.innerText = "Showing 50 of 118 problems. Select a unit above or search to filter.";
+    container.appendChild(note);
+  }
+
+  displayList.forEach(q => {
     const card = document.createElement("div");
     card.className = "card";
 
@@ -2000,7 +2209,7 @@ function triggerNativeShare() {
   if (navigator.share) {
     navigator.share({
       title: 'ME-IXL: Exam 1 Mastery Mobile App',
-      text: 'Here is the ME-IXL Exam 1 study platform! Includes 85 problems with step-by-step proofs & formula sheet.',
+      text: 'Here is the ME-IXL Exam 1 study platform! Includes 118 problems across 8 units with step-by-step proofs & formula sheet.',
       url: window.location.href
     }).catch(() => {});
   } else {
@@ -2048,12 +2257,22 @@ function loadMobileState() {
       APP_STATE.totalSolved = parsed.totalSolved || 0;
       APP_STATE.streak = parsed.streak || 0;
     }
+
+    const savedUnits = localStorage.getItem("me_ixl_selected_units");
+    if (savedUnits) {
+      try {
+        const u = JSON.parse(savedUnits);
+        if (Array.isArray(u) && u.length > 0) APP_STATE.mixedPractice.selectedUnits = u;
+      } catch (e) {}
+    }
   } catch (e) {}
 }
 
 /* On Load */
 window.addEventListener("DOMContentLoaded", () => {
   loadMobileState();
+  renderMobileUnitPills();
+  updateMobileMixedStrip();
   const initProb = getProblemForSkill("s1_2");
   displayProblem(initProb);
 });

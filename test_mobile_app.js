@@ -106,14 +106,14 @@ console.log("✓ Script compiled and executed in sandbox successfully.");
 // Check question bank
 const bank = sandbox.EXPANDED_QUESTION_BANK;
 console.log("Total problems in mobile bank:", bank.length);
-if (bank.length !== 85) throw new Error(`Expected 85 problems, got ${bank.length}`);
+if (bank.length !== 128) throw new Error(`Expected 128 problems, got ${bank.length}`);
 
 // Check formulas
 const formulas = sandbox.FORMULA_SECTIONS;
 let totalFormulas = 0;
 formulas.forEach(sec => totalFormulas += sec.formulas.length);
 console.log("Total formulas in mobile sheet:", totalFormulas);
-if (totalFormulas !== 53) throw new Error(`Expected 53 formulas, got ${totalFormulas}`);
+if (totalFormulas !== 76) throw new Error(`Expected 76 formulas, got ${totalFormulas}`);
 
 // Test mobile functions
 console.log("\n--- Testing Mobile Action Handlers ---");
@@ -164,6 +164,21 @@ console.log("✓ submitAnswer (correct) executed. Streak:", sandbox.APP_STATE.st
 // Next problem
 sandbox.loadNextProblem();
 console.log("✓ loadNextProblem executed. New problem:", sandbox.APP_STATE.currentProblem.id);
+
+// Test Mobile Mixed Practice
+console.log("\n--- Testing Mobile Mixed Units Practice ---");
+sandbox.selectAllMixedUnits(false);
+sandbox.toggleMixedUnit("unit-2");
+sandbox.toggleMixedUnit("unit-6");
+sandbox.launchMixedPractice();
+if (!sandbox.APP_STATE.mixedPractice.active) throw new Error("Mixed practice should be active");
+console.log("✓ Mobile Mixed Practice launched with units:", sandbox.APP_STATE.mixedPractice.selectedUnits.join(', '));
+sandbox.loadNextProblem();
+const mProb = sandbox.APP_STATE.currentProblem;
+if (!["unit-2", "unit-6"].includes(mProb.unitId)) {
+  throw new Error(`Mobile mixed problem ${mProb.id} is from ${mProb.unitId}, not in selected units!`);
+}
+console.log("✓ Mobile Mixed Problem correctly served from:", mProb.unitId);
 
 // Test Mobile Exam
 console.log("\n--- Testing Mobile Mock Exam ---");
